@@ -164,10 +164,15 @@ class OpenyActivityFinderSolrBackend extends OpenyActivityFinderBackend {
 
   /**
    * {@inheritdoc}
+   * @throws \Exception
    */
   public function doSearchRequest($parameters) {
     $index_id = $this->config->get('index') ? $this->config->get('index') : 'default';
     $index = Index::load($index_id);
+    if (!$index) {
+      $this->loggerChannel->error('Index not found.');
+      throw new \Exception('Index not found.');
+    }
     $query = $index->query();
     $keys = !empty($parameters['keywords']) ? $parameters['keywords'] : '';
     if ($keys) {
