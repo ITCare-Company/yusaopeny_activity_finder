@@ -171,7 +171,7 @@ class OpenyActivityFinderSolrBackend extends OpenyActivityFinderBackend {
     $index = Index::load($index_id);
     if (!$index) {
       $this->loggerChannel->error('Index not found.');
-      throw new \Exception('Index not found.');
+      return FALSE;
     }
     $query = $index->query();
     $keys = !empty($parameters['keywords']) ? $parameters['keywords'] : '';
