@@ -730,7 +730,6 @@ class OpenyActivityFinderSolrBackend extends OpenyActivityFinderBackend {
         ->getStorage('node')
         ->getQuery()
         ->condition('type', 'program_subcategory')
-        ->condition('status', '1')
         ->accessCheck(FALSE)
         ->execute();
       $nids_chunked = array_chunk($nids, 20, TRUE);
