@@ -2,6 +2,8 @@
 
 namespace Drupal\openy_activity_finder\Form;
 
+use Drupal\Component\Utility\DeprecationHelper;
+use Drupal\Core\Utility\Error;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -435,7 +437,7 @@ class SettingsForm extends ConfigFormBase {
       $data = $response->getBody();
     }
     catch (RequestException $e) {
-      watchdog_exception('error', $e, $e->getMessage());
+      DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '10.1.0', fn() => Error::logException(\Drupal::logger('error'), $e, $e->getMessage()), fn() => watchdog_exception('error', $e, $e->getMessage()));
     }
     if ($data) {
       $data = json_decode($data);
