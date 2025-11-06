@@ -2,7 +2,6 @@
 
 namespace Drupal\openy_activity_finder\Form;
 
-use Drupal\Component\Utility\DeprecationHelper;
 use Drupal\Core\Utility\Error;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -11,6 +10,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Url;
 use Drupal\openy_activity_finder\OpenyActivityFinderSolrBackend;
 use Drupal\openy_map\OpenyMapManager;
@@ -66,6 +66,13 @@ class SettingsForm extends ConfigFormBase {
   protected $openyMapManager;
 
   /**
+   * The logger channel.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
+  protected $logger;
+
+  /**
    * SettingsForm constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -80,6 +87,10 @@ class SettingsForm extends ConfigFormBase {
    *   Cache backend.
    * @param \Drupal\Core\Cache\CacheTagsInvalidatorInterface $cacheTagsInvalidator
    *   Cache tags invalidator.
+   * @param \Drupal\openy_map\OpenyMapManager $openyMapManager
+   *   The openy map manager.
+   * @param \Drupal\Core\Logger\LoggerChannelInterface $logger
+   *   The logger channel.
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
@@ -88,7 +99,8 @@ class SettingsForm extends ConfigFormBase {
     Client $http_client,
     CacheBackendInterface $cache,
     CacheTagsInvalidatorInterface $cacheTagsInvalidator,
-    OpenyMapManager $openyMapManager
+    OpenyMapManager $openyMapManager,
+    LoggerChannelInterface $logger
   ) {
     parent::__construct($config_factory);
     $this->moduleHandler = $module_handler;
@@ -97,6 +109,7 @@ class SettingsForm extends ConfigFormBase {
     $this->cache = $cache;
     $this->cacheTagsInvalidator = $cacheTagsInvalidator;
     $this->openyMapManager = $openyMapManager;
+    $this->logger = $logger;
   }
 
   /**
@@ -110,7 +123,8 @@ class SettingsForm extends ConfigFormBase {
       $container->get('http_client'),
       $container->get('cache.render'),
       $container->get('cache_tags.invalidator'),
-      $container->get('openy_map.manager')
+      $container->get('openy_map.manager'),
+      $container->get('logger.factory')->get('openy_activity_finder')
     );
   }
 
@@ -437,7 +451,7 @@ class SettingsForm extends ConfigFormBase {
       $data = $response->getBody();
     }
     catch (RequestException $e) {
-      DeprecationHelper::backwardsCompatibleCall(\Drupal::VERSION, '10.1.0', fn() => Error::logException(\Drupal::logger('error'), $e, $e->getMessage()), fn() => watchdog_exception('error', $e, $e->getMessage()));
+      Error::logException($this->logger, $e, $e->getMessage());
     }
     if ($data) {
       $data = json_decode($data);
