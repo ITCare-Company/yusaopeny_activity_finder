@@ -4,6 +4,7 @@ namespace Drupal\openy_activity_finder\Form;
 
 use Drupal\Core\Utility\Error;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Cache\CacheBackendInterface;
@@ -73,10 +74,19 @@ class SettingsForm extends ConfigFormBase {
   protected $logger;
 
   /**
+   * The typed config manager.
+   *
+   * @var \Drupal\Core\Config\TypedConfigManagerInterface
+   */
+  protected TypedConfigManagerInterface $typedConfigManager;
+
+  /**
    * SettingsForm constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $typedConfigManager
+   *   The typed config manager.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -94,6 +104,7 @@ class SettingsForm extends ConfigFormBase {
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
+    TypedConfigManagerInterface $typedConfigManager,
     ModuleHandlerInterface $module_handler,
     EntityTypeManagerInterface $entity_type_manager,
     Client $http_client,
@@ -102,7 +113,7 @@ class SettingsForm extends ConfigFormBase {
     OpenyMapManager $openyMapManager,
     LoggerChannelInterface $logger
   ) {
-    parent::__construct($config_factory);
+    parent::__construct($config_factory, $typedConfigManager);
     $this->moduleHandler = $module_handler;
     $this->entityTypeManager = $entity_type_manager;
     $this->httpClient = $http_client;
@@ -118,6 +129,7 @@ class SettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('module_handler'),
       $container->get('entity_type.manager'),
       $container->get('http_client'),
