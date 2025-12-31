@@ -64,7 +64,6 @@
             :item="activityDetailsModal.item"
             :cart-items="cartItems"
             :ages="ages"
-            :selected-ages="selectedAges"
             :legacy-mode="legacyMode"
             :disable-spots-available="disableSpotsAvailable"
             :request-more-info="requestMoreInfo"

@@ -27,8 +27,7 @@
               <div class="session-info">
                 <span class="age">
                   <span class="age-label">Age:</span>
-                  <AgeIcon v-if="item.age" :age="parseInt(item.age)" :ages="ages" big/>
-                  <span v-else class="info">
+                  <span class="info">
                     {{ item.item.ages }}
                   </span>
                 </span>
@@ -132,7 +131,6 @@
 <script>
 import Modal from '@/components/modals/Modal.vue'
 import BookmarkFeatureDescription from '@/components/modals/BookmarkFeatureDescription.vue'
-import AgeIcon from '@/components/AgeIcon.vue'
 import AvailableSpots from '@/components/AvailableSpots'
 import BookmarkIcon from '@/components/BookmarkIcon'
 import { Icon } from '@iconify/vue2'
@@ -142,7 +140,6 @@ export default {
   components: {
     Modal,
     BookmarkFeatureDescription,
-    AgeIcon,
     AvailableSpots,
     BookmarkIcon,
     Icon
