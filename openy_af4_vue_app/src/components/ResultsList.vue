@@ -22,12 +22,7 @@
               {{ item.ages }}
             </span>
             <template v-for="age in selectedAges" v-else>
-              <template
-                v-if="
-                  (!item.min_age || parseInt(item.min_age) <= age) &&
-                    (!item.max_age || parseInt(item.max_age) >= age)
-                "
-              >
+              <template v-if="showAgeIcon(item, age)">
                 <AgeIcon :key="age" :age="parseInt(age)" :ages="ages" big />
               </template>
             </template>
@@ -102,12 +97,7 @@
               {{ item.ages }}
             </span>
             <template v-for="age in selectedAges" v-else>
-              <template
-                v-if="
-                  (!item.min_age || parseInt(item.min_age) <= age) &&
-                    (!item.max_age || parseInt(item.max_age) >= age)
-                "
-              >
+              <template v-if="showAgeIcon(item, age)">
                 <AgeIcon :key="age" :age="parseInt(age)" :ages="ages" big />
               </template>
             </template>
@@ -232,6 +222,17 @@ export default {
   methods: {
     showActivityDetailsModal(item) {
       this.$emit('showActivityDetailsModal', item)
+    },
+    showAgeIcon(item, age) {
+      const min = parseInt(item.min_age) || null
+      const max = parseInt(item.max_age) || null
+
+      const max_unlimited = item.max_age === '0'
+
+      const min_valid = !min || min <= age;
+      const max_valid = !max || max_unlimited || max >= age;
+
+      return min_valid && max_valid;
     },
     isBookmarked(nid) {
       let shouldSkip = false

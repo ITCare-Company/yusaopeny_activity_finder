@@ -87,11 +87,8 @@
                   big
                 />
               </div>
-              <div v-for="(age, index) in availableAges" :key="age" class="action">
-                <span v-if="age && !legacyMode" class="age-icons">
-                  <AgeIcon :age="parseInt(age)" :ages="ages" big />
-                </span>
-                <template v-if="buttonsState[index] === 'default'">
+              <div class="action">
+                <template v-if="buttonState === 'default'">
                   <a
                     key="register"
                     role="button"
@@ -99,7 +96,7 @@
                     :class="{ disabled: isRegisterDisabled }"
                     :href="item.link"
                     target="_blank"
-                    @click="register(index)"
+                    @click="register()"
                   >
                     {{ getButtonTitle }}
                   </a>
@@ -109,13 +106,13 @@
                     role="button"
                     class="bookmark"
                     title="Add bookmark"
-                    @click="bookmarkItem(age, index)"
+                    @click="bookmarkItem(age)"
                   >
                     <font-awesome-icon icon="bookmark" />
                   </a>
                   <a
                     v-else-if="!legacyMode"
-                    key="bookmark"
+                    key="unbookmark"
                     role="button"
                     class="bookmark bookmarked"
                     title="Remove bookmark"
@@ -124,12 +121,12 @@
                     <font-awesome-icon icon="bookmark" />
                   </a>
                 </template>
-                <template v-else-if="buttonsState[index] === 'sentToRegister'">
+                <template v-else-if="buttonState === 'sentToRegister'">
                   <a
                     key="reset"
                     role="button"
                     class="btn btn-lg action-taken"
-                    @click="resetAction(index)"
+                    @click="resetAction()"
                   >
                     <span>{{ 'Sent to register' | t }}</span>
                     <i class="fa fa-redo fa-repeat"></i>
@@ -140,13 +137,13 @@
                     role="button"
                     class="bookmark"
                     title="Add bookmark"
-                    @click="bookmarkItem(age, index)"
+                    @click="bookmarkItem(age)"
                   >
                     <font-awesome-icon icon="bookmark" />
                   </a>
                   <a
                     v-else-if="!legacyMode"
-                    key="bookmark"
+                    key="unbookmark"
                     role="button"
                     class="bookmark bookmarked"
                     title="Remove bookmark"
@@ -155,12 +152,12 @@
                     <font-awesome-icon icon="bookmark" />
                   </a>
                 </template>
-                <template v-else-if="buttonsState[index] === 'itemBookmarked'">
+                <template v-else-if="buttonState === 'itemBookmarked'">
                   <a
                     key="reset"
                     role="button"
                     class="btn btn-lg action-taken"
-                    @click="resetAction(index)"
+                    @click="resetAction()"
                   >
                     <span>{{ 'Item bookmarked' | t }}</span>
                     <i class="fa fa-times-circle fa-times-circle-o"></i>
@@ -178,7 +175,6 @@
 <script>
 import client from '@/client/index.js'
 import Modal from '@/components/modals/Modal.vue'
-import AgeIcon from '@/components/AgeIcon.vue'
 import AvailableSpots from '@/components/AvailableSpots'
 import Loading from '@/components/Loading.vue'
 import { Icon } from '@iconify/vue2'
@@ -187,7 +183,6 @@ export default {
   name: 'ActivityDetailsModal',
   components: {
     Modal,
-    AgeIcon,
     AvailableSpots,
     Loading,
     Icon
@@ -209,10 +204,6 @@ export default {
       type: Array,
       required: true
     },
-    selectedAges: {
-      type: Array,
-      required: true
-    },
     legacyMode: {
       type: Boolean,
       required: true
@@ -229,26 +220,12 @@ export default {
   data() {
     return {
       visible: this.value,
-      buttonsState: {},
+      buttonState: 'default',
       // Flag to show if the data request is in progress.
       isLoadingData: false
     }
   },
   computed: {
-    availableAges() {
-      if (this.legacyMode) {
-        return [null]
-      }
-
-      const availableAges = this.selectedAges.filter(age => {
-        return (
-          (!this.item.min_age || parseInt(this.item.min_age) <= parseInt(age)) &&
-          (!this.item.max_age || parseInt(this.item.max_age) >= parseInt(age))
-        )
-      })
-
-      return availableAges.length ? availableAges : [null]
-    },
     getButtonTitle() {
       let title = this.t('Register')
       // parseInt('') -> NaN
@@ -272,13 +249,7 @@ export default {
       this.$emit('input', this.visible)
       if (this.visible) {
         this.loadData()
-        this.buttonsState = {}
-        this.availableAges.forEach((age, index) => {
-          this.buttonsState = {
-            ...this.buttonsState,
-            ...{ [index]: 'default' }
-          }
-        })
+        this.buttonState = 'default'
       }
     }
   },
@@ -297,19 +268,12 @@ export default {
 
       return bookmarked
     },
-    register(index) {
-      this.buttonsState = {
-        ...this.buttonsState,
-        ...{ [index]: 'sentToRegister' }
-      }
+    register() {
+      this.buttonState = 'sentToRegister'
       this.trackEvent('register', 'Click in activity details', this.item.product_id)
     },
-    bookmarkItem(age, index) {
-      this.buttonsState = {
-        ...this.buttonsState,
-        // TODO: itemBookmarked state is not used.
-        ...{ [index]: 'default' }
-      }
+    bookmarkItem(age) {
+      this.buttonState = 'default'
       this.trackEvent('bookmark', 'Click in activity details', this.item.product_id)
       this.$emit('bookmark', age)
     },
@@ -317,11 +281,8 @@ export default {
       this.trackEvent('unbookmark', 'Click in activity details', this.item.product_id)
       this.$emit('unbookmark', age)
     },
-    resetAction(index) {
-      this.buttonsState = {
-        ...this.buttonsState,
-        ...{ [index]: 'default' }
-      }
+    resetAction() {
+      this.buttonState = 'default'
     },
     loadData() {
       if (!this.requestMoreInfo) {
