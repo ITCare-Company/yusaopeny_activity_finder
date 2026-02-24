@@ -71,7 +71,7 @@ class WeekdaysPartsOfDay extends ProcessorPluginBase implements ContainerFactory
   /**
    * {@inheritdoc}
    */
-  public function getPropertyDefinitions(DatasourceInterface $datasource = NULL) {
+  public function getPropertyDefinitions(?DatasourceInterface $datasource = NULL) {
     $properties = [];
 
     if (!$datasource) {

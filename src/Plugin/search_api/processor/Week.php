@@ -84,7 +84,7 @@ class Week extends ProcessorPluginBase implements ContainerFactoryPluginInterfac
   /**
    * {@inheritdoc}
    */
-  public function getPropertyDefinitions(DatasourceInterface $datasource = NULL) {
+  public function getPropertyDefinitions(?DatasourceInterface $datasource = NULL) {
     $properties = [];
 
     if (!$datasource) {

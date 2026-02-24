@@ -83,23 +83,23 @@ class ActivityFinderController extends ControllerBase {
     $hash_ip_agent = substr($user_agent, 0, 50) . '   ' . $ip;
     $record = [
       'hash_ip_agent' => $hash_ip_agent,
-      'ages' => $request->get('ages'),
-      'days' => $request->get('days'),
-      'times' => $request->get('times'),
-      'daystimes' => $request->get('daystimes'),
-      'weeks' => $request->get('weeks'),
-      'locations' => $request->get('locations'),
-      'categories' => $request->get('categories'),
-      'page' => $request->get('page'),
-      'sort' => $request->get('sort'),
-      'keywords' => $request->get('keywords'),
-      'limit' => $request->get('limit'),
-      'exclude' => $request->get('exclude'),
-      'limitloc' => $request->get('limitloc'),
-      'excludeloc' => $request->get('excludeloc'),
-      'in_membership' => $request->get('in_membership'),
-      'durations' => $request->get('durations'),
-      'start_months' => $request->get('start_months'),
+      'ages' => $request->query->get('ages'),
+      'days' => $request->query->get('days'),
+      'times' => $request->query->get('times'),
+      'daystimes' => $request->query->get('daystimes'),
+      'weeks' => $request->query->get('weeks'),
+      'locations' => $request->query->get('locations'),
+      'categories' => $request->query->get('categories'),
+      'page' => $request->query->get('page'),
+      'sort' => $request->query->get('sort'),
+      'keywords' => $request->query->get('keywords'),
+      'limit' => $request->query->get('limit'),
+      'exclude' => $request->query->get('exclude'),
+      'limitloc' => $request->query->get('limitloc'),
+      'excludeloc' => $request->query->get('excludeloc'),
+      'in_membership' => $request->query->get('in_membership'),
+      'durations' => $request->query->get('durations'),
+      'start_months' => $request->query->get('start_months'),
     ];
     $record['hash'] = md5(json_encode($record));
 
@@ -155,8 +155,8 @@ class ActivityFinderController extends ControllerBase {
    * Redirect to register.
    */
   public function redirectToRegister(Request $request, $log) {
-    $details = $request->get('details');
-    $url = $request->get('url');
+    $details = $request->query->get('details');
+    $url = $request->query->get('url');
 
     if (empty($url)) {
       throw new NotFoundHttpException();
