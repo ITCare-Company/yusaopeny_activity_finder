@@ -122,7 +122,7 @@ class OpenyActivityFinderSolrBackend extends OpenyActivityFinderBackend {
     }
     catch (\Exception $e) {
       $this->loggerChannel->error($e->getMessage());
-      return [];
+      return ['error' => t('Activity Finder is not available now.')];
     }
 
     // Get results count.

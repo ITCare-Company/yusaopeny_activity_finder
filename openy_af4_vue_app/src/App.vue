@@ -1,5 +1,9 @@
 <template>
   <div id="activity-finder-app">
+    <div v-if="data.error" class="activity-finder-error alert alert-warning" role="alert">
+      {{ data.error }}
+    </div>
+    <template v-else>
     <WizardBar
       v-if="wizardSteps.includes(step)"
       :ages="ages"
@@ -240,6 +244,7 @@
         />
       </template>
     </Results>
+    </template>
   </div>
 </template>
 
