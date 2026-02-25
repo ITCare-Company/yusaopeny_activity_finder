@@ -73,7 +73,7 @@ class StartMonth extends ProcessorPluginBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public function getPropertyDefinitions(DatasourceInterface $datasource = NULL) {
+  public function getPropertyDefinitions(?DatasourceInterface $datasource = NULL) {
     $properties = [];
 
     if (!$datasource) {
