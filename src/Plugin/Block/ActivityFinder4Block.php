@@ -10,7 +10,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\openy_activity_finder\OpenyActivityFinderSolrBackend;
-use Drupal\openy_system\EntityBrowserFormTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -23,8 +22,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginInterface {
-
-  use EntityBrowserFormTrait;
 
   /**
    * Config Factory definition.
@@ -108,12 +105,20 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
 
     $image_mobile = '';
     $image_desktop = '';
-    /** @var \Drupal\media\MediaInterface $media */
-    if (!empty($conf['background_image']) && $media = static::loadEntityBrowserEntity($conf['background_image'])) {
-      $image = $media->field_media_image->entity;
-      $storage = $this->entityTypeManager->getStorage('image_style');
-      $image_mobile = $storage->load('prgf_banner')->buildUrl($image->getFileUri());
-      $image_desktop = $storage->load('prgf_gallery')->buildUrl($image->getFileUri());
+    if (!empty($conf['background_image'])) {
+      $media_id = $conf['background_image'];
+      // Backward compat: entity_browser stored "media:123", media_library stores "123".
+      if (is_string($media_id) && str_contains($media_id, ':')) {
+        [, $media_id] = explode(':', $media_id, 2);
+      }
+      /** @var \Drupal\media\MediaInterface|null $media */
+      $media = $this->entityTypeManager->getStorage('media')->load($media_id);
+      if ($media && $media->hasField('field_media_image') && !$media->get('field_media_image')->isEmpty()) {
+        $image = $media->field_media_image->entity;
+        $storage = $this->entityTypeManager->getStorage('image_style');
+        $image_mobile = $storage->load('prgf_banner')->buildUrl($image->getFileUri());
+        $image_desktop = $storage->load('prgf_gallery')->buildUrl($image->getFileUri());
+      }
     }
 
     $limit_by_category = $conf['limit_by_category'];
@@ -406,17 +411,13 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
       '#default_value' => $conf['skip_wizard'],
     ];
 
-    // Entity Browser element for background image.
-    $form['background_image'] = $this->getEntityBrowserForm(
-      'images_library',
-      $conf['background_image'],
-      1,
-      'thumbnail_for_preview'
-    );
-    // Convert the wrapping container to a details element.
-    $form['background_image']['#type'] = 'details';
-    $form['background_image']['#title'] = $this->t('Background image');
-    $form['background_image']['#open'] = TRUE;
+    $form['background_image'] = [
+      '#type' => 'media_library',
+      '#allowed_bundles' => ['image'],
+      '#title' => $this->t('Background image'),
+      '#default_value' => !empty($conf['background_image']) ? $conf['background_image'] : NULL,
+      '#cardinality' => 1,
+    ];
 
     return $form;
   }
@@ -447,7 +448,7 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
     $this->configuration['in_memberships_filter'] = $additional_filters['in_memberships_filter'];
     $this->configuration['hide_home_branch_block'] = $form_state->getValue('hide_home_branch_block');
     $this->configuration['skip_wizard'] = $form_state->getValue('skip_wizard');
-    $this->configuration['background_image'] = $this->getEntityBrowserValue($form_state, 'background_image');
+    $this->configuration['background_image'] = $form_state->getValue('background_image');
   }
 
   /**
