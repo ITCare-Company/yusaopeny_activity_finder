@@ -105,12 +105,8 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
 
     $image_mobile = '';
     $image_desktop = '';
-    if (!empty($conf['background_image'])) {
-      $media_id = $conf['background_image'];
-      // Backward compat: entity_browser stored "media:123", media_library stores "123".
-      if (is_string($media_id) && str_contains($media_id, ':')) {
-        [, $media_id] = explode(':', $media_id, 2);
-      }
+    $media_id = $conf['background_image'] ?? NULL;
+    if ($media_id) {
       /** @var \Drupal\media\MediaInterface|null $media */
       $media = $this->entityTypeManager->getStorage('media')->load($media_id);
       if ($media && $media->hasField('field_media_image') && !$media->get('field_media_image')->isEmpty()) {
@@ -415,7 +411,7 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
       '#type' => 'media_library',
       '#allowed_bundles' => ['image'],
       '#title' => $this->t('Background image'),
-      '#default_value' => !empty($conf['background_image']) ? $conf['background_image'] : NULL,
+      '#default_value' => $conf['background_image'] ?? NULL,
       '#cardinality' => 1,
     ];
 

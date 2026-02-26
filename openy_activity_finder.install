@@ -293,3 +293,77 @@ function openy_activity_finder_update_9002() {
 function openy_activity_finder_update_9004() {
   _af_config_import();
 }
+
+/**
+ * Migrate Activity Finder background_image from entity_browser to media_library format.
+ *
+ * entity_browser stored values as "media:123" (entity_type:entity_id).
+ * media_library stores just the integer ID "123".
+ * Without migration the block edit form shows empty image selection and
+ * re-saving the block would silently lose the background image.
+ */
+function openy_activity_finder_update_9005() {
+  $tables = [
+    'paragraph__field_prgf_block',
+    'paragraph_revision__field_prgf_block',
+    'block_content__field_block',
+    'block_content_revision__field_block',
+  ];
+  $database = \Drupal::database();
+  $count = 0;
+
+  foreach ($tables as $table) {
+    $count += _openy_activity_finder_migrate_background_image_table($database, $table);
+  }
+
+  return t('Migrated @count Activity Finder block(s) background_image from entity_browser to media_library format.', ['@count' => $count]);
+}
+
+/**
+ * Migrates background_image values in a single entity field table.
+ */
+function _openy_activity_finder_migrate_background_image_table($database, string $table): int {
+  if (!$database->schema()->tableExists($table)) {
+    return 0;
+  }
+
+  $field_name = preg_replace('/^(paragraph|block_content)(_revision)?__/', '', $table);
+  $id_col = $field_name . '_plugin_id';
+  $config_col = $field_name . '_plugin_configuration';
+
+  $rows = $database->select($table, 't')
+    ->fields('t', ['entity_id', 'revision_id', 'delta', $config_col])
+    ->condition($id_col, 'activity_finder_4')
+    ->execute()
+    ->fetchAll();
+
+  $count = 0;
+  foreach ($rows as $row) {
+    $count += _openy_activity_finder_migrate_background_image_row($database, $table, $config_col, $row);
+  }
+  return $count;
+}
+
+/**
+ * Migrates a single row if its background_image is in legacy format.
+ */
+function _openy_activity_finder_migrate_background_image_row($database, string $table, string $config_col, $row): int {
+  $config = unserialize($row->{$config_col});
+  $value = $config['background_image'] ?? NULL;
+
+  if (empty($value) || !is_string($value) || !str_contains($value, ':')) {
+    return 0;
+  }
+
+  [, $media_id] = explode(':', $value, 2);
+  $config['background_image'] = is_numeric($media_id) ? (int) $media_id : NULL;
+
+  $database->update($table)
+    ->fields([$config_col => serialize($config)])
+    ->condition('entity_id', $row->entity_id)
+    ->condition('revision_id', $row->revision_id)
+    ->condition('delta', $row->delta)
+    ->execute();
+
+  return 1;
+}
