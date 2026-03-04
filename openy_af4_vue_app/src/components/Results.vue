@@ -63,7 +63,6 @@
             v-model="activityDetailsModal.visible"
             :item="activityDetailsModal.item"
             :cart-items="cartItems"
-            :ages="ages"
             :legacy-mode="legacyMode"
             :disable-spots-available="disableSpotsAvailable"
             :request-more-info="requestMoreInfo"
@@ -74,7 +73,6 @@
             v-if="!legacyMode"
             v-model="bookmarkedItemsModal.visible"
             :cart-items="cartItems"
-            :ages="ages"
             :disable-spots-available="disableSpotsAvailable"
             @removeItem="removeItem($event)"
             @removeItems="removeItems"
@@ -173,23 +171,14 @@ export default {
       this.activityDetailsModal.item = item
       this.activityDetailsModal.visible = true
     },
-    handleActivityDetailsBookmark(age) {
-      if (age) {
-        this.$emit('addItem', {
-          item: this.activityDetailsModal.item,
-          age: age
-        })
-      } else {
-        this.$emit('addItem', {
-          item: this.activityDetailsModal.item,
-          age: null
-        })
-      }
+    handleActivityDetailsBookmark() {
+      this.$emit('addItem', {
+        item: this.activityDetailsModal.item,
+      })
     },
-    handleActivityDetailsUnbookmark(age) {
+    handleActivityDetailsUnbookmark() {
       this.cartItems.forEach((cartItem, index) => {
         if (
-          cartItem.age === age &&
           cartItem.item.product_id === this.activityDetailsModal.item.product_id &&
           cartItem.item.nid === this.activityDetailsModal.item.nid
         ) {
