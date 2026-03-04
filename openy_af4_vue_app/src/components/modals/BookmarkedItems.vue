@@ -153,10 +153,6 @@ export default {
       type: Array,
       required: true
     },
-    ages: {
-      type: Array,
-      required: true
-    },
     disableSpotsAvailable: {
       type: Boolean,
       required: true

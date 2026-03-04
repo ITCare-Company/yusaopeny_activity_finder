@@ -101,12 +101,12 @@
                     {{ getButtonTitle }}
                   </a>
                   <a
-                    v-if="!isBookmarked(age) && !legacyMode"
+                    v-if="!isBookmarked() && !legacyMode"
                     key="bookmark"
                     role="button"
                     class="bookmark"
                     title="Add bookmark"
-                    @click="bookmarkItem(age)"
+                    @click="bookmarkItem()"
                   >
                     <font-awesome-icon icon="bookmark" />
                   </a>
@@ -116,7 +116,7 @@
                     role="button"
                     class="bookmark bookmarked"
                     title="Remove bookmark"
-                    @click="unbookmarkItem(age)"
+                    @click="unbookmarkItem()"
                   >
                     <font-awesome-icon icon="bookmark" />
                   </a>
@@ -132,12 +132,12 @@
                     <i class="fa fa-redo fa-repeat"></i>
                   </a>
                   <a
-                    v-if="!isBookmarked(age) && !legacyMode"
+                    v-if="!isBookmarked() && !legacyMode"
                     key="bookmark"
                     role="button"
                     class="bookmark"
                     title="Add bookmark"
-                    @click="bookmarkItem(age)"
+                    @click="bookmarkItem()"
                   >
                     <font-awesome-icon icon="bookmark" />
                   </a>
@@ -147,7 +147,7 @@
                     role="button"
                     class="bookmark bookmarked"
                     title="Remove bookmark"
-                    @click="unbookmarkItem(age)"
+                    @click="unbookmarkItem()"
                   >
                     <font-awesome-icon icon="bookmark" />
                   </a>
@@ -197,10 +197,6 @@ export default {
       required: true
     },
     cartItems: {
-      type: Array,
-      required: true
-    },
-    ages: {
       type: Array,
       required: true
     },
@@ -254,11 +250,10 @@ export default {
     }
   },
   methods: {
-    isBookmarked(age) {
+    isBookmarked() {
       let bookmarked = false
       this.cartItems.forEach(item => {
         if (
-          item.age === age &&
           item.item.product_id === this.item.product_id &&
           item.item.nid === this.item.nid
         ) {
@@ -272,14 +267,14 @@ export default {
       this.buttonState = 'sentToRegister'
       this.trackEvent('register', 'Click in activity details', this.item.product_id)
     },
-    bookmarkItem(age) {
+    bookmarkItem() {
       this.buttonState = 'default'
       this.trackEvent('bookmark', 'Click in activity details', this.item.product_id)
-      this.$emit('bookmark', age)
+      this.$emit('bookmark')
     },
-    unbookmarkItem(age) {
+    unbookmarkItem() {
       this.trackEvent('unbookmark', 'Click in activity details', this.item.product_id)
-      this.$emit('unbookmark', age)
+      this.$emit('unbookmark')
     },
     resetAction() {
       this.buttonState = 'default'
