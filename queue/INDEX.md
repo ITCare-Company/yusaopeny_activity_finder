@@ -9,13 +9,14 @@ Keep order by wave, then phase.
 ## Reference environments
 
 > Lera's extension — pin the live URLs the reviewer (Ira) compares against.
-> Fill the AF4 demo URL once a site is nominated in W0-P1.
+> Fill the AF4 sandbox URL once stood up in W0-P1 (backend = Mock/DB, no Solr).
 
 | Env | URL | Role |
 |---|---|---|
-| AF4 live (Vue 2, "before") | _(nominate in W0-P1)_ | baseline source for golden screenshots |
+| AF4 sandbox (Vue 2, "before") | _(stand up in W0-P1, backend Mock/DB)_ | primary baseline source for golden screenshots |
+| AF4 real site (Vue 2, upgrade) | _(nominate in W0-P1b)_ | upgrade-path baseline for W7 |
 | AF4 dev harness | `openy_af4_vue_app` `npm run dev` + local mount | iterate during W3–W5 |
-| AF4 migrated (Vue 3, "after") | _(same site, post-W7 build)_ | W6 parity target |
+| AF4 migrated (Vue 3, "after") | _(same sandbox, post-W7 build)_ | W6 parity target |
 | Vue 3 Migration Guide | https://v3-migration.vuejs.org/ | breaking-change canon |
 
 ---
@@ -25,8 +26,20 @@ Keep order by wave, then phase.
 | Phase | Status | Path |
 |---|---|---|
 | P0 Drupal consumer contract inventory | pending | [`W0-baseline-contract/P0-drupal-contract/README.md`](W0-baseline-contract/P0-drupal-contract/README.md) |
-| P1 Behavioral baseline (golden screenshots) | pending | [`W0-baseline-contract/P1-behavioral-baseline/README.md`](W0-baseline-contract/P1-behavioral-baseline/README.md) |
+| P1 Behavioral baseline — sandbox golden screenshots | pending | [`W0-baseline-contract/P1-behavioral-baseline/README.md`](W0-baseline-contract/P1-behavioral-baseline/README.md) |
+| P1b Real-site upgrade-path baseline | pending | [`W0-baseline-contract/P1b-realsite-upgrade/README.md`](W0-baseline-contract/P1b-realsite-upgrade/README.md) |
 | P2 Breaking-change surface audit | pending | [`W0-baseline-contract/P2-breaking-surface-audit/README.md`](W0-baseline-contract/P2-breaking-surface-audit/README.md) |
+
+## W0b — Backend plugin system & local-dev harness (gates W0-P1; unblocks migration)
+
+| Phase | Status | Path |
+|---|---|---|
+| P0 Backend plugin type + block selector | pending | [`W0b-backend-harness/P0-plugin-manager/README.md`](W0b-backend-harness/P0-plugin-manager/README.md) |
+| P1 Extract Solr behind the plugin (default) | pending | [`W0b-backend-harness/P1-solr-plugin/README.md`](W0b-backend-harness/P1-solr-plugin/README.md) |
+| P2 Mock backend (fixtures, no Solr) — unblocks migration | pending | [`W0b-backend-harness/P2-mock-plugin/README.md`](W0b-backend-harness/P2-mock-plugin/README.md) |
+| P3 DB backend (entity query, no Solr) | pending | [`W0b-backend-harness/P3-db-plugin/README.md`](W0b-backend-harness/P3-db-plugin/README.md) |
+| P4 Seed demo content | pending | [`W0b-backend-harness/P4-demo-content/README.md`](W0b-backend-harness/P4-demo-content/README.md) |
+| P5 Legacy-config fallback (deferred — Lera→Vlad) | pending | [`W0b-backend-harness/P5-legacy-config-fallback/README.md`](W0b-backend-harness/P5-legacy-config-fallback/README.md) |
 
 ## W1 — Decisions (gates W2–W5)
 
@@ -72,6 +85,7 @@ Keep order by wave, then phase.
 | P3 slots / legacy syntax sweep | pending | [`W5-vue3-api-rewrites/P3-slots-sweep/README.md`](W5-vue3-api-rewrites/P3-slots-sweep/README.md) |
 | P4 FontAwesome v3 + Iconify swap | pending | [`W5-vue3-api-rewrites/P4-fontawesome-iconify/README.md`](W5-vue3-api-rewrites/P4-fontawesome-iconify/README.md) |
 | P5 eslint-plugin-vue 9 + prettier bump | pending | [`W5-vue3-api-rewrites/P5-lint-prettier/README.md`](W5-vue3-api-rewrites/P5-lint-prettier/README.md) |
+| P6 axios → native fetch | pending | [`W5-vue3-api-rewrites/P6-axios-fetch/README.md`](W5-vue3-api-rewrites/P6-axios-fetch/README.md) |
 
 ## W6 — QA visual + functional (Ira)
 
@@ -106,6 +120,7 @@ Keep order by wave, then phase.
 | Wave | README | DECISIONS |
 |---|---|---|
 | W0 | [`W0-baseline-contract/README.md`](W0-baseline-contract/README.md) | [`DECISIONS.md`](W0-baseline-contract/DECISIONS.md) |
+| W0b | [`W0b-backend-harness/README.md`](W0b-backend-harness/README.md) | [`DECISIONS.md`](W0b-backend-harness/DECISIONS.md) |
 | W1 | [`W1-decisions/README.md`](W1-decisions/README.md) | [`DECISIONS.md`](W1-decisions/DECISIONS.md) |
 | W2 | [`W2-toolchain-migration/README.md`](W2-toolchain-migration/README.md) | (single-phase wave) |
 | W3 | [`W3-vue3-core-swap/README.md`](W3-vue3-core-swap/README.md) | [`DECISIONS.md`](W3-vue3-core-swap/DECISIONS.md) |

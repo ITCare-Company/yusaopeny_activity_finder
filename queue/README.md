@@ -56,10 +56,21 @@ Audited on the `6.x` branch of the fork — exact counts feed the phases:
 | Iconify | `@iconify/vue2` | → `@iconify/vue` |
 | Build tool | `@vue/cli-service ^4`, `vue-template-compiler ^2` | → vue-cli 5 or Vite + `@vue/compiler-sfc` (W1 decision) |
 | Slots | `v-slot` / scoped slots in **17** components | syntax mostly compatible; audit for `slot=`/`slot-scope=` legacy |
+| HTTP client | `axios` — **1** file (`src/client/index.js`, one `axios.create`), external via `openy_system/axios` | replace with native `fetch` (W5-P6) — drop the dep + external |
 | Components | **44** `.vue` files | per-component emits/v-model review |
 
 **Not present in AF4** (confirms smaller scope than AF3/CF): no global
 `EventBus`, no `$on`/`$off`, no `.sync`, no `$listeners`/`$children`/`$attrs`.
+
+**PHP backend (separate concern, W0b).** AF4's data backend is resolved by a
+**global config service-id** (`openy_activity_finder.settings.backend` →
+`\Drupal::service(...)`; the `openy_activity_finder.solr_backend` Solr service
+by default, a Daxko service when that module is enabled) — no per-block choice,
+no plugin discovery. W0b makes it a **plugin type** with selectable backends —
+Solr, **Mock** (no infra), **DB** (no Solr) — chosen in the block config form,
+with a fallback to the existing global setting so non-Solr sites are not
+flipped (W0b-P5). The Mock backend is what lets the migration run and be
+developed **without standing up Solr**.
 
 ---
 
@@ -67,8 +78,9 @@ Audited on the `6.x` branch of the fork — exact counts feed the phases:
 
 | Wave | Summary | Spec |
 |---|---|---|
-| **W0-baseline-contract** | Freeze the "before": Drupal integration contract, behavioral baseline (golden screenshots → Ira's parity checklist), exact breaking-change surface audit. Gates everything. | [`W0-baseline-contract/`](W0-baseline-contract/) |
-| W1-decisions | Lock the three open choices: build tool (vue-cli 5 vs Vite), BootstrapVue replacement, Vue-3 ecosystem versions. Output = `DECISIONS.md`. | [`W1-decisions/`](W1-decisions/) |
+| **W0-baseline-contract** | Freeze the "before": Drupal integration contract, behavioral baseline (sandbox golden screenshots **and** a real-site upgrade baseline → Ira's parity checklist), exact breaking-change surface audit. Gates everything. | [`W0-baseline-contract/`](W0-baseline-contract/) |
+| **W0b-backend-harness** | Make the data backend **pluggable** (Drupal plugin type + per-block selector): extract Solr behind a plugin, add a **Mock** backend (fixtures, no Solr) and a **DB** backend (no Solr), seed demo content. **Mock unblocks running/developing the migration without Solr.** PHP-only, runs on Vue 2. Gates W0-P1. | [`W0b-backend-harness/`](W0b-backend-harness/) |
+| W1-decisions | Lock the open choices: build tool (vue-cli 5 vs Vite), BootstrapVue replacement, Vue-3 ecosystem versions, **Vue runtime delivery (bundle vs externalize)**. Output = `DECISIONS.md`. | [`W1-decisions/`](W1-decisions/) |
 | W2-toolchain-migration | Migrate the build tool **while still on Vue 2**. De-risk toolchain before the core swap. Identical dist contract. | [`W2-toolchain-migration/`](W2-toolchain-migration/) |
 | W3-vue3-core-swap | `vue` 2→3, `vue-router` 3→4, `createApp`, compiler swap, global API. App boots. | [`W3-vue3-core-swap/`](W3-vue3-core-swap/) |
 | W4-bootstrap-vue-migration | Replace BootstrapVue per-file (the 7 consumers). One phase per file/cluster. | [`W4-bootstrap-vue-migration/`](W4-bootstrap-vue-migration/) |
@@ -77,11 +89,14 @@ Audited on the `6.x` branch of the fork — exact counts feed the phases:
 | W7-drupal-integration-ship | Production build, verify UMD global + `.css` + `libraries.yml` contract, drush smoke on a real Open Y site, open PR. | [`W7-drupal-integration-ship/`](W7-drupal-integration-ship/) |
 | W8-retro-upstream | **After all done.** Harvest lessons, PR them into the shared migration anatomy, subtree-import this queue as a PKB entry, back-reference + close ITCR-1273. Fulfils the anatomy-upstream-PR obligation. | [`W8-retro-upstream/`](W8-retro-upstream/) |
 
-**Gating.** W0 blocks all (no migration without a frozen baseline). W1 blocks
-W2–W5 (toolchain/dep choices). W2 blocks W3 (build green before core swap).
-W3 blocks W4–W5. W4+W5 block W6 (nothing to QA until code migrated). W6
-blocks W7 (do not ship un-QA'd output). W7 blocks W8 (only retro a shipped
-migration). W8 returns lessons to
+**Gating.** W0-P0 (contract) lands first. **W0b** (backend plugins + Mock +
+demo content) gates **W0-P1** — no reproducible baseline without a runnable
+backend, and **the migration W1+ cannot start until the Mock backend lets AF4
+run without Solr**. W0 blocks all (no migration without a frozen baseline). W1
+blocks W2–W5 (toolchain/dep/runtime choices). W2 blocks W3 (build green before
+core swap). W3 blocks W4–W5. W4+W5 block W6 (nothing to QA until code
+migrated). W6 blocks W7 (do not ship un-QA'd output). W7 blocks W8 (only retro
+a shipped migration). W8 returns lessons to
 [`template_for_agents` migration anatomy](https://github.com/ITCare-Company/template_for_agents/blob/main/process-knowledge-base/MIGRATION-QUEUE-ANATOMY.md).
 
 ## Conventions

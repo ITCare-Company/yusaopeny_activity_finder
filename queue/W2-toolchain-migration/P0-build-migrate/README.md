@@ -23,11 +23,17 @@ contract.
 2. Port the build config: UMD lib target, single global `activity_finder_4`,
    CSS extracted to `dist/activity_finder_4.css`, global SCSS variables
    injected into every component.
-3. Keep the `build` / `dev` / `lint` script names (`openy_af4_vue_app.md`
+3. **Carry over the externals map** exactly (`vue-router`, `axios`,
+   `bootstrap-vue`) so the Vue 2 dist contract is unchanged here. **Record**
+   that library mode **auto-externalizes `vue`** — this is the hook W3 (or
+   W1-D4 "bundle") flips to bundle Vue 3. Do not change externalization in this
+   phase (still Vue 2); just make the override point explicit in config + the
+   `## Result`.
+4. Keep the `build` / `dev` / `lint` script names (`openy_af4_vue_app.md`
    documents them).
-4. `npm run build`. Confirm the two `dist/` artifacts are produced with the
+5. `npm run build`. Confirm the two `dist/` artifacts are produced with the
    same filenames and the UMD exposes the same global.
-5. Diff the new bundle against the committed `dist/` at the **contract** level
+6. Diff the new bundle against the committed `dist/` at the **contract** level
    (global name, CSS classes present, mount behaviour) — not byte-equality
    (minifier output will differ). Note material differences.
 

@@ -117,6 +117,53 @@ phase needs explicit owner approval at three points:
   `context: 'Activity Finder'` argument must be preserved exactly when filters
   become methods (W5-P0). A dropped context string is a translation
   regression.
+- **Vue runtime delivery is a decision, not a default drop (W1-D4).** Do **not**
+  remove `openy_system/vue` / `openy_system/vue-router` from `libraries.yml`
+  speculatively. If the build **bundles** Vue 3 (recommended), those deps stay
+  inert and `libraries.yml` is untouched; the only work is overriding the
+  build's auto-external so `vue` is bundled. `libraries.yml` changes **only** if
+  the team chooses to **externalize** to a new `openy_system/vue3` — i.e. when
+  there is actually something to externalize. (MIGRATION-REFERENCE §7A.)
+
+## Backend plugin rules (W0b)
+
+- **Default stays Solr.** The extracted Solr backend keeps plugin id `solr` and
+  is the block-config default. A block with no stored `backend_plugin` resolves
+  to Solr → existing sites stay byte-identical.
+- **Use Drupal plugin discovery, not a hand-rolled reader.** Attribute
+  `#[ActivityFinderBackend(...)]` + `DefaultPluginManager`. The backend
+  *contract* (`OpenyActivityFinderBackendInterface`) is plain PHP and
+  CMS-agnostic; only discovery is Drupal's.
+- **No new search semantics.** Mock and DB implement the existing interface
+  faithfully — same result/facet/pager shape, no invented fields (per
+  `feedback_no_fabricated_behavior`).
+- **W0b is PHP-only, on Vue 2.** It touches no `openy_af4_vue_app/src` Vue code
+  and does not change the consumer contract (block id, library, mount).
+
+## Semantic markup (why automated tests are deferred)
+
+- The current AF4 markup is **non-semantic**: clickable `<div>`/`<span>` with
+  `@click` (e.g. `steps/SelectPath.vue`, `FoldableInput.vue`), **zero
+  `tabindex`**, uneven `role`/`aria`. Meaningful keyboard / a11y / DOM
+  automated tests are **not writable** against it.
+- The semantic-markup fix happens **during** the Vue 3 migration (part of the
+  per-component rewrite), so **automated tests are future work, after the
+  migration** — out of scope for this queue. **QA through W6 is manual (Ira).**
+  Do not add a phase promising automated AF4 tests before the markup is fixed.
+
+## Drupal compatibility policy
+
+- **Drupal 11 — required.** Every change (W0b backend plugins, PHP, config,
+  `core_version_requirement`) must work on Drupal 11. CI / smoke (W7) run on D11.
+- **Drupal 10 — optional (best-effort).** Keep it working where cheap, but D10
+  never blocks a D11-correct change. Attribute discovery is native only on
+  D10.2+, so the W0b plugin manager keeps an **annotation fallback** only as a
+  D10 best-effort (W0b `DECISIONS.md` D9) — not a D11 requirement.
+- **Everything else — unsupported.** No D9 or earlier; no PHP versions outside
+  the D11 supported range. Do not add compat shims for unsupported cores.
+- Current module declares `core_version_requirement: ^10 || ^11`
+  (`openy_activity_finder.info.yml`). Treat `^11` as the support target and
+  `^10` as best-effort; do not widen the constraint below `^10`.
 
 ## Backwards compatibility
 
