@@ -93,3 +93,17 @@ key, the Mock-vs-DB ordering rationale, and the legacy-config fallback handoff (
 - Rewriting the search algorithm. Each plugin faithfully implements the
   existing `OpenyActivityFinderBackendInterface`; no new search semantics.
 - AF3 / Camp Finder backends.
+
+## Deferred / backlog
+
+- **Plugin-driven limit/exclude selectors.** The block's `limit_by_category`,
+  `exclude_by_category`, `limit_by_location`, `exclude_by_location` are
+  `entity_autocomplete` on real nodes, so they only line up with backends that
+  use Drupal node ids (Solr, DB). For Mock — whose whole point is running with
+  **no Solr/PEF and no real content** — the configured node ids need not exist,
+  so these restrictions can't be expressed. Extend the selectors to be
+  **plugin-driven**: options come from the selected backend(s) (each plugin
+  advertises its filterable categories/locations), so limit/exclude work per
+  backend including Mock. Small, separable task — do later. Until then Mock
+  honours limit/exclude only where its fixture ids happen to match the stored
+  node ids (i.e. on the site the fixtures were captured from).
