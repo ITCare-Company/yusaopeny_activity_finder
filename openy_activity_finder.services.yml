@@ -1,4 +1,11 @@
 services:
+  plugin.manager.activity_finder_backend:
+    class: Drupal\openy_activity_finder\ActivityFinderBackendManager
+    parent: default_plugin_manager
+  openy_activity_finder.backend_aggregator:
+    class: Drupal\openy_activity_finder\ActivityFinderBackendAggregator
+    arguments:
+      - '@plugin.manager.activity_finder_backend'
   openy_activity_finder.solr_backend:
     class: Drupal\openy_activity_finder\OpenyActivityFinderSolrBackend
     arguments:

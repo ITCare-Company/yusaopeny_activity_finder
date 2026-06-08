@@ -298,6 +298,10 @@ export default {
       type: String,
       required: true
     },
+    backend: {
+      type: Array,
+      default: () => []
+    },
     label: {
       type: String,
       required: true
@@ -577,7 +581,8 @@ export default {
         limitloc: this.limitByLocation.join(','),
         excludeloc: this.excludeByLocation.join(','),
         durations: this.selectedDurations.join(','),
-        start_months: this.selectedStartMonths.join(',')
+        start_months: this.selectedStartMonths.join(','),
+        backend: this.backend
       }
 
       if (this.selectedInMemberships) {
@@ -950,7 +955,8 @@ export default {
           params: {
             locations: this.homeBranchId,
             limit: this.searchParams.limit,
-            exclude: this.searchParams.exclude
+            exclude: this.searchParams.exclude,
+            backend: this.backend
           }
         })
         .then(response => {
