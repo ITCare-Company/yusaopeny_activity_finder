@@ -31,40 +31,52 @@ the main module's default **Mock** backend is enough — you do **not** need Sol
    ddev drush en openy_activity_finder_solr -y
    ```
 
-2. **Point Activity Finder at Solr.** Either set the global default at
-   `/admin/openy/settings/activity-finder` (Backend → Solr), or override
-   per-block in the AF4 block form. Existing sites are switched automatically by
-   the main module's `hook_update_N`.
-
-3. **Create / refresh the Solr core** for the `search_api.server.solr` connector
-   (core `dev` by default). With the `ddev/ddev-drupal-solr` add-on:
+2. **Point the `solr` server at your core.** The shipped
+   `search_api.server.solr` config ships the generic `collection1`/empty
+   connector; set it to your environment's core. With the `ddev/ddev-drupal-solr`
+   add-on (core `dev`):
 
    ```sh
-   ddev drush search-api-solr:get-server-config solr /tmp/sc.zip
-   # copy the generated conf into the core and (re)create it, then:
-   ddev drush search-api:server-status solr   # must be available
+   ddev drush php:eval '$c=\Drupal::configFactory()->getEditable("search_api.server.solr");$b=$c->get("backend_config");$b["connector_config"]["core"]="dev";$b["connector_config"]["host"]="solr";$b["connector_config"]["port"]=8983;$b["connector_config"]["solr_install_dir"]="/opt/solr";$c->set("backend_config",$b)->save();'
+   ddev drush cr
+   ddev drush php:eval '$s=\Drupal\search_api\Entity\Server::load("solr"); var_dump($s->getBackend()->isAvailable());'  # must be TRUE
    ```
 
-   > **Remote DDEV (docker on a remote host) gotcha.** The host `.ddev/solr`
-   > mount does not reach the remote container, so editing it does nothing.
-   > Generate the config to an **absolute** path, `docker cp` the zip out, unzip,
-   > `docker cp` the conf into the solr container and `bin/solr create -c dev -d
-   > <conf>`. See the workspace CLAUDE.md "SOLR SETUP" / "Solr-config gotcha".
+   The core itself (schema `drupal-*-solr-8.x`) is created by the add-on. On
+   **remote DDEV** the host `.ddev/solr` mount does not reach the remote
+   container — generate the config to an **absolute** path, `docker cp` the zip
+   out, unzip, `docker cp` the conf into the solr container and `bin/solr create
+   -c dev -d <conf>`. See the workspace CLAUDE.md "SOLR SETUP" / "Solr-config
+   gotcha".
+
+3. **Select the Solr backend.** Set the global default at
+   `/admin/openy/settings/activity-finder` (Backend → Solr) or override per-block
+   in the AF4 block form. Existing sites are switched automatically by the main
+   module's `hook_update_N`.
 
 ## Demo content (sessions)
 
 Solr returns nothing without session content. Seed the Open Y demo sessions:
 
 ```sh
-ddev drush en openy_demo_nsessions -y
+# GOTCHA: on a fresh small_y, `pm:enable openy_demo_nsessions` fails (exit 1) —
+# openy_demo_ncamp pulls config openy_demo_node_camp_news, which needs
+# openy_node_news. Enable openy_node_news FIRST, on its own, then nsessions:
+ddev drush pm:enable openy_node_news -y
+ddev drush pm:enable openy_demo_nsessions -y
+
+# Migrate the demo sessions (35 nodes). If a prior run left a stale lock
+# ("migration ... is busy"), reset it first:
+ddev drush migrate:reset-status openy_demo_node_branch
 ddev drush migrate:import openy_demo_node_session_01 --execute-dependencies -y
-ddev drush search-api:index
+
+ddev drush search-api:index default -y
 ```
 
-Then verify:
+Then verify (count > 0):
 
 ```sh
-ddev exec "curl -s 'http://localhost/af/get-data?backend%5B%5D=solr'"   # count > 0
+ddev exec "curl -s 'http://localhost/af/get-data?backend%5B%5D=solr'"
 ```
 
 ## Notes
