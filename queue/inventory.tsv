@@ -1,0 +1,45 @@
+seq	wave	phase	epic	status	commit_or_pr	blocked_by	preview_path	baseline	verified	note
+01	W0-baseline-contract	P0-drupal-contract	af4-drupal-consumer-contract	pending		—	openy_activity_finder.libraries.yml	—	—	freeze UMD global + mount id
+02	W0-baseline-contract	P1-behavioral-baseline	af4-golden-screenshots	pending		01,39,41	#activity-finder (sandbox AF4, backend mock/db)	—	—	seeds Ira QA checklist (INDEX progress table); needs W0b backend + content
+03	W0-baseline-contract	P2-breaking-surface-audit	af4-vue3-breaking-audit	pending		01	src/main.js,src/router,7 bootstrap-vue files	—	—	confirm MIGRATION-REFERENCE counts
+04	W1-decisions	P0-build-tool	decide-vue-cli5-vs-vite	pending		03	—	—	—	keep UMD lib target
+05	W1-decisions	P1-bootstrap-vue-replacement	decide-bootstrapvue-replacement	pending		03	—	—	—	smallest surface, preserve markup
+06	W1-decisions	P2-ecosystem-version-lock	lock-vue3-dep-versions	pending		03	—	—	—	vue3 / router4 / fa3 / iconify
+07	W2-toolchain-migration	P0-build-migrate	migrate-build-keep-vue2	pending		04	openy_af4_vue_app/dist	—	—	identical dist contract, still Vue 2
+08	W3-vue3-core-swap	P0-deps-compiler-createapp	vue3-deps-createapp	pending		07	src/main.js	—	—	createApp + compiler-sfc
+09	W3-vue3-core-swap	P1-router4	vue-router-3-to-4	pending		08	src/router/index.js	—	—	routes empty — confirm router still needed
+10	W3-vue3-core-swap	P2-global-api	global-api-to-app	pending		08	src/main.js	—	—	Vue.use/component/config/mixin
+11	W3-vue3-core-swap	P3-boot-smoke	vue3-boot-smoke	pending		09,10	#activity-finder	—	—	app mounts, no white screen
+12	W4-bootstrap-vue-migration	P0-modal	replace-bv-modal	pending		05,11	src/components/modals/Modal.vue	—	—	core shell; modals depend on it
+13	W4-bootstrap-vue-migration	P1-fieldset	replace-bv-fieldset	pending		12	src/components/Fieldset.vue	—	—	
+14	W4-bootstrap-vue-migration	P2-foldable	replace-bv-foldable	pending		12	src/components/Foldable.vue,FoldableInput.vue	—	—	
+15	W4-bootstrap-vue-migration	P3-ages	replace-bv-ages	pending		12	src/components/filters/Ages.vue,steps/SelectAges.vue	—	—	
+16	W4-bootstrap-vue-migration	P4-resultsbar	replace-bv-resultsbar	pending		12	src/components/ResultsBar.vue	—	—	
+17	W4-bootstrap-vue-migration	P5-remove-global	remove-bootstrapvue-global	pending		13,14,15,16	src/main.js	—	—	prune dep + dead-CSS reconcile
+18	W5-vue3-api-rewrites	P0-filters-removal	remove-template-filters	pending		11	src (~103 pipe usages)	—	—	t/formatPlural/capitalize → methods; i18n parity
+19	W5-vue3-api-rewrites	P1-global-mixin	mixin-to-global-props	pending		18	src/main.js	—	—	t/formatPlural/trackEvent/isIosMobile/getCookie
+20	W5-vue3-api-rewrites	P2-emits-vmodel	emits-vmodel-audit	pending		11	src (44 components)	—	—	declare emits, v-model arg rename
+21	W5-vue3-api-rewrites	P3-slots-sweep	legacy-slots-sweep	pending		11	src (17 slot consumers)	—	—	kill any slot=/slot-scope=
+22	W5-vue3-api-rewrites	P4-fontawesome-iconify	fa3-iconify-swap	pending		11	src/main.js,components/BookmarkIcon.vue	—	—	fa-vue ^2→^3, @iconify/vue2→@iconify/vue
+23	W5-vue3-api-rewrites	P5-lint-prettier	eslint-vue9-prettier	pending		18,19,20,21,22	.eslintrc.js,package.json	—	—	green npm run lint
+24	W6-qa-visual-functional	P0-entry-selectpath	qa-entry-selectpath	pending		17,23	App,SelectPath,WizardBar,Step	—	—	diff vs W0-P1 baseline
+25	W6-qa-visual-functional	P1-wizard-steps	qa-wizard-steps	pending		17,23	steps/Select*	—	—	7 step screens
+26	W6-qa-visual-functional	P2-results	qa-results	pending		17,23	Results,ResultsList,ResultsBar,AvailableSpots,NoResults,Loading	—	—	
+27	W6-qa-visual-functional	P3-modals	qa-modals	pending		17,23	modals/*	—	—	6 modals; depends on W4-P0
+28	W6-qa-visual-functional	P4-filters	qa-filters	pending		17,23	filters/*	—	—	16 filter components
+29	W6-qa-visual-functional	P5-responsive	qa-three-viewport	pending		24,25,26,27,28	all screens @1920/1024/468	—	—	desktop/tablet/mobile parity
+30	W7-drupal-integration-ship	P0-prod-build-contract	prod-build-verify-contract	pending		29	openy_af4_vue_app/dist	—	—	UMD global + css + libraries.yml intact
+31	W7-drupal-integration-ship	P1-drush-smoke	live-drush-smoke	pending		30	#activity-finder on live site	—	—	ddev drush cr + load AF4 page
+32	W7-drupal-integration-ship	P2-pr	open-pr-to-fork	pending		31	—	—	—	PR into 6.x
+33	W8-retro-upstream	P0-lessons-harvest	af4-migration-lessons	pending		32	queue W*/DECISIONS.md	—	—	tag universal vs AF4-specific
+34	W8-retro-upstream	P1-upstream-anatomy-pr	enrich-migration-anatomy	pending		33	template_for_agents PKB	—	—	PR per anatomy-upstream rule
+35	W8-retro-upstream	P2-subtree-import-pkb	import-queue-to-pkb	pending		33	process-knowledge-base/	—	—	git subtree add + register indexes
+36	W8-retro-upstream	P3-backreference-close	close-itcr-1273	pending		34,35	ITCR-1273	—	—	methodology back-ref + close loop
+37	W0b-backend-harness	P0-plugin-manager	af4-backend-plugin-type	pending		01	src/Plugin/ActivityFinderBackend,ActivityFinder4Block	—	—	drupal plugin manager + block backend selector; default solr
+38	W0b-backend-harness	P1-solr-plugin	extract-solr-backend	pending		37	src/OpenyActivityFinderSolrBackend.php	—	—	id=solr, default, no behaviour change
+39	W0b-backend-harness	P2-mock-plugin	mock-backend-fixtures	pending		37	src/Plugin/ActivityFinderBackend/MockBackend.php	—	—	no Solr; unblocks migration W1+; not auto-tests
+40	W0b-backend-harness	P3-db-plugin	db-backend-no-solr	pending		37,41	src/Plugin/ActivityFinderBackend/DatabaseBackend.php	—	—	entity query, no Solr; real content
+41	W0b-backend-harness	P4-demo-content	seed-demo-content	pending		01	migrate openy_demo_node_session	—	—	for solr/db backends + sandbox baseline
+44	W0b-backend-harness	P5-legacy-config-fallback	legacy-global-backend-fallback	pending		37	src/Plugin/Block/ActivityFinder4Block.php	—	—	deferred; Lera→Vlad; no silent solr flip
+42	W0-baseline-contract	P1b-realsite-upgrade	af4-realsite-upgrade-baseline	pending		02	#activity-finder (real site)	—	—	upgrade-path baseline for W7
+43	W5-vue3-api-rewrites	P6-axios-fetch	axios-to-fetch	pending		11	src/client/index.js	—	—	drop axios dep + external; native fetch
