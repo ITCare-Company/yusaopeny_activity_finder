@@ -48,7 +48,7 @@ re-litigate mid-stream.
   `OpenyActivityFinderBackendInterface` faithfully. Mock returns fixture data
   shaped like Solr results; DB reproduces the same result contract via entity
   queries. No backend invents filters, sorts, or fields the interface does not
-  already define.
+  already define. The exact shape is the **response schema** in **D10**.
 
 ## D6 — Daxko backend: skip (module not enabled)
 
@@ -82,4 +82,42 @@ re-litigate mid-stream.
 
 - **Decision:** The backend plugin type must natively support Attribute-based discovery (`#[ActivityFinderBackend(...)]`). If backwards compatibility with older Drupal core versions (under 10.2) is required, the plugin manager should provide an annotation discovery fallback.
 - **Why:** The module's `core_version_requirement` is `^10 || ^11`. Attribute discovery was introduced in Drupal 10.2, so older 10.x installations lack native attribute discovery.
+
+## D10 — Documented backend **response** schema + `externals` field (in the response)
+
+- **Decision:** Formalize the **output contract** every backend plugin returns.
+  Today the response shape is **implicit** (whatever the Solr backend happens to
+  produce). W0b documents it explicitly and makes it the contract Mock/DB must
+  satisfy. The canonical `runProgramSearch` response is: `count`, `facets`,
+  `pager`, `pager_info`, `table`, `groupedLocations`, `sort`, `error` (failure
+  only) — full field table in **MIGRATION-REFERENCE §10 → "Backend response
+  schema"**, measured from `OpenyActivityFinderSolrBackend`.
+- **`externals` is a field in the RESPONSE** (not block config): an **open
+  key-value map** a backend adds to its returned data for **backend-specific**
+  values that do not fit the shared schema (e.g. Daxko-only fields). Common
+  consumers ignore it; bespoke consumers read it.
+- **Why:** with a plugin system — and a block that may run **more than one**
+  backend — the Vue app and any aggregation need a **single uniform shape**
+  across backends. `externals` absorbs per-backend differences so nobody adds
+  divergent top-level keys (which would break aggregation and the consumer
+  contract). The shared schema stays stable; extension happens in `externals`.
+- **W0b-P1** records the exact shape from Solr (the reference); **P2/P3** must
+  emit it, putting any extras only under `externals`.
+
+## D11 — Multiple backends per block + aggregation (locked-pending)
+
+- **Decision (shape):** the design must allow a block to run **one or more**
+  backends. Each returns the **D10** response schema; per-backend extras go in
+  `externals`. A single-backend block is the default (back-compatible).
+- **Decision (aggregation): LOCKED-PENDING — owner (Vlad) to choose.** How N
+  backend responses combine into one is **not yet locked**. Candidate rules:
+  (a) concat by weight + dedup by entity id, facets/pager from the primary
+  (first by weight); (b) full merge of results + facets + pager; (c) primary +
+  fallback (no aggregation, switch on empty/down). Default leaning is **(a)** as
+  the simplest predictable v1; do **not** implement merge logic until this is
+  locked. Until then, ship the **uniform response schema + `externals`** (D10),
+  which every option needs.
+- **Why split:** the response schema (D10) is needed regardless and unblocks the
+  plugins; the aggregation rule is a product decision with real complexity
+  (cross-backend facet normalization, global pagination) and is separable.
 
