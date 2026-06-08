@@ -121,3 +121,58 @@ re-litigate mid-stream.
   plugins; the aggregation rule is a product decision with real complexity
   (cross-backend facet normalization, global pagination) and is separable.
 
+## Redesign update — owner decisions (implemented in commit 5df646c)
+
+The owner reshaped the backend design while building it. The following
+supersede the decisions above; cite this section, not the originals.
+
+### D2/D3 superseded — default is **mock**, selection is a **list**
+
+- Default backend is **`mock`**, not `solr`. New installs run AF4 with no Solr.
+- The per-block key `backend_plugin` holds a **list** of plugin ids (checkboxes
+  in `ActivityFinder4Block::blockForm`), primary first — a block may run one or
+  more backends (D11).
+- Existing sites must therefore be migrated to keep Solr (their blocks have no
+  stored `backend_plugin` and would resolve to the mock default) — see
+  "existing-site migration" task; this is the D7/P5 work, still deferred.
+
+### D10 superseded — `runProgramSearch` is **decomposed** in the contract
+
+- `OpenyActivityFinderBackendInterface` no longer declares `runProgramSearch()`.
+  Each plugin implements **`getResultsCount(params)`**, **`getFacets(params)`**
+  (cheap, rows-free) and **`getResults(params, offset, limit, log_id)`** (a
+  slice). The `runProgramSearch` **response shape** is unchanged and is now
+  assembled in `ActivityFinderBackendAggregator`. JSON Schema:
+  `fixtures/schema/runProgramSearch.schema.json`.
+- `OpenyActivityFinderBackend` no longer implements the interface; the `solr`
+  plugin wraps the `OpenyActivityFinderSolrBackend` service.
+
+### D11 locked — aggregation = **count-offset routing** (not concat)
+
+- count = sum of per-backend `getResultsCount`; facets = merged per filter
+  (counts summed); results = the global page is **routed** across backends using
+  their counts so only the needed slice is fetched (no full-set reads, no silent
+  fallback). The earlier concat/"primary facets" option was rejected (broke
+  pagination).
+
+### Backend id transport — per-block via the template, validated against the registry
+
+- The block forwards its selected ids to the JS through the twig `:backend`
+  prop (per-block, so several AF blocks on one page stay distinct — **not** a
+  global `drupalSettings`). The JS sends them back as a `backend[]` query; the
+  controller keeps only ids present in `getDefinitions()` and the aggregator
+  returns an explicit error when none resolve. No silent default substitution.
+
+### New — Solr moves to a submodule
+
+- `OpenyActivityFinderSolrBackend` + the `solr` plugin + the `search_api_solr`
+  dependency move to `openy_activity_finder_solr`, so the main module does not
+  depend on Solr. (Task pending.)
+
+### RULES exception — W0b touched the Vue app
+
+- W0b is "PHP-only" in RULES, but forwarding the per-block backend required a
+  minimal `openy_af4_vue_app/src` change (App.vue `backend` prop + the twig
+  prop) and a `dist/` rebuild. This is a deliberate, scoped exception recorded
+  here.
+
