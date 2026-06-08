@@ -191,13 +191,19 @@ Not a Vue change — runs on the current Vue 2 app, lands before the migration.
   `\Drupal::service($settings->get('backend'))` (`openy_activity_finder.settings.backend`,
   Solr by default). No per-block choice, no plugin discovery. Consumers
   (`ActivityFinderController`, `ActivityFinder4Block`) resolve that service-id.
-- **Target:** a **Drupal plugin type** `ActivityFinderBackend` (manager +
-  attribute discovery + base) with plugins `solr` (extracted, default), `mock`
-  (fixtures, no Solr), `db` (entity query, no Solr). Backend chosen in the
-  **block config form**; default `solr` keeps existing sites unchanged. A
-  block with no per-block value falls back to the **global `settings.backend`**
-  so non-Solr sites are not silently flipped (W0b-P5). Daxko is handled only
-  when its module is enabled — currently skipped.
+- **Shipped (PR #4):** a **Drupal plugin type** `ActivityFinderBackend` (manager
+  + attribute/annotation + base) serving **all three apps** (AF4/AF3/CF) via the
+  `plugin.manager.activity_finder_backend` **factory**. Plugins: `mock` (fixtures,
+  no Solr — **the default**) in the main module, `solr` in the
+  **`openy_activity_finder_solr` submodule** (main module is Solr-free). Backend
+  chosen in the **block config form**; a block with no per-block value
+  **inherits the global `settings.backend`**. Search is **decomposed** into
+  `getResultsCount` / `getFacets` / `getResults(offset,limit)` and assembled once
+  in `ActivityFinderBackendAggregator` (count summed, facets merged, page routed
+  across backends; each row stamped with a `backend` provenance field).
+  `hook_update_9006` maps the legacy service id → `solr` plugin + enables the
+  submodule. DB backend and the full legacy-config mapping are deferred; Daxko
+  must ship its own plugin.
 - **Why it gates the migration:** the **Mock** backend lets AF4 run without a
   Solr stack, so the Vue 2 → Vue 3 work (and W0-P1 baseline) can proceed on any
   box. Detail in [`W0b-backend-harness/`](W0b-backend-harness/).

@@ -58,6 +58,12 @@ byte-identical to the pre-plugin Solr backend; no consumer contract change.
 
 ## Result
 
-(to be filled when phase ships)
-
-Solr backend behind plugin id `solr`; default preserved; no behaviour drift.
+Shipped (PR #4). Solr behind plugin id `solr`, wrapping the existing
+`OpenyActivityFinderSolrBackend` (no behaviour drift). The granular contract
+(`getResultsCount`/`getFacets`/`getResults`) maps onto Solr `doSearchRequest`
+(count-only query for cheap count/facets; offset/limit slice for results). The
+plugin, the Solr impl, the 8 search_api processors and the Solr config were then
+**extracted to the `openy_activity_finder_solr` submodule** — the main module no
+longer contains or depends on Solr. Response shape recorded in
+MIGRATION-REFERENCE §10; Solr response validated against
+`fixtures/schema/runProgramSearch.schema.json`.

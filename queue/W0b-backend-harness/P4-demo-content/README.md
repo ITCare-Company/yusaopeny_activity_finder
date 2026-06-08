@@ -48,6 +48,10 @@ Owner approves. Demo content seeded; Solr indexed (if used) or DB query-ready;
 
 ## Result
 
-(to be filled when phase ships)
-
-Demo content seeded; backends have data; baseline content set recorded.
+Shipped (PR #4). Two demo pages: the **Layout Builder** demo
+(`lb_activity_finder_demo` migration → `landing_page_lb` with the AF4 block,
+backend **mock**) and the existing **paragraph** demo (backend **solr**, depends
+on the Solr submodule). The Solr demo-session recipe (enable `openy_node_news`
+first, then `openy_demo_nsessions`; `migrate:import openy_demo_node_session_01`;
+index) is documented in the Solr submodule README. Verified on a fresh `small_y`:
+mock and solr both return count 31.

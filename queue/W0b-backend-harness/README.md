@@ -66,12 +66,12 @@ no per-block choice and no plugin discovery.
 
 | Phase | Goal | Status |
 |---|---|---|
-| P0 plugin-manager | Define the `ActivityFinderBackend` plugin type (manager + attribute/annotation + base) and the block-config selector. Solr stays default. | pending |
-| P1 solr-plugin | Move the existing Solr backend behind the new plugin (no behaviour change; default plugin id). | pending |
-| P2 mock-plugin | Mock backend plugin — static fixtures, **zero Solr/DB**. Unblocks local dev + the migration (W1+). **Not** auto-tests (markup blocks those until after migration). | pending |
-| P3 db-plugin | DB backend plugin — entity/database query, **no Solr** (real content). | pending |
-| P4 demo-content | Seed demo content (`migrate:import openy_demo_node_session …`) so Solr/DB backends and the sandbox baseline have data. | pending |
-| P5 legacy-config fallback | Per-block backend resolves from the **existing global `settings.backend`** when no `backend_plugin` is stored — so a site running a non-Solr global backend is not silently flipped to Solr. **Complex; deferred — likely Lera → Vlad handoff.** | pending |
+| P0 plugin-manager | Define the `ActivityFinderBackend` plugin type (manager + attribute/annotation + base) and the block-config selector. | **shipped** (PR #4) — manager/attribute/annotation/base + per-block checkboxes selector (block + paragraph + LB); backend forwarded to JS via twig `:backend` prop + `backend[]` query (D8). |
+| P1 solr-plugin | Move the existing Solr backend behind the new plugin. | **shipped** (PR #4) — `solr` plugin; later extracted to the `openy_activity_finder_solr` **submodule** with its config + processors; main module Solr-free. |
+| P2 mock-plugin | Mock backend plugin — static fixtures, **zero Solr/DB**. | **shipped** (PR #4) — fixtures captured from live Solr + JSON schema (`fixtures/schema/`); in-memory filtering (incl limit/exclude); **default backend**. Validated against the schema. |
+| P3 db-plugin | DB backend plugin — entity/database query, **no Solr** (real content). | **not built** — deferred; Mock covers the no-Solr need. |
+| P4 demo-content | Seed demo content so backends have data. | **shipped** (PR #4) — LB demo page migration (Mock) + paragraph demo (Solr); Solr demo-session recipe documented in the submodule README. |
+| P5 legacy-config fallback | Per-block backend resolves from the **existing global `settings.backend`** when no `backend_plugin` is stored. | partially covered — a block with no per-block value **inherits the global default**; full legacy service-id→plugin-id mapping + `hook_update` stamping still deferred (Lera → Vlad). `hook_update_9006` maps the global setting + enables the submodule. |
 
 See [`DECISIONS.md`](DECISIONS.md) for the plugin-id scheme, the config storage
 key, the Mock-vs-DB ordering rationale, and the legacy-config fallback handoff (P5).
