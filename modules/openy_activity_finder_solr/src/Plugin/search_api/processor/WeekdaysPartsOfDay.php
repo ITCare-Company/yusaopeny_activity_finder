@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\openy_activity_finder\Plugin\search_api\processor;
+namespace Drupal\openy_activity_finder_solr\Plugin\search_api\processor;
 
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Datetime\DrupalDateTime;
@@ -12,28 +12,20 @@ use Drupal\search_api\Processor\ProcessorProperty;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Adds the parts of day to the indexed data.
+ * Adds the weekdays and parts of day to the indexed data.
  *
  * @SearchApiProcessor(
- *   id = "openy_af_parts_of_day",
- *   label = @Translation("Parts of day"),
- *   description = @Translation("Translates datetime values of session to an index of day's part"),
- *   stages = {
+ *   id = "openy_af_weekdays_parts_of_day",
+ *   label = @Translation("Weekdays and Parts of day"),
+ *   description = @Translation("Translates days and datetime values of session
+ *   to an index of weekdays and parts of day"), stages = {
  *     "add_properties" = 0,
  *   },
  *   locked = false,
  *   hidden = false,
  * )
  */
-class PartsOfDay extends ProcessorPluginBase implements ContainerFactoryPluginInterface {
-
-  const PROPERTY_NAME = 'search_api_af_parts_of_day';
-
-  const MORNING = 1;
-
-  const AFTERNOON = 2;
-
-  const EVENING = 3;
+class WeekdaysPartsOfDay extends ProcessorPluginBase implements ContainerFactoryPluginInterface {
 
   /**
    * Config Factory definition.
@@ -55,10 +47,9 @@ class PartsOfDay extends ProcessorPluginBase implements ContainerFactoryPluginIn
    *   The Config Factory.
    */
   public function __construct(array $configuration,
-    $plugin_id,
-    $plugin_definition,
-    ConfigFactory $config_factory
-  ) {
+                              $plugin_id,
+                              $plugin_definition,
+                              ConfigFactory $config_factory) {
     $this->configFactory = $config_factory;
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
@@ -75,6 +66,8 @@ class PartsOfDay extends ProcessorPluginBase implements ContainerFactoryPluginIn
     );
   }
 
+  const PROPERTY_NAME = 'search_api_af_weekdays_parts_of_day';
+
   /**
    * {@inheritdoc}
    */
@@ -83,8 +76,8 @@ class PartsOfDay extends ProcessorPluginBase implements ContainerFactoryPluginIn
 
     if (!$datasource) {
       $definition = [
-        'label' => $this->t('Parts of day'),
-        'description' => $this->t("Translates datetime values of session to an index of day's part"),
+        'label' => $this->t('Weekdays and Parts of day'),
+        'description' => $this->t("Translates days and datetime values of session to an index of weekdays and parts of day"),
         'type' => 'string',
         'processor_id' => $this->getPluginId(),
         'is_list' => TRUE,
@@ -110,12 +103,45 @@ class PartsOfDay extends ProcessorPluginBase implements ContainerFactoryPluginIn
       return;
     }
 
-    $timezone = $this->getSystemTimezone();
+    $activity_finder_settings = $this->configFactory->get('openy_activity_finder.settings');
+    $backend_service_id = $activity_finder_settings->get('backend');
+    $backend = \Drupal::service('plugin.manager.activity_finder_backend')->createInstance($backend_service_id);
+    $weekdays = $backend->getDaysOfWeek();
+
+    $timezone = new \DateTimeZone(\Drupal::config('system.date')->get('timezone')['default']);
     $time12pm = strtotime('12:00:00Z');
     $time5pm = strtotime('17:00:00Z');
 
+    $day_values = [];
+    $time_values = [];
     $values = [];
     foreach ($paragraphs as $paragraph) {
+      /** @var \Drupal\Core\Field\FieldItemListInterface $days */
+      $days = $paragraph->field_session_time_days;
+      if ($days->isEmpty()) {
+        continue;
+      }
+
+      /** @var \Drupal\options\Plugin\Field\FieldType\ListItemBase $day */
+      $daylist = [];
+      foreach ($days as $day) {
+        if ($day) {
+          $daylist[] = $day->getValue()['value'];
+        }
+      }
+
+      // Convert weekday names into numerical values.
+      foreach ($weekdays as $weekday) {
+        if (in_array($weekday['search_value'], $daylist)) {
+          $day_values[] = $weekday['value'];
+        }
+      }
+
+      // Add values for any time in the found days.
+      foreach ($day_values as $day_value) {
+        $values[] = $day_value . 0;
+      }
+
       /** @var \Drupal\Core\Field\FieldItemListInterface $range */
       $range = $paragraph->field_session_time_date;
       if ($range->isEmpty()) {
@@ -133,15 +159,22 @@ class PartsOfDay extends ProcessorPluginBase implements ContainerFactoryPluginIn
       $_from_time = strtotime($_from->format('H:i:s') . 'Z');
       $_to_time = strtotime($_to->format('H:i:s') . 'Z');
       if ($_from_time < $time12pm) {
-        $values[] = self::MORNING;
+        $time_values[] = 1;
       }
-      if ($_from_time <= $time5pm && $_to_time >= $time12pm) {
-        $values[] = self::AFTERNOON;
+      if ($_from_time < $time5pm && $_to_time >= $time12pm) {
+        $time_values[] = 2;
       }
       if ($_to_time > $time5pm) {
-        $values[] = self::EVENING;
+        $time_values[] = 3;
+      }
+
+      foreach ($day_values as $day_value) {
+        foreach ($time_values as $time_value) {
+          $values[] = $day_value . $time_value;
+        }
       }
     }
+
     $values = array_unique($values, SORT_NUMERIC);
     $fields = $this->getFieldsHelper()
       ->filterForPropertyPath($item->getFields(), NULL, self::PROPERTY_NAME);
@@ -150,18 +183,6 @@ class PartsOfDay extends ProcessorPluginBase implements ContainerFactoryPluginIn
         $field->addValue($value);
       }
     }
-  }
-
-  /**
-   * Get the system timezone from the site config.
-   *
-   * @return \DateTimeZone
-   * @throws \Exception
-   */
-  private function getSystemTimezone(): \DateTimeZone {
-    return
-      new \DateTimeZone($this->configFactory->get('system.date')
-        ->get('timezone')['default']);
   }
 
 }

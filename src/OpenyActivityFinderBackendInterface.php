@@ -14,6 +14,16 @@ namespace Drupal\openy_activity_finder;
 interface OpenyActivityFinderBackendInterface {
 
   /**
+   * Number of results per page.
+   */
+  const RESULTS_PER_PAGE = 25;
+
+  /**
+   * Cache tag invalidated when Activity Finder content changes.
+   */
+  const CACHE_TAG = 'openy_activity_finder:default';
+
+  /**
    * Count matching results for the given search parameters.
    *
    * @param array $parameters
@@ -115,6 +125,11 @@ interface OpenyActivityFinderBackendInterface {
    * Get the activity categories tree.
    */
   public function getCategories();
+
+  /**
+   * Get the top-level activity categories (programs).
+   */
+  public function getCategoriesTopLevel();
 
   /**
    * Get the category selection type ('single' or 'multiple').

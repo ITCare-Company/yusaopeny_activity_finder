@@ -12,7 +12,7 @@ use Drupal\openy_activity_finder\ActivityFinderBackendAggregator;
 use Drupal\openy_activity_finder\ActivityFinderBackendManager;
 use Drupal\openy_activity_finder\Entity\ProgramSearchLog;
 use Drupal\openy_activity_finder\Entity\ProgramSearchCheckLog;
-use Drupal\openy_activity_finder\OpenyActivityFinderSolrBackend;
+use Drupal\openy_activity_finder\OpenyActivityFinderBackendInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -176,7 +176,7 @@ class ActivityFinderController extends ControllerBase {
       // Cache for 5 minutes.
       $expire = $this->time->getRequestTime() + self::CACHE_LIFETIME;
       $debugMsg .= " Result: miss, cid: $cid.";
-      $this->cacheBackend->set($cid, $data, $expire, [OpenyActivityFinderSolrBackend::ACTIVITY_FINDER_CACHE_TAG]);
+      $this->cacheBackend->set($cid, $data, $expire, [OpenyActivityFinderBackendInterface::CACHE_TAG]);
       $debugMsg .= " Setting new cache, cid: $cid, expiration: $expire";
     }
     if (!$this->config->get('disable_cache_debug_log')) {
@@ -251,7 +251,7 @@ class ActivityFinderController extends ControllerBase {
 
       // Cache for 5 minutes.
       $expire = $this->time->getRequestTime() + self::CACHE_LIFETIME;
-      $this->cacheBackend->set($cid, $data, $expire, [OpenyActivityFinderSolrBackend::ACTIVITY_FINDER_CACHE_TAG]);
+      $this->cacheBackend->set($cid, $data, $expire, [OpenyActivityFinderBackendInterface::CACHE_TAG]);
     }
 
     return new JsonResponse($data);

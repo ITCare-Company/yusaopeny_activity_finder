@@ -11,7 +11,6 @@ use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\openy_activity_finder\ActivityFinderBackendManager;
 use Drupal\openy_activity_finder\OpenyActivityFinderBackendInterface;
-use Drupal\openy_activity_finder\OpenyActivityFinderSolrBackend;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -260,7 +259,7 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
    * {@inheritdoc}
    */
   public function getCacheTags() {
-    return Cache::mergeTags(parent::getCacheTags(), [OpenyActivityFinderSolrBackend::ACTIVITY_FINDER_CACHE_TAG]);
+    return Cache::mergeTags(parent::getCacheTags(), [OpenyActivityFinderBackendInterface::CACHE_TAG]);
   }
 
   /**
@@ -476,9 +475,7 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
   public function getBackend(): array {
     $activity_finder_settings = $this->configFactory->get('openy_activity_finder.settings');
     $backend_service_id = $activity_finder_settings->get('backend');
-    /** @var \Drupal\openy_activity_finder\OpenyActivityFinderBackendInterface $backend */
-    $backend = \Drupal::service($backend_service_id);
-    return [$activity_finder_settings, $backend_service_id, $backend];
+    return [$activity_finder_settings, $backend_service_id];
   }
 
   /**

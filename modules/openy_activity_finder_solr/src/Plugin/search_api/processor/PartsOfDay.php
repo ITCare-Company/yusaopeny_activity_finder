@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\openy_activity_finder\Plugin\search_api\processor;
+namespace Drupal\openy_activity_finder_solr\Plugin\search_api\processor;
 
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Datetime\DrupalDateTime;
@@ -12,12 +12,12 @@ use Drupal\search_api\Processor\ProcessorProperty;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Adds the time of day to the indexed data.
+ * Adds the parts of day to the indexed data.
  *
  * @SearchApiProcessor(
- *   id = "openy_af_time_of_day",
- *   label = @Translation("Time of day"),
- *   description = @Translation("Translates datetime values of session to an index of day's time"),
+ *   id = "openy_af_parts_of_day",
+ *   label = @Translation("Parts of day"),
+ *   description = @Translation("Translates datetime values of session to an index of day's part"),
  *   stages = {
  *     "add_properties" = 0,
  *   },
@@ -25,11 +25,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   hidden = false,
  * )
  */
-class TimeOfDay extends ProcessorPluginBase implements ContainerFactoryPluginInterface {
+class PartsOfDay extends ProcessorPluginBase implements ContainerFactoryPluginInterface {
 
-  const PROPERTY_NAME = 'search_api_af_time_of_day';
+  const PROPERTY_NAME = 'search_api_af_parts_of_day';
 
-  const BASE_DATE = '1970-01-01T';
+  const MORNING = 1;
+
+  const AFTERNOON = 2;
+
+  const EVENING = 3;
 
   /**
    * Config Factory definition.
@@ -70,6 +74,7 @@ class TimeOfDay extends ProcessorPluginBase implements ContainerFactoryPluginInt
       $container->get('config.factory')
     );
   }
+
   /**
    * {@inheritdoc}
    */
@@ -78,11 +83,11 @@ class TimeOfDay extends ProcessorPluginBase implements ContainerFactoryPluginInt
 
     if (!$datasource) {
       $definition = [
-        'label' => $this->t('Time of day'),
-        'description' => $this->t("Translates datetime values of session to an index of day's time"),
+        'label' => $this->t('Parts of day'),
+        'description' => $this->t("Translates datetime values of session to an index of day's part"),
         'type' => 'string',
         'processor_id' => $this->getPluginId(),
-        'is_list' => FALSE,
+        'is_list' => TRUE,
       ];
       $properties[self::PROPERTY_NAME] = new ProcessorProperty($definition);
     }
@@ -96,7 +101,6 @@ class TimeOfDay extends ProcessorPluginBase implements ContainerFactoryPluginInt
   public function addFieldValues(ItemInterface $item) {
     $object = $item->getOriginalObject();
     $entity = $object->getValue();
-
     if (!$entity->hasField('field_session_time')) {
       return;
     }
@@ -107,8 +111,10 @@ class TimeOfDay extends ProcessorPluginBase implements ContainerFactoryPluginInt
     }
 
     $timezone = $this->getSystemTimezone();
+    $time12pm = strtotime('12:00:00Z');
+    $time5pm = strtotime('17:00:00Z');
 
-    $value = self::BASE_DATE . '00:00:00Z';
+    $values = [];
     foreach ($paragraphs as $paragraph) {
       /** @var \Drupal\Core\Field\FieldItemListInterface $range */
       $range = $paragraph->field_session_time_date;
@@ -123,15 +129,26 @@ class TimeOfDay extends ProcessorPluginBase implements ContainerFactoryPluginInt
       }
 
       $_from = DrupalDateTime::createFromTimestamp(strtotime($_period->get('value')->getValue() . 'Z'), $timezone);
-      $value = self::BASE_DATE . $_from->format('H:i:s') . 'Z';
-
-      // We need just one value as we can sort only by single value fields.
-      break;
+      $_to = DrupalDateTime::createFromTimestamp(strtotime($_period->get('end_value')->getValue() . 'Z'), $timezone);
+      $_from_time = strtotime($_from->format('H:i:s') . 'Z');
+      $_to_time = strtotime($_to->format('H:i:s') . 'Z');
+      if ($_from_time < $time12pm) {
+        $values[] = self::MORNING;
+      }
+      if ($_from_time <= $time5pm && $_to_time >= $time12pm) {
+        $values[] = self::AFTERNOON;
+      }
+      if ($_to_time > $time5pm) {
+        $values[] = self::EVENING;
+      }
     }
+    $values = array_unique($values, SORT_NUMERIC);
     $fields = $this->getFieldsHelper()
       ->filterForPropertyPath($item->getFields(), NULL, self::PROPERTY_NAME);
     foreach ($fields as $field) {
-      $field->addValue($value);
+      foreach ($values as $value) {
+        $field->addValue($value);
+      }
     }
   }
 

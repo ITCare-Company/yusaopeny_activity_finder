@@ -95,7 +95,7 @@ class ActivityFinderBackendAggregator {
       $total += $counts[$id];
     }
 
-    $per_page = OpenyActivityFinderSolrBackend::TOTAL_RESULTS_PER_PAGE;
+    $per_page = OpenyActivityFinderBackendInterface::RESULTS_PER_PAGE;
     $page = (int) ($parameters['page'] ?? 0);
     $offset = $page > 0 ? ($page - 1) * $per_page : 0;
 
@@ -134,13 +134,18 @@ class ActivityFinderBackendAggregator {
         $local_offset = $window_start - $base;
         $local_limit = $window_end - $window_start;
         foreach ($backend->getResults($parameters, $local_offset, $local_limit, $log_id) as $row) {
+          // Identity is per backend: the same nid from different backends is a
+          // different item (distinct id namespaces), so dedup on backend + nid.
           $nid = $row['nid'] ?? NULL;
-          if ($nid !== NULL && isset($seen[$nid])) {
+          $key = $id . ':' . $nid;
+          if ($nid !== NULL && isset($seen[$key])) {
             continue;
           }
           if ($nid !== NULL) {
-            $seen[$nid] = TRUE;
+            $seen[$key] = TRUE;
           }
+          // Stamp provenance so a saved item can be routed back to its backend.
+          $row['backend'] = $id;
           $rows[] = $row;
         }
       }

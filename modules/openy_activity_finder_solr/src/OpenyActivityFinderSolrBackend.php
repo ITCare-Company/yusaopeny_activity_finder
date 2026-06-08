@@ -1,6 +1,8 @@
 <?php
 
-namespace Drupal\openy_activity_finder;
+namespace Drupal\openy_activity_finder_solr;
+
+use Drupal\openy_activity_finder\OpenyActivityFinderBackend;
 
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -191,6 +193,12 @@ class OpenyActivityFinderSolrBackend extends OpenyActivityFinderBackend {
       'field_category_description',
     ]);
     $query->addCondition('status', 1);
+
+    // Fetch specific items by node id (e.g. saved-items refresh).
+    if (!empty($parameters['ids'])) {
+      $ids = is_array($parameters['ids']) ? $parameters['ids'] : explode(',', $parameters['ids']);
+      $query->addCondition('nid', $ids, 'IN');
+    }
 
     if (!empty($parameters['ages'])) {
       $ages = explode(',', rawurldecode($parameters['ages']));

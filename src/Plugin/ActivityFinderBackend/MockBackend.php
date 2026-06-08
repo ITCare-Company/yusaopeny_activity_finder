@@ -89,6 +89,8 @@ class MockBackend extends ActivityFinderBackendPluginBase {
    */
   protected function filterRows(array $parameters): array {
     $rows = $this->searchFixture()['table'] ?? [];
+    $ids = $parameters['ids'] ?? '';
+    $rows = $this->filterByField($rows, 'nid', is_array($ids) ? implode(',', $ids) : $ids);
     $rows = $this->filterByField($rows, 'location_id', $parameters['locations'] ?? '');
     $rows = $this->filterByField($rows, 'program_id', $parameters['categories'] ?? '');
     $rows = $this->filterByKeyword($rows, $parameters['keywords'] ?? '');
@@ -233,6 +235,13 @@ class MockBackend extends ActivityFinderBackendPluginBase {
    */
   public function getCategories() {
     return $this->fixture('getCategories');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCategoriesTopLevel() {
+    return $this->fixture('getCategoriesTopLevel');
   }
 
   /**
