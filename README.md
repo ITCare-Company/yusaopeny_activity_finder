@@ -16,12 +16,15 @@ as the default, so Activity Finder runs with no Solr.
 > the Vue app, etc. Enable the Solr backend only when you need real indexed
 > search results.
 
-For real data, enable one of:
+For real data, enable the **Solr** backend — the `openy_activity_finder_solr`
+submodule, which needs a Solr server (preferably a server or index
+per-environment).
 
-- The **Solr** backend — the `openy_activity_finder_solr` submodule, which needs
-  a Solr server (preferably a server or index per-environment).
-- A **Daxko** backend — a subscription with access to the
-  [Daxko API](https://api.daxko.com/v3/docs) (shipped by `openy_daxko2`).
+> **Daxko (`openy_daxko2`) is legacy and non-functional.** It long predates the
+> plugin system, its hosted API is **disabled**, and it has not worked for a
+> long time — do not use it. It is not converted to an `ActivityFinderBackend`
+> plugin here; if a Daxko integration is ever revived it should ship its own
+> plugin.
 
 ## Backend plugin system
 
@@ -32,8 +35,9 @@ factory.
 
 - **Plugins** live in `src/Plugin/ActivityFinderBackend/`. Shipped: `mock`
   (fixtures, no Solr — the default) and `solr` (in the
-  `openy_activity_finder_solr` submodule). A Daxko plugin can be added by its
-  module and is auto-discovered.
+  `openy_activity_finder_solr` submodule). (The old `openy_daxko2` backend is
+  legacy and non-functional — see Requirements — and is not provided as a
+  plugin.)
 - **Contract.** Each plugin implements `OpenyActivityFinderBackendInterface`:
   search is decomposed into `getResultsCount()`, `getFacets()` and
   `getResults($params, $offset, $limit, $log_id)` plus the option getters; the
