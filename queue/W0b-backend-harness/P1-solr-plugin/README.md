@@ -6,6 +6,13 @@ Move the existing Solr implementation behind the new plugin type as id `solr`,
 with **zero behaviour change**. This proves the plugin seam against the real
 backend before Mock/DB are added.
 
+**Also records the canonical response schema (D10).** The Solr backend is the
+reference shape every other plugin must emit. As part of this phase, document
+the exact `runProgramSearch` response (and the other interface methods) in
+MIGRATION-REFERENCE §10 from the real code, and add the new top-level
+**`externals`** key to the response (empty for Solr) so Mock/DB have a defined
+slot for backend-specific extras.
+
 ## Files
 
 - `src/OpenyActivityFinderSolrBackend.php` → becomes (or is wrapped by) a

@@ -6,6 +6,11 @@ A backend plugin that answers AF4 queries from **Drupal entities / the
 database** directly — real content, **no Solr**. Lets a site (and dev/QA) run
 AF4 on actual program/session nodes without operating a search cluster.
 
+Returns the **response schema (D10 / MIGRATION-REFERENCE §10)** — same top-level
+keys as Solr; any DB-only extras go under the response **`externals`** key. A
+facet the DB cannot compute as cheaply is documented (not faked) and may live
+in `externals` rather than degrading the shared shape.
+
 > Not on the critical path to starting the migration (Mock already unblocks
 > W1+). DB adds realism for QA and for small sites that do not want Solr.
 

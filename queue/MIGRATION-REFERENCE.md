@@ -201,3 +201,40 @@ Not a Vue change — runs on the current Vue 2 app, lands before the migration.
 - **Why it gates the migration:** the **Mock** backend lets AF4 run without a
   Solr stack, so the Vue 2 → Vue 3 work (and W0-P1 baseline) can proceed on any
   box. Detail in [`W0b-backend-harness/`](W0b-backend-harness/).
+
+### Backend response schema (the output contract every plugin must emit)
+
+Once the backend is a plugin type — and especially once a block may run **more
+than one** backend — every plugin must return the **same normalized response
+shape** so the Vue app (and any aggregation across backends) consumes them
+uniformly. Today this shape is **implicit** (whatever `OpenyActivityFinderSolrBackend`
+happens to return); W0b makes it **explicit and documented**. Measured on the
+Solr backend (`src/OpenyActivityFinderSolrBackend.php`) — not invented:
+
+`runProgramSearch($parameters, $log_id)` returns:
+
+| Key | Type | Notes (canonical: Solr backend) |
+|---|---|---|
+| `count` | int | total result count (`:129`) |
+| `facets` | map | `field → [ { id, label, count, filter } ]` (`:132`, `:572`) |
+| `pager` | int | current page index (`:135`) |
+| `pager_info` | map | page structure from `getPages()` (`:138`) |
+| `table` | list | result rows (`:141`) — each row: `nid`, `name`, `dates`, `weeks`, `schedule`, `days`, `times`, `location`, `location_id`, `location_info`, `instructor`, `availability_note`, `availability_status`, `activity_type`, `link`, `log_id` (`:500‑518`) |
+| `groupedLocations` | list | locations + per-location `count` (`:163`) |
+| `sort` | string | e.g. `title__ASC` (`:160`) |
+| `error` | string | **only** on backend failure (`:125`) — present ⇒ results absent |
+| **`externals`** | map | **NEW, this wave.** Open key-value bag for **backend-specific** data that does not fit the common schema (e.g. Daxko-only fields). Common consumers ignore it; bespoke consumers read it. Keeps the shared schema stable across plugins while letting any backend attach extras. |
+
+- The nested shapes (`table` row, `facets` entry, `groupedLocations`) are
+  **defined by the Solr backend as the reference**; Mock and DB must match them
+  byte-for-byte at the consumer boundary (D5). Their own extras go in
+  `externals`, never as new top-level keys.
+- The other interface methods (`getLocations`, `getSortOptions`, `getAges`,
+  `getCategories`, `getProgramsMoreInfo`, `getDaysOfWeek`, `getPartsOfDay`)
+  carry their existing return shapes; W0b-P1 records each from the Solr backend
+  so Mock/DB reproduce them.
+- **Multi-backend (one block, ≥1 backend):** a uniform response schema is the
+  precondition for aggregating N backends; per-backend differences live in
+  `externals`, not in divergent top-level keys. The **aggregation rule** (how N
+  responses combine) is a separate locked-pending decision — see W0b
+  `DECISIONS.md` D11.

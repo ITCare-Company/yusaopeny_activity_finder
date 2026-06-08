@@ -56,6 +56,11 @@ no per-block choice and no plugin discovery.
   `blockForm`/`blockSubmit`) — a select listing discovered plugins, stored in
   block configuration, resolved at render via the plugin manager. Default
   stays Solr → existing sites unchanged.
+- A **documented response schema** every plugin emits (D10 /
+  MIGRATION-REFERENCE §10) plus a new **`externals`** field **in the response**
+  for backend-specific extras — so a block can run **one or more** backends and
+  the Vue app consumes them uniformly. Aggregation of N backends is a
+  locked-pending decision (D11).
 
 ## Phases
 

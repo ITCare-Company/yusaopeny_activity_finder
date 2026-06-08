@@ -8,6 +8,11 @@ sorts, ages, program results, session details) on any local/CI box with no
 search infrastructure. This is what lets the Vue 2 → Vue 3 migration (W1+)
 start and iterate.
 
+Fixtures must satisfy the **response schema (D10 / MIGRATION-REFERENCE §10)** —
+the same top-level keys (`count`, `facets`, `pager`, `pager_info`, `table`,
+`groupedLocations`, `sort`) the Solr backend returns. Any Mock-only extras go
+under the response **`externals`** key, never as new top-level keys.
+
 > **Scope of "unblock".** Mock unblocks **running and developing** AF4 without
 > Solr. It does **not** enable automated tests — the current AF4 markup is
 > non-semantic (RULES "Semantic markup"), so meaningful keyboard/a11y/DOM tests
