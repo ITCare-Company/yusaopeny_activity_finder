@@ -72,3 +72,14 @@ re-litigate mid-stream.
   map + Daxko guard), separable from shipping the plugin mechanism. P5 must land
   **before** the legacy `settings.backend` service-id route is removed, so no
   site is flipped to Solr.
+
+## D8 — Controller-to-Block Backend Synchronization Gap
+
+- **Decision:** The block's chosen `backend_plugin` must be passed to the frontend JS app (e.g., via `drupalSettings` or a `data-backend` attribute on the `#activity-finder` mount element), and the JS client must include this plugin id as a query parameter in all AJAX requests (e.g. `?backend=mock`).
+- **Why:** The AJAX endpoint `/af/get-data` has no block instance context. Without sending the block's chosen backend plugin id from the client, the controller will fall back to the site-wide default backend, breaking per-block isolation during active searches.
+
+## D9 — Drupal 10 Attribute Discovery Compatibility
+
+- **Decision:** The backend plugin type must natively support Attribute-based discovery (`#[ActivityFinderBackend(...)]`). If backwards compatibility with older Drupal core versions (under 10.2) is required, the plugin manager should provide an annotation discovery fallback.
+- **Why:** The module's `core_version_requirement` is `^10 || ^11`. Attribute discovery was introduced in Drupal 10.2, so older 10.x installations lack native attribute discovery.
+

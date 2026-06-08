@@ -26,23 +26,22 @@ existing site changes.
 - `src/Plugin/Block/ActivityFinder4Block.php` —
   `defaultConfiguration()` adds `backend_plugin: 'solr'`; `blockForm()` adds a
   `select` populated from the manager's definitions; `blockSubmit()` stores it;
-  the render path resolves the chosen plugin via the manager.
+  the render path resolves the chosen plugin via the manager and **passes the chosen plugin id to the frontend** (via `drupalSettings` or a `data-backend` mount attribute).
 - `src/Controller/ActivityFinderController.php` — resolve the backend via the
-  manager (block-config-aware) instead of the injected fixed service.
+  manager (block-config-aware via query parameter `?backend=`) instead of the injected fixed service.
 
 ## Steps
 
 1. Define the attribute + manager + base, discovering
-   `src/Plugin/ActivityFinderBackend/`.
+   `src/Plugin/ActivityFinderBackend/`. Ensure the plugin manager handles Attribute discovery natively, documenting any Annotation fallback needed for older Drupal core compatibility (pre-10.2).
 2. Wire the manager into `services.yml`. Keep the old service as an alias so
    nothing breaks before P1 extracts Solr.
 3. Add `backend_plugin` to the block `defaultConfiguration()` (default
    `'solr'`), a labelled `select` in `blockForm()`, persistence in
    `blockSubmit()`.
-4. Resolve the chosen plugin id → backend instance via the manager at render
-   (block + controller). Fall back to `'solr'` when config is empty (existing
-   blocks) — **provisional**; W0b-P5 replaces this literal default with a read
-   of the global `settings.backend` so non-Solr sites are not silently flipped.
+4. Attach the selected plugin ID to the frontend (e.g. `drupalSettings.openy_activity_finder.backend_plugin` or element `data-backend`).
+5. Resolve the chosen plugin id → backend instance via the manager at render
+   (block + controller). In the controller, read the backend from request query parameters (fall back to `'solr'` or the global `settings.backend` config if empty). W0b-P5 replaces this literal default with a read of the global `settings.backend` config so non-Solr sites are not silently flipped.
 5. `drush cr`; confirm the plugin type is discovered (`drush
    php:eval` listing manager definitions) and the block form shows the select.
 

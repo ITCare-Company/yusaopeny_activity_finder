@@ -33,14 +33,12 @@ makes; removing axios shrinks the dependency surface and one
 
 1. Inventory every call on the axios instance in `client/index.js` (methods,
    params, response handling, error handling).
-2. Write a minimal `fetch` wrapper: same base URL, JSON parsing, error
-   surfacing equivalent to the axios behaviour the callers rely on (status →
-   reject, `.data` → parsed body).
-3. Swap call sites; keep the module's exported function signatures identical so
-   callers do not change.
-4. Remove `axios` from `package.json` (confirm separately) + `vue.config.js`
+2. Write a minimal `fetch` wrapper: same base URL, JSON parsing, and error surfacing equivalent to the axios behavior (explicitly reject/throw on `!response.ok` status codes since native `fetch` resolves on 4xx/5xx HTTP errors). Return an object structure with `{ data }` matching the expected axios response.
+3. Include the selected `backend` plugin id (loaded in `main.js` from `drupalSettings` or mount element `data-backend` attribute) as a query parameter in all AJAX requests (`?backend=...`) to ensure the backend controller resolves the correct plugin instance.
+4. Swap call sites in `client/index.js`; keep the module's exported function signatures identical so callers do not change.
+5. Remove `axios` from `package.json` (confirm separately) + `vue.config.js`
    externals; reconcile `libraries.yml` axios dep.
-5. Build + smoke the data-loading screens (results, session detail) — same
+6. Build + smoke the data-loading screens (results, session detail) — same
    requests, same rendered data.
 
 ## Tests
@@ -51,7 +49,7 @@ grep -rn "axios" src   # must return nothing
 ```
 
 Smoke: load results + a session detail; confirm the network requests + rendered
-data are unchanged from the axios version.
+data are unchanged from the axios version. Ensure the `?backend=` query parameter is sent.
 
 ## Validation
 
