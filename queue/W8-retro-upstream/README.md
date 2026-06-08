@@ -37,10 +37,17 @@ pattern drift — the next team re-derives the same gotchas. W8 returns them.
 
 See [`DECISIONS.md`](DECISIONS.md).
 
+## Harvest target
+
+Lessons + anatomy go to **one** knowledge base, exclusively:
+[`template_for_agents/process-knowledge-base`](https://github.com/ITCare-Company/template_for_agents/tree/main/process-knowledge-base)
+(ITCare/work → ITCare PKB). See `RULES.md` → "Knowledge-base harvest policy".
+
 ## Out of scope
 
 - Any AF4 code change — migration is done in W7. W8 is documentation +
   knowledge transfer only.
+- Pushing the anatomy to any other knowledge base.
 
 ## Onboarding (UA — Lera)
 

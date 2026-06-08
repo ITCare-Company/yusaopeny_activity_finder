@@ -128,10 +128,29 @@ phase needs explicit owner approval at three points:
   **only** if W7 proves a contract shift is unavoidable — and then with an
   explicit `DECISIONS.md` entry.
 
+## Upstream policy
+
+- **Upstream is YCloudYUSA, exclusively.** For `yusaopeny`-project and related
+  repos the only valid upstream is
+  [`YCloudYUSA`](https://github.com/YCloudYUSA) (e.g.
+  `YCloudYUSA/yusaopeny`, `YCloudYUSA/yusaopeny_activity_finder`). **Never** use
+  the `ymcatwincities` upstream — not for forks, remotes, composer sources,
+  PR bases, or references. (Per `~/.claude/CLAUDE.md`.)
+- No mirror back to YCloudYUSA upstream from this queue; upstreaming the Vue 3
+  AF4 is a separate decision once the fork is proven — and when it happens it
+  targets YCloudYUSA, never `ymcatwincities`.
+
+## Knowledge-base harvest policy (W8)
+
+- The **only** harvest target for queue anatomy + lessons (W8-P1 anatomy PR,
+  W8-P2 subtree import) is
+  [`template_for_agents/process-knowledge-base`](https://github.com/ITCare-Company/template_for_agents/tree/main/process-knowledge-base).
+  This is an ITCare/work project → ITCare PKB. Do **not** push the anatomy to
+  any other knowledge base (e.g. EnergyCitizen `ua_templates_for_agents` is for
+  UA-language projects only).
+
 ## Default branch policy
 
 - Fork default branch is `6.x`. This queue scaffold opens against
   `feat/itcr-1273-vue3-queue`. Migration code lands on a wave branch chosen by
   the operator, PR'd into `6.x`.
-- No mirror back to YCloudYUSA upstream from this queue; upstreaming the Vue 3
-  AF4 is a separate decision once the fork is proven.
