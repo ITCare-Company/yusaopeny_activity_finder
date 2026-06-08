@@ -25,13 +25,10 @@ the main module's default **Mock** backend is enough — you do **not** need Sol
 
 ## DDEV setup (full recipe)
 
-End-to-end on a DDEV YUSAOpenY site. Prefix every command with
-`export DDEV_NONINTERACTIVE=true` (DDEV otherwise prompts and blocks
-automation). Replace `<project>` with your DDEV project name (`ddev describe`).
+End-to-end on a DDEV YUSAOpenY site. Replace `<project>` with your DDEV project
+name (`ddev describe`).
 
 ```sh
-export DDEV_NONINTERACTIVE=true
-
 # 1. Solr add-on + restart (brings up the solr service on solr:8983).
 ddev add-on get ddev/ddev-drupal-solr
 ddev restart
