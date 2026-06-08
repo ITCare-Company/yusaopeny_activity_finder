@@ -11,10 +11,10 @@ seq	wave	phase	epic	status	commit_or_pr	blocked_by	preview_path	baseline	verifie
 10	W3-vue3-core-swap	P2-global-api	global-api-to-app	pending		08	src/main.js	—	—	Vue.use/component/config/mixin
 11	W3-vue3-core-swap	P3-boot-smoke	vue3-boot-smoke	pending		09,10	#activity-finder	—	—	app mounts, no white screen
 12	W4-bootstrap-vue-migration	P0-modal	replace-bv-modal	pending		05,11	src/components/modals/Modal.vue	—	—	core shell; modals depend on it
-13	W4-bootstrap-vue-migration	P1-fieldset	replace-bv-fieldset	pending		12	src/components/Fieldset.vue	—	—
-14	W4-bootstrap-vue-migration	P2-foldable	replace-bv-foldable	pending		12	src/components/Foldable.vue,FoldableInput.vue	—	—
-15	W4-bootstrap-vue-migration	P3-ages	replace-bv-ages	pending		12	src/components/filters/Ages.vue,steps/SelectAges.vue	—	—
-16	W4-bootstrap-vue-migration	P4-resultsbar	replace-bv-resultsbar	pending		12	src/components/ResultsBar.vue	—	—
+13	W4-bootstrap-vue-migration	P1-fieldset	replace-bv-fieldset	pending		12	src/components/Fieldset.vue	—	—	
+14	W4-bootstrap-vue-migration	P2-foldable	replace-bv-foldable	pending		12	src/components/Foldable.vue,FoldableInput.vue	—	—	
+15	W4-bootstrap-vue-migration	P3-ages	replace-bv-ages	pending		12	src/components/filters/Ages.vue,steps/SelectAges.vue	—	—	
+16	W4-bootstrap-vue-migration	P4-resultsbar	replace-bv-resultsbar	pending		12	src/components/ResultsBar.vue	—	—	
 17	W4-bootstrap-vue-migration	P5-remove-global	remove-bootstrapvue-global	pending		13,14,15,16	src/main.js	—	—	prune dep + dead-CSS reconcile
 18	W5-vue3-api-rewrites	P0-filters-removal	remove-template-filters	pending		11	src (~103 pipe usages)	—	—	t/formatPlural/capitalize → methods; i18n parity
 19	W5-vue3-api-rewrites	P1-global-mixin	mixin-to-global-props	pending		18	src/main.js	—	—	t/formatPlural/trackEvent/isIosMobile/getCookie
@@ -24,7 +24,7 @@ seq	wave	phase	epic	status	commit_or_pr	blocked_by	preview_path	baseline	verifie
 23	W5-vue3-api-rewrites	P5-lint-prettier	eslint-vue9-prettier	pending		18,19,20,21,22	.eslintrc.js,package.json	—	—	green npm run lint
 24	W6-qa-visual-functional	P0-entry-selectpath	qa-entry-selectpath	pending		17,23	App,SelectPath,WizardBar,Step	—	—	diff vs W0-P1 baseline
 25	W6-qa-visual-functional	P1-wizard-steps	qa-wizard-steps	pending		17,23	steps/Select*	—	—	7 step screens
-26	W6-qa-visual-functional	P2-results	qa-results	pending		17,23	Results,ResultsList,ResultsBar,AvailableSpots,NoResults,Loading	—	—
+26	W6-qa-visual-functional	P2-results	qa-results	pending		17,23	Results,ResultsList,ResultsBar,AvailableSpots,NoResults,Loading	—	—	
 27	W6-qa-visual-functional	P3-modals	qa-modals	pending		17,23	modals/*	—	—	6 modals; depends on W4-P0
 28	W6-qa-visual-functional	P4-filters	qa-filters	pending		17,23	filters/*	—	—	16 filter components
 29	W6-qa-visual-functional	P5-responsive	qa-three-viewport	pending		24,25,26,27,28	all screens @1920/1024/468	—	—	desktop/tablet/mobile parity
