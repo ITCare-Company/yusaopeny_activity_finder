@@ -23,18 +23,13 @@ Consumers (from `MIGRATION-REFERENCE.md` §4):
 1. For each consumer, enumerate the exact `b-*` components / `v-b-*`
    directives / `$bvModal` calls actually used (use the W0-P2 audit notes).
 2. Evaluate options:
-   - **`bootstrap-vue-next`** — Vue 3 port; closest API to current `b-*`
-     markup, but still pre-1.0 (API churn risk). Lowest rewrite cost if the
-     used components are covered.
-   - **Plain Bootstrap 5 markup + tiny local components** — drop the `b-*`
-     wrapper, render Bootstrap classes directly, hand-roll the few behaviours
-     (modal open/close, collapse). Most control, preserves CSS classes, no
-     new dep churn.
-   - **Hand-rolled replacements** — for the handful of widgets (modal,
-     collapse, form bits) write small AF4-local components.
-3. Decision criterion (in priority order): (a) keep the rendered markup/classes
-   so baseline screenshots match, (b) minimise new dependency risk, (c)
-   minimise rewrite surface.
+    - **`bootstrap-vue-next`** — Vue 3 port; closest API to current `b-*`
+      markup, but still pre-1.0 (API churn risk) and **requires Bootstrap 5 CSS**. Evaluate if it can run on Bootstrap 4 markup or if loading BS5 CSS causes side effects on the parent theme.
+    - **Plain Bootstrap 4 markup + tiny local components** — drop the `b-*`
+      wrapper, render Bootstrap 4 classes directly (e.g. using existing site utility styles like `mr-2` instead of BS5's `me-2`), and hand-roll the few dynamic behaviors (modal open/close, collapse). Most control, guarantees visual parity, zero dependency risk.
+    - **Hand-rolled replacements** — for the handful of widgets (modal,
+      collapse, form bits) write small AF4-local components.
+3. Decision criterion (in priority order): (a) keep the rendered markup/classes compatible with Bootstrap 4, (b) keep the rendered markup/classes so baseline screenshots match, (c) minimise new dependency risk, (d) minimise rewrite surface.
 4. Recommend per-file (a single strategy may not fit all 7 — e.g.
    bootstrap-vue-next for modal, plain markup for `Fieldset`).
 

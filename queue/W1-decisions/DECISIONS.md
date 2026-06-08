@@ -12,7 +12,8 @@ these and must not re-decide.
 
 ## D2 — BootstrapVue replacement (P1)
 
-- **Decision (overall):** _(bootstrap-vue-next | plain BS5 markup | hand-rolled | mixed)_ — pending
+- **Decision (overall):** _(bootstrap-vue-next | plain BS4 markup | hand-rolled | mixed)_ — pending
+  - *Constraint:* Since the parent Drupal theme relies on Bootstrap 4 (`bootstrap ^4.6.1`), any replacement must preserve styling compatibility with Bootstrap 4 (avoiding forced Bootstrap 5 style sheets).
 - **Per-consumer:**
   | File | Strategy |
   |---|---|
@@ -38,3 +39,9 @@ these and must not re-decide.
 | `eslint-plugin-vue` | `^5.0.0` | _(fill)_ | bump |
 
 - **Why:** _(fill)_
+
+## D4 — Bundled vs. External Vue 3 core
+
+- **Decision:** _(Bundled Vue 3 inside UMD | External window.Vue3)_ — pending
+- **Why:** To avoid conflicts on pages running other Vue 2 modules (AF3, Camp Finder) which depend on the global `window.Vue` (Vue 2), we must decide whether to bundle Vue 3 + Vue Router 4 directly inside `activity_finder_4.umd.min.js`, or externalize to a separate global variable name like `window.Vue3`. Bundling is the recommended default.
+

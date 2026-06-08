@@ -16,7 +16,7 @@ preserving the mount id and the GA event bridge.
 
 ## Steps
 
-1. Update deps to the locked Vue 3 versions; remove `vue-template-compiler`.
+1. Update deps to the locked Vue 3 versions; remove `vue-template-compiler`. *Optionally install `@vue/compat` (migration build) to assist with deprecation logging during dev.*
 2. Rewrite the bootstrap (per `MIGRATION-REFERENCE.md` §1):
    ```js
    import { createApp } from 'vue'
@@ -34,7 +34,7 @@ preserving the mount id and the GA event bridge.
 5. Leave `Vue.use(BootstrapVue)`, `Vue.filter(...)`, `Vue.mixin(...)` as
    **temporary** `app.*` shims or commented stubs so the app compiles — the
    real rewrites are W4 (BootstrapVue), W5 (filters/mixin). Note each shim with
-   a `// TODO(W4/W5)` so nothing is silently left behind.
+   a `// TODO(W4/W5)` so nothing is silently left behind. If using `@vue/compat`, configure its plugin options in the dev build tool.
 6. Confirm the mount preserves `#activity-finder` (contract) and `App.vue`
    still renders `#activity-finder-app`.
 

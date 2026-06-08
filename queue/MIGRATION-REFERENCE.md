@@ -132,7 +132,23 @@ Confirmed absent on audit — **do not write phases for these**:
 - No `.sync` modifiers.
 - No `$listeners` / `$children` / `$attrs` fall-through usage.
 
-## 7. Drupal consumer contract (must survive)
+## 7. Critical Migration Gaps & Best Practices
+
+Based on research and environmental analysis, three critical architectural gaps must be addressed:
+
+### A. Vue Global Version Collision (Vue 2 vs Vue 3 on the same Drupal site)
+- **Problem:** Other modules on the site (AF3 and Camp Finder) still run Vue 2 and depend on the global `window.Vue` (Vue 2) provided by `openy_system/vue`. If AF4 is compiled with `vue` as an external dependency (standard Webpack/Vite library mode), it will attempt to use the global `window.Vue` and crash because it is Vue 2.
+- **Solution:** We must either bundle Vue 3 and Vue Router 4 directly inside the `activity_finder_4.umd.min.js` bundle (self-contained micro-frontend), or register a new Drupal library (e.g. `openy_system/vue3`) that exposes a `window.Vue3` global, and configure our build tool's Rollup/Webpack externals to map `vue` imports to `Vue3`. Bundling is the recommended best practice to prevent global dependency version conflicts.
+
+### B. Bootstrap 4 Class/Styling Parity
+- **Problem:** Modern Vue 3 Bootstrap libraries like `bootstrap-vue-next` target Bootstrap 5. However, the parent Drupal theme and pages operate on Bootstrap 4 (`bootstrap ^4.6.1` is in `package.json`). Loading Bootstrap 5 CSS will break the main site styles.
+- **Solution:** The BootstrapVue replacement strategy must use custom wrapper components or template markup that compiles against Bootstrap 4 utility classes (e.g., using `mr-2` instead of `me-2`, preserving BS4 grids/flexbox structure).
+
+### C. Migration Build (`@vue/compat`) for De-risking
+- **Problem:** Swapping Vue 2 for Vue 3 directly might lead to hidden runtime exceptions due to deprecated APIs (e.g., event emitter behavior, slot scope syntax).
+- **Solution:** Configure `@vue/compat` (the Vue 3 Migration Build) in development mode for waves W3/W4. This logs deprecation warnings in the browser console, allowing incremental refactoring of individual component deprecations before switching to pure Vue 3 for the production build.
+
+## 8. Drupal consumer contract (must survive)
 
 | Contract point | Value | Recorded in |
 |---|---|---|
