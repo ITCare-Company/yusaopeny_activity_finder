@@ -151,6 +151,20 @@ phase needs explicit owner approval at three points:
   migration** — out of scope for this queue. **QA through W6 is manual (Ira).**
   Do not add a phase promising automated AF4 tests before the markup is fixed.
 
+## Drupal compatibility policy
+
+- **Drupal 11 — required.** Every change (W0b backend plugins, PHP, config,
+  `core_version_requirement`) must work on Drupal 11. CI / smoke (W7) run on D11.
+- **Drupal 10 — optional (best-effort).** Keep it working where cheap, but D10
+  never blocks a D11-correct change. Attribute discovery is native only on
+  D10.2+, so the W0b plugin manager keeps an **annotation fallback** only as a
+  D10 best-effort (W0b `DECISIONS.md` D9) — not a D11 requirement.
+- **Everything else — unsupported.** No D9 or earlier; no PHP versions outside
+  the D11 supported range. Do not add compat shims for unsupported cores.
+- Current module declares `core_version_requirement: ^10 || ^11`
+  (`openy_activity_finder.info.yml`). Treat `^11` as the support target and
+  `^10` as best-effort; do not widen the constraint below `^10`.
+
 ## Backwards compatibility
 
 - The committed `dist/` for AF3 (`openy_af_vue_app/`) and Camp Finder
