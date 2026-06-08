@@ -347,8 +347,17 @@ class OpenyActivityFinderSolrBackend extends OpenyActivityFinderBackend {
     }
 
     $query->range(0, self::TOTAL_RESULTS_PER_PAGE);
+    // Count/facets-only request: fetch no rows, the count and facets are
+    // computed by Solr regardless of range.
+    if (!empty($parameters['af_count_only'])) {
+      $query->range(0, 0);
+    }
+    // Explicit slice requested by the aggregator (offset + limit).
+    elseif (isset($parameters['af_limit'])) {
+      $query->range((int) ($parameters['af_offset'] ?? 0), (int) $parameters['af_limit']);
+    }
     // Use pager if parameter has been provided.
-    if (isset($parameters['page'])) {
+    elseif (isset($parameters['page'])) {
       $offset = self::TOTAL_RESULTS_PER_PAGE * $parameters['page'] - self::TOTAL_RESULTS_PER_PAGE;
       $query->range($offset, self::TOTAL_RESULTS_PER_PAGE);
     }

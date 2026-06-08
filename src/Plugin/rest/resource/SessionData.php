@@ -3,7 +3,7 @@
 namespace Drupal\openy_activity_finder\Plugin\rest\resource;
 
 use Drupal\Core\Cache\CacheableMetadata;
-use Drupal\openy_activity_finder\OpenyActivityFinderBackendInterface;
+use Drupal\openy_activity_finder\OpenyActivityFinderSolrBackend;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 use Psr\Log\LoggerInterface;
@@ -33,7 +33,7 @@ class SessionData extends ResourceBase {
   /**
    * Backend.
    *
-   * @var \Drupal\openy_activity_finder\OpenyActivityFinderBackendInterface
+   * @var \Drupal\openy_activity_finder\OpenyActivityFinderSolrBackend
    */
   protected $backend;
 
@@ -52,7 +52,7 @@ class SessionData extends ResourceBase {
    *   A logger instance.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   Request Stack.
-   * @param \Drupal\openy_activity_finder\OpenyActivityFinderBackendInterface $backend
+   * @param \Drupal\openy_activity_finder\OpenyActivityFinderSolrBackend $backend
    *   Backend.
    */
   public function __construct(
@@ -62,7 +62,7 @@ class SessionData extends ResourceBase {
     array $serializer_formats,
     LoggerInterface $logger,
     RequestStack $request_stack,
-    OpenyActivityFinderBackendInterface $backend
+    OpenyActivityFinderSolrBackend $backend
   ) {
     parent::__construct($configuration,
       $plugin_id,

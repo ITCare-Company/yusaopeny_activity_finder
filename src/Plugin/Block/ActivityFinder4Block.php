@@ -9,6 +9,8 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\openy_activity_finder\ActivityFinderBackendManager;
+use Drupal\openy_activity_finder\OpenyActivityFinderBackendInterface;
 use Drupal\openy_activity_finder\OpenyActivityFinderSolrBackend;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -38,6 +40,13 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
   protected $entityTypeManager;
 
   /**
+   * The Activity Finder backend plugin manager.
+   *
+   * @var \Drupal\openy_activity_finder\ActivityFinderBackendManager
+   */
+  protected $backendManager;
+
+  /**
    * Constructs a Block object.
    *
    * @param array $configuration
@@ -50,15 +59,19 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
    *   The Config Factory.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager service.
+   * @param \Drupal\openy_activity_finder\ActivityFinderBackendManager $backend_manager
+   *   The Activity Finder backend plugin manager.
    */
   public function __construct(array $configuration,
                               $plugin_id,
                               $plugin_definition,
                               ConfigFactory $config_factory,
-                              EntityTypeManagerInterface $entity_type_manager) {
+                              EntityTypeManagerInterface $entity_type_manager,
+                              ActivityFinderBackendManager $backend_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->configFactory = $config_factory;
     $this->entityTypeManager = $entity_type_manager;
+    $this->backendManager = $backend_manager;
   }
 
   /**
@@ -70,7 +83,8 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
       $plugin_id,
       $plugin_definition,
       $container->get('config.factory'),
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('plugin.manager.activity_finder_backend')
     );
   }
 
@@ -80,6 +94,7 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
   public function defaultConfiguration() {
     return [
       'label_display' => 'visible',
+      'backend_plugin' => ['mock'],
       'limit_by_category_daxko' => [],
       'limit_by_category' => [],
       'exclude_by_category' => [],
@@ -100,7 +115,9 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
    * {@inheritdoc}
    */
   public function build() {
-    [$activity_finder_settings, $backend_service_id, $backend] = $this->getBackend();
+    [$activity_finder_settings, $backend_service_id] = $this->getBackend();
+    $backend = $this->getBackendPlugin();
+    $backend_plugins = $this->getSelectedBackendIds();
     $conf = $this->getConfiguration();
 
     $image_mobile = '';
@@ -127,12 +144,8 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
     $activities = $backend->getCategories();
 
     // Remove empty programs and subprograms.
-    $results = $backend->runProgramSearch([], 0);
-
-    $facets = [];
-    if (!empty($results['facets']['field_activity_category'])) {
-      $facets = $results['facets']['field_activity_category'];
-    }
+    $all_facets = $backend->getFacets([]);
+    $facets = $all_facets['field_activity_category'] ?? [];
 
     $activeSubPrograms = [];
     if ($facets) {
@@ -192,6 +205,7 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
     return [
       '#theme' => 'openy_activity_finder_4_block',
       '#backend_service' => $backend_service_id,
+      '#backend_plugins' => $backend_plugins,
       '#label' => $conf['label'],
       '#label_display' => $conf['label_display'] == 'visible',
       '#ages' => $backend->getAges(),
@@ -255,6 +269,14 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
   public function blockForm($form, FormStateInterface $form_state) {
     [$activity_finder_settings, $backend_service_id, $backend] = $this->getBackend();
     $conf = $this->getConfiguration();
+
+    $form['backend_plugin'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Backend(s)'),
+      '#description' => $this->t('Data source(s) for this Activity Finder, primary first. "Mock" serves static fixtures with no Solr; "Solr" uses the search index. With several selected, counts and facets are merged and the global page is routed across them.'),
+      '#options' => $this->getBackendPluginOptions(),
+      '#default_value' => $this->getSelectedBackendIds(),
+    ];
 
     // Store Daxko limit fields separately since they're strings and not references.
     if ($backend_service_id == 'openy_daxko2.openy_activity_finder_backend') {
@@ -422,6 +444,7 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
+    $this->configuration['backend_plugin'] = array_values(array_filter($form_state->getValue('backend_plugin')));
     $this->configuration['limit_by_category_daxko'] = $form_state->getValue('limit_by_category_daxko');
     $location_category = $form_state->getValue('location_category');
     $this->configuration['limit_by_category'] = $location_category['limit_by_category']
@@ -456,6 +479,47 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
     /** @var \Drupal\openy_activity_finder\OpenyActivityFinderBackendInterface $backend */
     $backend = \Drupal::service($backend_service_id);
     return [$activity_finder_settings, $backend_service_id, $backend];
+  }
+
+  /**
+   * Returns this block's selected backend plugin ids, primary first.
+   *
+   * Stored ids are validated against the registered plugins; unregistered ids
+   * are dropped (never silently swapped for another backend). An unconfigured
+   * block uses the documented default. May return an empty list when stored
+   * backends are no longer registered — callers must surface that, not mask it.
+   *
+   * @return string[]
+   *   Registered backend plugin ids, primary first.
+   */
+  public function getSelectedBackendIds(): array {
+    $ids = (array) ($this->configuration['backend_plugin'] ?? $this->defaultConfiguration()['backend_plugin']);
+    return array_values(array_filter($ids, fn($id) => $this->backendManager->hasDefinition($id)));
+  }
+
+  /**
+   * Resolves the primary backend plugin for option lists and initial render.
+   *
+   * @return \Drupal\openy_activity_finder\OpenyActivityFinderBackendInterface
+   *   The primary (first selected) backend.
+   */
+  public function getBackendPlugin(): OpenyActivityFinderBackendInterface {
+    $ids = $this->getSelectedBackendIds();
+    return $this->backendManager->createInstance(reset($ids));
+  }
+
+  /**
+   * Returns the discovered backend plugins as an options list.
+   *
+   * @return array
+   *   Plugin id => label.
+   */
+  protected function getBackendPluginOptions(): array {
+    $options = [];
+    foreach ($this->backendManager->getDefinitions() as $id => $definition) {
+      $options[$id] = (string) $definition['label'];
+    }
+    return $options;
   }
 
 }
