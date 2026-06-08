@@ -93,7 +93,7 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
   public function defaultConfiguration() {
     return [
       'label_display' => 'visible',
-      'backend_plugin' => ['mock'],
+      'backend_plugin' => [],
       'limit_by_category_daxko' => [],
       'limit_by_category' => [],
       'exclude_by_category' => [],
@@ -272,9 +272,9 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
     $form['backend_plugin'] = [
       '#type' => 'checkboxes',
       '#title' => $this->t('Backend(s)'),
-      '#description' => $this->t('Data source(s) for this Activity Finder, primary first. "Mock" serves static fixtures with no Solr; "Solr" uses the search index. With several selected, counts and facets are merged and the global page is routed across them.'),
+      '#description' => $this->t('Data source(s) for this Activity Finder. Leave empty to use the site default backend. Select one or more to override: "Mock" serves static fixtures with no Solr; "Solr" uses the search index. With several selected, counts and facets are merged and the global page is routed across them.'),
       '#options' => $this->getBackendPluginOptions(),
-      '#default_value' => $this->getSelectedBackendIds(),
+      '#default_value' => array_values(array_filter((array) ($conf['backend_plugin'] ?? []))),
     ];
 
     // Store Daxko limit fields separately since they're strings and not references.
@@ -490,7 +490,11 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
    *   Registered backend plugin ids, primary first.
    */
   public function getSelectedBackendIds(): array {
-    $ids = (array) ($this->configuration['backend_plugin'] ?? $this->defaultConfiguration()['backend_plugin']);
+    $ids = array_values(array_filter((array) ($this->configuration['backend_plugin'] ?? [])));
+    // No per-block choice: inherit the global default backend.
+    if (!$ids) {
+      $ids = array_filter([$this->configFactory->get('openy_activity_finder.settings')->get('backend')]);
+    }
     return array_values(array_filter($ids, fn($id) => $this->backendManager->hasDefinition($id)));
   }
 
