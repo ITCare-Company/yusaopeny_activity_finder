@@ -39,6 +39,7 @@ Keep order by wave, then phase.
 | P2 Mock backend (fixtures, no Solr) — unblocks migration | pending | [`W0b-backend-harness/P2-mock-plugin/README.md`](W0b-backend-harness/P2-mock-plugin/README.md) |
 | P3 DB backend (entity query, no Solr) | pending | [`W0b-backend-harness/P3-db-plugin/README.md`](W0b-backend-harness/P3-db-plugin/README.md) |
 | P4 Seed demo content | pending | [`W0b-backend-harness/P4-demo-content/README.md`](W0b-backend-harness/P4-demo-content/README.md) |
+| P5 Legacy-config fallback (deferred — Lera→Vlad) | pending | [`W0b-backend-harness/P5-legacy-config-fallback/README.md`](W0b-backend-harness/P5-legacy-config-fallback/README.md) |
 
 ## W1 — Decisions (gates W2–W5)
 

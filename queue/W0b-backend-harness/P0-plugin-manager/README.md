@@ -2,9 +2,10 @@
 
 ## Goal
 
-Turn the hardwired backend service into a **Drupal plugin type**
-`ActivityFinderBackend`, and let each AF4 block **choose** its backend in the
-block config form. Solr stays the default — no existing site changes.
+Turn the global-config-resolved backend (`settings.backend` service-id) into a
+**Drupal plugin type** `ActivityFinderBackend`, and let each AF4 block
+**choose** its backend in the block config form. Solr stays the default — no
+existing site changes.
 
 ## Files
 
@@ -40,7 +41,8 @@ block config form. Solr stays the default — no existing site changes.
    `blockSubmit()`.
 4. Resolve the chosen plugin id → backend instance via the manager at render
    (block + controller). Fall back to `'solr'` when config is empty (existing
-   blocks).
+   blocks) — **provisional**; W0b-P5 replaces this literal default with a read
+   of the global `settings.backend` so non-Solr sites are not silently flipped.
 5. `drush cr`; confirm the plugin type is discovered (`drush
    php:eval` listing manager definitions) and the block form shows the select.
 
@@ -59,7 +61,8 @@ select is present and defaults to Solr. AF4 still renders via Solr unchanged.
 ## Validation
 
 Owner approves. Plugin type discovered; block form has the selector defaulting
-to `solr`; existing blocks (no stored `backend_plugin`) resolve to Solr;
+to `solr`; existing blocks (no stored `backend_plugin`) resolve to Solr
+(provisional — W0b-P5 makes this honour the global `settings.backend`);
 consumer contract (block id, library, mount) unchanged (W0-P0 table).
 
 ## Out of scope

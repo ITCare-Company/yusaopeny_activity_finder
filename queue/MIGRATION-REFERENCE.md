@@ -184,14 +184,20 @@ against it.
 
 Not a Vue change — runs on the current Vue 2 app, lands before the migration.
 
-- **Today:** `OpenyActivityFinderBackendInterface` is implemented only by
-  `OpenyActivityFinderSolrBackend`, wired as the **hardwired** service
-  `openy_activity_finder.solr_backend` in `services.yml`. Consumers
-  (`ActivityFinderController`, `ActivityFinder4Block`) inject it directly.
+- **Today:** `OpenyActivityFinderBackendInterface` is implemented by
+  `OpenyActivityFinderSolrBackend` (and a Daxko impl in `openy_daxko2` when that
+  module is enabled). The backend is resolved by a **global config service-id**
+  — `ActivityFinder4Block::getBackend()` does
+  `\Drupal::service($settings->get('backend'))` (`openy_activity_finder.settings.backend`,
+  Solr by default). No per-block choice, no plugin discovery. Consumers
+  (`ActivityFinderController`, `ActivityFinder4Block`) resolve that service-id.
 - **Target:** a **Drupal plugin type** `ActivityFinderBackend` (manager +
   attribute discovery + base) with plugins `solr` (extracted, default), `mock`
   (fixtures, no Solr), `db` (entity query, no Solr). Backend chosen in the
-  **block config form**; default `solr` keeps existing sites unchanged.
+  **block config form**; default `solr` keeps existing sites unchanged. A
+  block with no per-block value falls back to the **global `settings.backend`**
+  so non-Solr sites are not silently flipped (W0b-P5). Daxko is handled only
+  when its module is enabled — currently skipped.
 - **Why it gates the migration:** the **Mock** backend lets AF4 run without a
   Solr stack, so the Vue 2 → Vue 3 work (and W0-P1 baseline) can proceed on any
   box. Detail in [`W0b-backend-harness/`](W0b-backend-harness/).

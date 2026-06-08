@@ -40,5 +40,6 @@ seq	wave	phase	epic	status	commit_or_pr	blocked_by	preview_path	baseline	verifie
 39	W0b-backend-harness	P2-mock-plugin	mock-backend-fixtures	pending		37	src/Plugin/ActivityFinderBackend/MockBackend.php	—	—	no Solr; unblocks migration W1+; not auto-tests
 40	W0b-backend-harness	P3-db-plugin	db-backend-no-solr	pending		37,41	src/Plugin/ActivityFinderBackend/DatabaseBackend.php	—	—	entity query, no Solr; real content
 41	W0b-backend-harness	P4-demo-content	seed-demo-content	pending		01	migrate openy_demo_node_session	—	—	for solr/db backends + sandbox baseline
+44	W0b-backend-harness	P5-legacy-config-fallback	legacy-global-backend-fallback	pending		37	src/Plugin/Block/ActivityFinder4Block.php	—	—	deferred; Lera→Vlad; no silent solr flip
 42	W0-baseline-contract	P1b-realsite-upgrade	af4-realsite-upgrade-baseline	pending		02	#activity-finder (real site)	—	—	upgrade-path baseline for W7
 43	W5-vue3-api-rewrites	P6-axios-fetch	axios-to-fetch	pending		11	src/client/index.js	—	—	drop axios dep + external; native fetch

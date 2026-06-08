@@ -62,11 +62,14 @@ Audited on the `6.x` branch of the fork — exact counts feed the phases:
 **Not present in AF4** (confirms smaller scope than AF3/CF): no global
 `EventBus`, no `$on`/`$off`, no `.sync`, no `$listeners`/`$children`/`$attrs`.
 
-**PHP backend (separate concern, W0b).** AF4's data backend is a single
-hardwired Drupal service (`openy_activity_finder.solr_backend`, implementing
-`OpenyActivityFinderBackendInterface`). W0b makes it a **plugin type** with
-selectable backends — Solr, **Mock** (no infra), **DB** (no Solr) — chosen in
-the block config form. The Mock backend is what lets the migration run and be
+**PHP backend (separate concern, W0b).** AF4's data backend is resolved by a
+**global config service-id** (`openy_activity_finder.settings.backend` →
+`\Drupal::service(...)`; the `openy_activity_finder.solr_backend` Solr service
+by default, a Daxko service when that module is enabled) — no per-block choice,
+no plugin discovery. W0b makes it a **plugin type** with selectable backends —
+Solr, **Mock** (no infra), **DB** (no Solr) — chosen in the block config form,
+with a fallback to the existing global setting so non-Solr sites are not
+flipped (W0b-P5). The Mock backend is what lets the migration run and be
 developed **without standing up Solr**.
 
 ---

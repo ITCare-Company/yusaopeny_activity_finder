@@ -1,9 +1,12 @@
 # W0b — Backend plugin system & local-dev harness (unblocks migration)
 
 Make AF4's data backend **pluggable** so the app can **run and be developed
-without a Solr stack**. Today the backend is a single hardwired service; this
-wave turns it into a Drupal plugin type with selectable implementations (Solr,
-Mock, DB) and a per-block backend selector.
+without a Solr stack**. Today the backend is resolved by a **global config
+service-id** (`openy_activity_finder.settings.backend` — the Solr service by
+default, `openy_daxko2.openy_activity_finder_backend` when Daxko is enabled);
+there is no per-block choice and no plugin discovery. This wave turns it into a
+Drupal plugin type with selectable implementations (Solr, Mock, DB) and a
+per-block backend selector.
 
 This wave exists because the Vue 2 → Vue 3 migration cannot start cleanly
 otherwise: AF4 only renders with a working backend + content, and standing up
@@ -33,13 +36,13 @@ running app to QA against (W6).
 |---|---|---|
 | Backend contract | `src/OpenyActivityFinderBackendInterface.php` | interface — `runProgramSearch`, `getLocations`, `getSortOptions`, `getAges`, … |
 | Base | `src/OpenyActivityFinderBackend.php` | shared base class |
-| Solr impl | `src/OpenyActivityFinderSolrBackend.php` | the only implementation |
-| Wiring | `openy_activity_finder.services.yml` | **hardwired** service `openy_activity_finder.solr_backend` |
-| Consumers | `src/Controller/ActivityFinderController.php`, `src/Plugin/Block/ActivityFinder4Block.php` | inject the fixed service directly |
+| Solr impl | `src/OpenyActivityFinderSolrBackend.php` | default implementation (a Daxko impl also exists in `openy_daxko2`, when enabled) |
+| Wiring | `openy_activity_finder.services.yml` + `openy_activity_finder.settings.backend` | service `openy_activity_finder.solr_backend`, resolved by a **global config service-id** (`ActivityFinder4Block::getBackend()` → `\Drupal::service($settings->get('backend'))`) |
+| Consumers | `src/Controller/ActivityFinderController.php`, `src/Plugin/Block/ActivityFinder4Block.php` | resolve the service-id from global config |
 
 The interface is the right seam — it already abstracts the backend. The gap is
-that selection is hardwired in `services.yml`; there is no discovery and no
-way to pick a different implementation per block.
+that selection is a **global config service-id** (`settings.backend`): there is
+no per-block choice and no plugin discovery.
 
 ## Target
 
@@ -63,9 +66,10 @@ way to pick a different implementation per block.
 | P2 mock-plugin | Mock backend plugin — static fixtures, **zero Solr/DB**. Unblocks local dev + the migration (W1+). **Not** auto-tests (markup blocks those until after migration). | pending |
 | P3 db-plugin | DB backend plugin — entity/database query, **no Solr** (real content). | pending |
 | P4 demo-content | Seed demo content (`migrate:import openy_demo_node_session …`) so Solr/DB backends and the sandbox baseline have data. | pending |
+| P5 legacy-config fallback | Per-block backend resolves from the **existing global `settings.backend`** when no `backend_plugin` is stored — so a site running a non-Solr global backend is not silently flipped to Solr. **Complex; deferred — likely Lera → Vlad handoff.** | pending |
 
 See [`DECISIONS.md`](DECISIONS.md) for the plugin-id scheme, the config storage
-key, and the Mock-vs-DB ordering rationale.
+key, the Mock-vs-DB ordering rationale, and the legacy-config fallback handoff (P5).
 
 ## Gating
 
