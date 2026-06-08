@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\openy_activity_finder\Plugin\search_api\processor;
+namespace Drupal\openy_activity_finder_solr\Plugin\search_api\processor;
 
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -13,12 +13,12 @@ use Drupal\search_api\Processor\ProcessorProperty;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Adds the time of day to the indexed data.
+ * Adds the Weeks to the indexed data.
  *
  * @SearchApiProcessor(
- *   id = "openy_af_date_of_day",
- *   label = @Translation("Date of day"),
- *   description = @Translation("Translates datetime values of session to an index of day's time"),
+ *   id = "openy_af_week",
+ *   label = @Translation("Weeks"),
+ *   description = @Translation("Creates weeks e.g. Week 1: June 1."),
  *   stages = {
  *     "add_properties" = 0,
  *   },
@@ -26,11 +26,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   hidden = false,
  * )
  */
-class DateOfDay extends ProcessorPluginBase implements ContainerFactoryPluginInterface {
-
-  const PROPERTY_NAME = 'search_api_af_date_of_day';
-
-  const BASE_DATE = '1970-01-01T';
+class Week extends ProcessorPluginBase implements ContainerFactoryPluginInterface {
 
   /**
    * Config Factory definition.
@@ -93,13 +89,13 @@ class DateOfDay extends ProcessorPluginBase implements ContainerFactoryPluginInt
 
     if (!$datasource) {
       $definition = [
-        'label' => $this->t('Date of day'),
-        'description' => $this->t("Translates datetime values of session to an index of day's time"),
+        'label' => $this->t('Weeks'),
+        'description' => $this->t('Creates weeks e.g. Week 1: June 1.'),
         'type' => 'string',
         'processor_id' => $this->getPluginId(),
         'is_list' => FALSE,
       ];
-      $properties[self::PROPERTY_NAME] = new ProcessorProperty($definition);
+      $properties['search_api_af_weeks'] = new ProcessorProperty($definition);
     }
 
     return $properties;
@@ -112,53 +108,33 @@ class DateOfDay extends ProcessorPluginBase implements ContainerFactoryPluginInt
     $object = $item->getOriginalObject();
     $entity = $object->getValue();
 
-    if (!$entity->hasField('field_session_time')) {
-      return;
-    }
+    $session_room_value = $entity->field_session_room->value ?? '';
 
-    $paragraphs = $entity->field_session_time?->referencedEntities() ?? [];
-    if (empty($paragraphs)) {
-      return;
-    }
-
-    $timezone = $this->getSystemTimezone();
-
-    $value = self::BASE_DATE . '00:00:00Z';
-    foreach ($paragraphs as $paragraph) {
-      /** @var \Drupal\Core\Field\FieldItemListInterface $range */
-      $range = $paragraph->field_session_time_date;
-      if ($range->isEmpty()) {
-        continue;
+    preg_match('/Camp/', $entity->getTitle(), $matches_title);
+    preg_match('/Camp/', $session_room_value, $matches_room);
+    if ((!empty($matches_title[0]) || !empty($matches_room[0])) && $entity->field_session_time) {
+      $dates = $entity->field_session_time->referencedEntities();
+      foreach ($dates as $date) {
+        if (empty($date) || empty($date->field_session_time_date->getValue())) {
+          continue;
+        }
+        $_period = $date->field_session_time_date->getValue()[0];
+        $week_start_date = DrupalDateTime::createFromTimestamp(strtotime($_period['value'] . 'Z'))->format('n-j-Y');
+        // Check if date is in the list of camp weeks listed in config.
+        $weeks = $this->configFactory
+          ->get('openy_activity_finder.settings')
+          ->get('weeks');
+        preg_match('/' . $week_start_date . '/', $weeks, $matched_weeks);
       }
 
-      /** @var \Drupal\datetime_range\Plugin\Field\FieldType\DateRangeItem $_period */
-      $_period = $range->get(0);
-      if ($_period->isEmpty()) {
-        continue;
+      if (!empty($week_start_date) && !empty($matched_weeks[0])) {
+        $fields = $this->getFieldsHelper()
+          ->filterForPropertyPath($item->getFields(), NULL, 'search_api_af_weeks');
+        foreach ($fields as $field) {
+          $field->addValue($week_start_date);
+        }
       }
-
-      $_from = DrupalDateTime::createFromTimestamp(strtotime($_period->get('value')->getValue() . 'Z'), $timezone);
-      $value = $_from->format('M d Y');
-
-      // We need just one value as we can sort only by single value fields.
-      break;
-    }
-    $fields = $this->getFieldsHelper()
-      ->filterForPropertyPath($item->getFields(), NULL, self::PROPERTY_NAME);
-    foreach ($fields as $field) {
-      $field->addValue($value);
     }
   }
 
-  /**
-   * Get the system timezone from the site config.
-   *
-   * @return \DateTimeZone
-   * @throws \Exception
-   */
-  private function getSystemTimezone(): \DateTimeZone {
-    return
-      new \DateTimeZone($this->configFactory->get('system.date')
-        ->get('timezone')['default']);
-  }
 }

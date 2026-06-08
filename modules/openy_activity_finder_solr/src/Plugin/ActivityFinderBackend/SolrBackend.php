@@ -1,19 +1,19 @@
 <?php
 
-namespace Drupal\openy_activity_finder\Plugin\ActivityFinderBackend;
+namespace Drupal\openy_activity_finder_solr\Plugin\ActivityFinderBackend;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\openy_activity_finder\Attribute\ActivityFinderBackend;
-use Drupal\openy_activity_finder\OpenyActivityFinderBackendInterface;
+use Drupal\openy_activity_finder_solr\OpenyActivityFinderSolrBackend;
 use Drupal\openy_activity_finder\Plugin\ActivityFinderBackendPluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Solr backend plugin.
  *
- * Thin wrapper over the existing openy_activity_finder.solr_backend service.
- * Delegates every call unchanged so existing sites stay byte-identical
- * (W0b DECISIONS D3, D5). This is the default backend.
+ * Owns the Solr search implementation (OpenyActivityFinderSolrBackend), which
+ * is no longer a global service — the plugin instantiates it. Default backend;
+ * no behaviour change versus the legacy service path (W0b DECISIONS D3, D5).
  */
 #[ActivityFinderBackend(
   id: 'solr',
@@ -24,44 +24,28 @@ class SolrBackend extends ActivityFinderBackendPluginBase {
   use StringTranslationTrait;
 
   /**
-   * The wrapped Solr backend service.
+   * The Solr search implementation.
    *
    * @var \Drupal\openy_activity_finder\OpenyActivityFinderSolrBackend
    */
   protected $backend;
 
   /**
-   * Memoized Search API result sets keyed by parameter hash.
-   *
-   * @var array
-   */
-  protected array $resultSets = [];
-
-  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     $instance = new static($configuration, $plugin_id, $plugin_definition);
-    $instance->backend = $container->get('openy_activity_finder.solr_backend');
+    $instance->backend = new OpenyActivityFinderSolrBackend(
+      $container->get('config.factory'),
+      $container->get('cache.default'),
+      $container->get('database'),
+      $container->get('entity_type.manager'),
+      $container->get('date.formatter'),
+      $container->get('datetime.time'),
+      $container->get('logger.channel.default'),
+      $container->get('module_handler')
+    );
     return $instance;
-  }
-
-  /**
-   * Runs (and memoizes) the Search API query for the given parameters.
-   *
-   * @param array $parameters
-   *   Search parameters. Set 'af_count_only' for a rows-free count/facets
-   *   query; otherwise the query is paginated by 'page'.
-   *
-   * @return \Drupal\search_api\Query\ResultSet
-   *   The result set.
-   */
-  protected function resultSet(array $parameters) {
-    $key = md5(json_encode($parameters));
-    if (!isset($this->resultSets[$key])) {
-      $this->resultSets[$key] = $this->backend->doSearchRequest($parameters);
-    }
-    return $this->resultSets[$key];
   }
 
   /**
@@ -69,7 +53,7 @@ class SolrBackend extends ActivityFinderBackendPluginBase {
    */
   public function getResultsCount(array $parameters): int {
     $parameters['af_count_only'] = TRUE;
-    return (int) $this->resultSet($parameters)->getResultCount();
+    return (int) $this->backend->doSearchRequest($parameters)->getResultCount();
   }
 
   /**
@@ -77,7 +61,7 @@ class SolrBackend extends ActivityFinderBackendPluginBase {
    */
   public function getFacets(array $parameters): array {
     $parameters['af_count_only'] = TRUE;
-    return $this->backend->getFacets($this->resultSet($parameters));
+    return $this->backend->getFacets($this->backend->doSearchRequest($parameters));
   }
 
   /**
@@ -86,7 +70,7 @@ class SolrBackend extends ActivityFinderBackendPluginBase {
   public function getResults(array $parameters, int $offset, int $limit, int $log_id): array {
     $parameters['af_offset'] = $offset;
     $parameters['af_limit'] = $limit;
-    return $this->backend->processResults($this->resultSet($parameters), $log_id);
+    return $this->backend->processResults($this->backend->doSearchRequest($parameters), $log_id);
   }
 
   /**
@@ -164,6 +148,13 @@ class SolrBackend extends ActivityFinderBackendPluginBase {
    */
   public function getCategories() {
     return $this->backend->getCategories();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCategoriesTopLevel() {
+    return $this->backend->getCategoriesTopLevel();
   }
 
   /**

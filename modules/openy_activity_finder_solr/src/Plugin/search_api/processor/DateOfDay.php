@@ -1,8 +1,9 @@
 <?php
 
-namespace Drupal\openy_activity_finder\Plugin\search_api\processor;
+namespace Drupal\openy_activity_finder_solr\Plugin\search_api\processor;
 
 use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\search_api\Datasource\DatasourceInterface;
@@ -12,12 +13,12 @@ use Drupal\search_api\Processor\ProcessorProperty;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Adds the start month to the indexed data.
+ * Adds the time of day to the indexed data.
  *
  * @SearchApiProcessor(
- *   id = "openy_af_start_month",
- *   label = @Translation("Start Month"),
- *   description = @Translation("Translates datetime values of session to an index of start month date"),
+ *   id = "openy_af_date_of_day",
+ *   label = @Translation("Date of day"),
+ *   description = @Translation("Translates datetime values of session to an index of day's time"),
  *   stages = {
  *     "add_properties" = 0,
  *   },
@@ -25,9 +26,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   hidden = false,
  * )
  */
-class StartMonth extends ProcessorPluginBase implements ContainerFactoryPluginInterface {
+class DateOfDay extends ProcessorPluginBase implements ContainerFactoryPluginInterface {
 
-  const PROPERTY_NAME = 'search_api_af_start_month';
+  const PROPERTY_NAME = 'search_api_af_date_of_day';
 
   const BASE_DATE = '1970-01-01T';
 
@@ -70,6 +71,20 @@ class StartMonth extends ProcessorPluginBase implements ContainerFactoryPluginIn
       $container->get('config.factory')
     );
   }
+
+  /**
+   * Sets the config factory service.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
+   *
+   * @return $this
+   */
+  protected function setConfigFactory(ConfigFactoryInterface $config_factory) {
+    $this->configFactory = $config_factory;
+    return $this;
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -78,11 +93,11 @@ class StartMonth extends ProcessorPluginBase implements ContainerFactoryPluginIn
 
     if (!$datasource) {
       $definition = [
-        'label' => $this->t('Start Month'),
-        'description' => $this->t("Translates datetime values of session to an index of start month date"),
+        'label' => $this->t('Date of day'),
+        'description' => $this->t("Translates datetime values of session to an index of day's time"),
         'type' => 'string',
         'processor_id' => $this->getPluginId(),
-        'is_list' => TRUE,
+        'is_list' => FALSE,
       ];
       $properties[self::PROPERTY_NAME] = new ProcessorProperty($definition);
     }
@@ -108,7 +123,7 @@ class StartMonth extends ProcessorPluginBase implements ContainerFactoryPluginIn
 
     $timezone = $this->getSystemTimezone();
 
-    $values = [];
+    $value = self::BASE_DATE . '00:00:00Z';
     foreach ($paragraphs as $paragraph) {
       /** @var \Drupal\Core\Field\FieldItemListInterface $range */
       $range = $paragraph->field_session_time_date;
@@ -123,14 +138,15 @@ class StartMonth extends ProcessorPluginBase implements ContainerFactoryPluginIn
       }
 
       $_from = DrupalDateTime::createFromTimestamp(strtotime($_period->get('value')->getValue() . 'Z'), $timezone);
-      $values[] = $_from->format('n');
+      $value = $_from->format('M d Y');
+
+      // We need just one value as we can sort only by single value fields.
+      break;
     }
     $fields = $this->getFieldsHelper()
       ->filterForPropertyPath($item->getFields(), NULL, self::PROPERTY_NAME);
     foreach ($fields as $field) {
-      foreach ($values as $value) {
-        $field->addValue($value);
-      }
+      $field->addValue($value);
     }
   }
 
@@ -145,5 +161,4 @@ class StartMonth extends ProcessorPluginBase implements ContainerFactoryPluginIn
       new \DateTimeZone($this->configFactory->get('system.date')
         ->get('timezone')['default']);
   }
-
 }

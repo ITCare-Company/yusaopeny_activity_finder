@@ -6,14 +6,3 @@ services:
     class: Drupal\openy_activity_finder\ActivityFinderBackendAggregator
     arguments:
       - '@plugin.manager.activity_finder_backend'
-  openy_activity_finder.solr_backend:
-    class: Drupal\openy_activity_finder\OpenyActivityFinderSolrBackend
-    arguments:
-      - '@config.factory'
-      - '@cache.default'
-      - '@database'
-      - '@entity_type.manager'
-      - '@date.formatter'
-      - '@datetime.time'
-      - '@logger.channel.default'
-      - '@module_handler'
