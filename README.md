@@ -8,8 +8,15 @@ This module requires the following modules:
 
 The data backend is **pluggable** (see "Backend plugin system" below). Out of
 the box the module ships a **Mock** backend (static fixtures, no infrastructure)
-as the default, so Activity Finder runs with no Solr. For real data, enable one
-of:
+as the default, so Activity Finder runs with no Solr.
+
+> **Front-end / theme work needs no Solr.** Because Mock serves real-shaped data
+> with zero infrastructure, you no longer have to stand up a Solr stack just to
+> work on the UI — fixing a button's colour or padding, template/markup tweaks,
+> the Vue app, etc. Enable the Solr backend only when you need real indexed
+> search results.
+
+For real data, enable one of:
 
 - The **Solr** backend — the `openy_activity_finder_solr` submodule, which needs
   a Solr server (preferably a server or index per-environment).
