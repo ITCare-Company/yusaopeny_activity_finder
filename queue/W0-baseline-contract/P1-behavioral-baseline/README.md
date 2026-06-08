@@ -1,4 +1,4 @@
-# P1 — Behavioral baseline (golden screenshots)
+# P1 — Behavioral baseline (sandbox golden screenshots)
 
 ## Goal
 
@@ -7,6 +7,17 @@ build, at the three QA viewports, so W6 can diff Vue 3 against a fixed
 reference. These screenshots are the source data for Ira's QA checklist in
 `INDEX.md` → "Progress — Ira QA view".
 
+> **Stage 1 of a two-stage baseline.** This phase is the **sandbox** baseline —
+> a clean, reproducible site with controlled demo content (W0b-P4) and a
+> deterministic backend (Mock or DB from W0b — **no Solr needed**). It is the
+> primary golden-screenshot source. The **real-site** upgrade baseline is
+> [`P1b-realsite-upgrade`](../P1b-realsite-upgrade/README.md) — captured on a
+> live install for the W7 upgrade-path check.
+>
+> **Depends on W0b:** AF4 must render real screens, which needs a runnable
+> backend + seeded content. Use the Mock backend to capture without standing up
+> Solr.
+
 ## Files
 
 Read-only against a running AF4. Output: PNGs under `baseline/` in this phase
@@ -14,10 +25,12 @@ folder, named `<component-or-screen>-<viewport>.png`.
 
 ## Steps
 
-1. **Nominate the live AF4 env.** Pick an Open Y site (or stand up the dev
-   harness: `cd openy_af4_vue_app && npm run dev`, mount the UMD on a local
-   page with a stub `drupalSettings` + `Drupal.t`). Record the URL in
-   `INDEX.md` → "Reference environments".
+1. **Stand up the sandbox AF4 env.** A clean Open Y site with demo content
+   (W0b-P4) and the AF4 block backend set to **Mock** (or DB) — no Solr
+   required. (A `npm run dev` harness with stub `drupalSettings` + `Drupal.t`
+   works for pure-frontend screens, but the Mock backend gives full data-driven
+   screens.) Record the URL in `INDEX.md` → "Reference environments" (sandbox
+   row).
 2. Walk the wizard end to end and exercise every screen in the Ira QA table:
    entry/SelectPath, each wizard step, results, every modal, every filter.
 3. Capture each at **1920**, **1024**, **468** px with `capture-website`:

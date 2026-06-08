@@ -11,8 +11,13 @@ proven correct.
 | Phase | Goal | Status |
 |---|---|---|
 | P0 | Inventory the exact Drupal consumer contract (library, global, mount, deps). | pending |
-| P1 | Capture golden screenshots of every screen/step/modal/filter — seeds Ira's QA checklist in `INDEX.md`. | pending |
+| P1 | Sandbox golden screenshots of every screen/step/modal/filter (backend Mock/DB — no Solr) — seeds Ira's QA checklist in `INDEX.md`. | pending |
+| P1b | Real-site upgrade-path baseline — second "before" on a live install, for the W7 upgrade check. | pending |
 | P2 | Audit the precise Vue 3 breaking-change surface; confirm the counts in `MIGRATION-REFERENCE.md`. | pending |
+
+> **Backend prerequisite.** P1's sandbox needs AF4 rendering real screens
+> without Solr — that is wave [`W0b-backend-harness`](../W0b-backend-harness/)
+> (pluggable backend + Mock + demo content). W0b gates P1.
 
 ## Done when
 

@@ -24,6 +24,7 @@ after each phase ships.
 | `@vue/cli-service` | `^4.5.13` | `^5` **or** Vite | W1-P0 decision |
 | `eslint-plugin-vue` | `^5` | `^9` | Vue 3 rules |
 | `@vue/eslint-config-prettier` / `prettier` | `^5.1.0` / `^1.18.2` | bump | lint pass W5-P5 |
+| `axios` | `^x` (external) | **removed** | replace with native `fetch` — W5-P6 |
 
 ---
 
@@ -136,9 +137,12 @@ Confirmed absent on audit — **do not write phases for these**:
 
 Based on research and environmental analysis, three critical architectural gaps must be addressed:
 
-### A. Vue Global Version Collision (Vue 2 vs Vue 3 on the same Drupal site)
-- **Problem:** Other modules on the site (AF3 and Camp Finder) still run Vue 2 and depend on the global `window.Vue` (Vue 2) provided by `openy_system/vue`. If AF4 is compiled with `vue` as an external dependency (standard Webpack/Vite library mode), it will attempt to use the global `window.Vue` and crash because it is Vue 2.
-- **Solution:** We must either bundle Vue 3 and Vue Router 4 directly inside the `activity_finder_4.umd.min.js` bundle (self-contained micro-frontend), or register a new Drupal library (e.g. `openy_system/vue3`) that exposes a `window.Vue3` global, and configure our build tool's Rollup/Webpack externals to map `vue` imports to `Vue3`. Bundling is the recommended best practice to prevent global dependency version conflicts.
+### A. Vue runtime delivery — Vue 2 vs Vue 3 on the same Drupal site (W1-D4 decision)
+- **Problem:** Other modules on the site (AF3 and Camp Finder) still run Vue 2 and depend on the global `window.Vue` (Vue 2) provided by `openy_system/vue`. `@vue/cli-service` library mode **auto-externalizes `vue`** (it is not even in `vue.config.js` externals, which only lists `vue-router`/`axios`/`bootstrap-vue`). A naive Vue 3 build would resolve `vue` to the Vue 2 global and crash.
+- **Two paths — choose in W1-D4, do not pre-drop anything from `libraries.yml`:**
+  - **Bundle (recommended default):** bundle Vue 3 + Vue Router 4 **inside** `activity_finder_4.umd.min.js` (self-contained micro-frontend). Build-config work only — **override the auto-external so `vue` is bundled, not external** (W2-P0 / W3-P0). `libraries.yml` is **left as-is**; the `openy_system/vue` + `openy_system/vue-router` deps become inert but harmless. **No mandatory drop.**
+  - **Externalize:** only **when there is actually something to externalize** — register `openy_system/vue3` (+ vue-router 4) exposing `window.Vue3`, map the build externals to it, then update the `activity_finder_4` library deps. Consumer-contract change → `DECISIONS.md` entry; done at ship, not speculatively.
+- **Criterion:** bundling avoids touching `libraries.yml` and any global-collision risk; externalizing shares one Vue 3 copy across future Vue 3 modules. Default to bundle unless a second Vue 3 consumer already exists.
 
 ### B. Bootstrap 4 Class/Styling Parity
 - **Problem:** Modern Vue 3 Bootstrap libraries like `bootstrap-vue-next` target Bootstrap 5. However, the parent Drupal theme and pages operate on Bootstrap 4 (`bootstrap ^4.6.1` is in `package.json`). Loading Bootstrap 5 CSS will break the main site styles.
@@ -162,3 +166,32 @@ Based on research and environmental analysis, three critical architectural gaps 
 
 W0-P0 verifies and freezes this table; W7-P0 re-checks the produced build
 against it.
+
+## 9. HTTP client — `axios` → native `fetch` (W5-P6)
+
+- **Usage:** one file — `src/client/index.js` (`import axios from 'axios'` +
+  one `axios.create({...})` instance). No other AF4 source imports axios.
+- **Delivery:** `vue.config.js` externals `axios`; backed by the Drupal library
+  `openy_system/axios` on the `activity_finder_4` library deps.
+- **Target:** a small `fetch` wrapper with the same base URL
+  (`window.drupalSettings.path.baseUrl`), JSON handling, and error semantics the
+  callers rely on. Endpoints unchanged (`af/get-data`,
+  `af/api/v1/session-data`, `af/more-info`).
+- **Cleanup:** drop `axios` from `package.json` + `vue.config.js` externals;
+  remove the `openy_system/axios` library dep once confirmed unused.
+
+## 10. PHP backend — pluggable (W0b, separate concern)
+
+Not a Vue change — runs on the current Vue 2 app, lands before the migration.
+
+- **Today:** `OpenyActivityFinderBackendInterface` is implemented only by
+  `OpenyActivityFinderSolrBackend`, wired as the **hardwired** service
+  `openy_activity_finder.solr_backend` in `services.yml`. Consumers
+  (`ActivityFinderController`, `ActivityFinder4Block`) inject it directly.
+- **Target:** a **Drupal plugin type** `ActivityFinderBackend` (manager +
+  attribute discovery + base) with plugins `solr` (extracted, default), `mock`
+  (fixtures, no Solr), `db` (entity query, no Solr). Backend chosen in the
+  **block config form**; default `solr` keeps existing sites unchanged.
+- **Why it gates the migration:** the **Mock** backend lets AF4 run without a
+  Solr stack, so the Vue 2 → Vue 3 work (and W0-P1 baseline) can proceed on any
+  box. Detail in [`W0b-backend-harness/`](W0b-backend-harness/).

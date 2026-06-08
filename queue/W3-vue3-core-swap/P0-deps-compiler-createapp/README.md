@@ -12,7 +12,10 @@ preserving the mount id and the GA event bridge.
   `vue-template-compiler` (W1-P2 versions).
 - `openy_af4_vue_app/src/main.js` — bootstrap rewrite.
 - Build config (vue.config.js / vite.config.js) — point SFC compilation at the
-  Vue 3 compiler if the build tool needs it.
+  Vue 3 compiler if the build tool needs it; **per W1-D4 "bundle", override the
+  auto-external so `vue` (+ `vue-router` in P1) is bundled into the UMD, not
+  resolved from the Vue 2 `window.Vue`** (MIGRATION-REFERENCE §7A). `libraries.yml`
+  stays untouched on the bundle path.
 
 ## Steps
 
