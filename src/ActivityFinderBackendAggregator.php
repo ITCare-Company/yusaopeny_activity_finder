@@ -109,7 +109,8 @@ class ActivityFinderBackendAggregator {
       'table' => $this->routeSlice($backends, $counts, $parameters, $offset, $per_page, $log_id),
       'groupedLocations' => $this->groupedLocations($primary, $facets),
       'sort' => $parameters['sort'] ?? 'title__ASC',
-      'externals' => $this->collectExternals($backends, $parameters),
+      // Cast to object so an empty map serialises as {} (schema: object).
+      'externals' => (object) $this->collectExternals($backends, $parameters),
     ];
   }
 
