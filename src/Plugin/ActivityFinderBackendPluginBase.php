@@ -25,4 +25,11 @@ abstract class ActivityFinderBackendPluginBase extends PluginBase implements Ope
     return (string) $this->pluginDefinition['label'];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getExternals(array $parameters): array {
+    return [];
+  }
+
 }

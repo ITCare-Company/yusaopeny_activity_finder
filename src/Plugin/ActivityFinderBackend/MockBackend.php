@@ -95,6 +95,11 @@ class MockBackend extends ActivityFinderBackendPluginBase {
     $rows = $this->filterByField($rows, 'program_id', $parameters['categories'] ?? '');
     $rows = $this->filterByKeyword($rows, $parameters['keywords'] ?? '');
     $rows = $this->filterByDays($rows, $parameters['days'] ?? '');
+    // Block-level restrictions: limit (only these) and exclude (remove these).
+    $rows = $this->filterByField($rows, 'program_id', $parameters['limit'] ?? '');
+    $rows = $this->filterByField($rows, 'location_id', $parameters['limitloc'] ?? '');
+    $rows = $this->excludeByField($rows, 'program_id', $parameters['exclude'] ?? '');
+    $rows = $this->excludeByField($rows, 'location_id', $parameters['excludeloc'] ?? '');
     return array_values($rows);
   }
 
@@ -107,6 +112,17 @@ class MockBackend extends ActivityFinderBackendPluginBase {
       return $rows;
     }
     return array_filter($rows, fn($row) => in_array((string) ($row[$field] ?? ''), $selected, TRUE));
+  }
+
+  /**
+   * Removes rows whose field value is in the comma-separated selection.
+   */
+  protected function excludeByField(array $rows, string $field, string $csv): array {
+    $excluded = array_filter(explode(',', $csv));
+    if (!$excluded) {
+      return $rows;
+    }
+    return array_filter($rows, fn($row) => !in_array((string) ($row[$field] ?? ''), $excluded, TRUE));
   }
 
   /**

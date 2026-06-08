@@ -149,4 +149,19 @@ interface OpenyActivityFinderBackendInterface {
    */
   public function getProgramsMoreInfo($request);
 
+  /**
+   * Get backend-specific extras for the response 'externals' field (D10).
+   *
+   * An open key-value map for values that do not fit the shared response schema
+   * (e.g. Daxko-only fields). Common consumers ignore it; bespoke consumers read
+   * it. Defaults to an empty array.
+   *
+   * @param array $parameters
+   *   GET parameters for the search.
+   *
+   * @return array
+   *   Backend-specific key-value extras.
+   */
+  public function getExternals(array $parameters): array;
+
 }

@@ -109,7 +109,22 @@ class ActivityFinderBackendAggregator {
       'table' => $this->routeSlice($backends, $counts, $parameters, $offset, $per_page, $log_id),
       'groupedLocations' => $this->groupedLocations($primary, $facets),
       'sort' => $parameters['sort'] ?? 'title__ASC',
+      'externals' => $this->collectExternals($backends, $parameters),
     ];
+  }
+
+  /**
+   * Collects backend-specific extras keyed by plugin id (D10 'externals').
+   */
+  protected function collectExternals(array $backends, array $parameters): array {
+    $externals = [];
+    foreach ($backends as $id => $backend) {
+      $extras = $backend->getExternals($parameters);
+      if ($extras) {
+        $externals[$id] = $extras;
+      }
+    }
+    return $externals;
   }
 
   /**
