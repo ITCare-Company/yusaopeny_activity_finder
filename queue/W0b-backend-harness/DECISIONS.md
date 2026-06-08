@@ -176,3 +176,34 @@ supersede the decisions above; cite this section, not the originals.
   prop) and a `dist/` rebuild. This is a deliberate, scoped exception recorded
   here.
 
+## Factory across all three apps + Solr submodule (commits f0a66f8, 1e05191)
+
+The plugin manager is the **single factory for every Activity Finder app**, not
+just AF4. Scope grew beyond AF4 because removing the global Solr service would
+otherwise break AF3 and Camp Finder.
+
+- **All consumers resolve via the factory.** AF3 `ActivityFinderBlock`,
+  `ActivityFinderSearchBlock`, Camp Finder `CampFinderBlock`, the search_api
+  processors and `SettingsForm` no longer call `\Drupal::service($service_id)`;
+  they use `plugin.manager.activity_finder_backend->createInstance($id)`.
+- **Resolution order.** A block/paragraph/LB embed uses its per-block
+  `backend_plugin` if set; otherwise it **inherits the global**
+  `openy_activity_finder.settings:backend`. No hardcoded default. Fresh-install
+  global default = `mock`; existing sites = `solr` (via hook_update).
+- **`getSessions` removed from the contract.** Items are results, not a bespoke
+  type — saved-item refresh (`SessionData` REST) fetches via `getResults()` with
+  an `ids` filter through the aggregator. Each result row carries a `backend`
+  **provenance** field and dedup is per `(backend, nid)`.
+- **`getCategoriesTopLevel`** added to the contract (AF3/CF use it).
+- **SettingsForm** lists discovered plugin definitions and stores a plugin id.
+- **Solr extracted** to the `openy_activity_finder_solr` submodule (the Solr
+  implementation, the `solr` plugin, the 8 search_api processors, and the
+  `search_api`/`search_api_solr` deps). The main module no longer contains or
+  depends on Solr. Shared constants live on the interface
+  (`RESULTS_PER_PAGE`, `CACHE_TAG`).
+- **`hook_update_9006`** enables the submodule and maps the legacy service id
+  (`openy_activity_finder.solr_backend` → `solr`,
+  `openy_daxko2.openy_activity_finder_backend` → `daxko`).
+- **Daxko** is not converted here — that module must ship its own
+  `ActivityFinderBackend` plugin (it will be auto-discovered).
+
