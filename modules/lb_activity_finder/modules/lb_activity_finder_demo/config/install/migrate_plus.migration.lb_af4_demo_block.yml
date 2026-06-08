@@ -37,6 +37,18 @@ process:
     default_value: lb_activity_finder
   uuid: uuid
   info: title
+  field_block:
+    plugin: default_value
+    default_value:
+      plugin_id: activity_finder_4
+      plugin_configuration:
+        id: activity_finder_4
+        label: 'Activity Finder v4'
+        label_display: '0'
+        provider: openy_activity_finder
+        backend_plugin:
+          - mock
+      plugin_configuration_schema_id: block.settings.activity_finder_4
 destination:
   plugin: 'entity:block_content'
   default_bundle: lb_activity_finder
