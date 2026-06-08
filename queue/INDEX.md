@@ -92,6 +92,15 @@ Keep order by wave, then phase.
 | P1 drush smoke on a live Open Y site | pending | [`W7-drupal-integration-ship/P1-drush-smoke/README.md`](W7-drupal-integration-ship/P1-drush-smoke/README.md) |
 | P2 PR to fork | pending | [`W7-drupal-integration-ship/P2-pr/README.md`](W7-drupal-integration-ship/P2-pr/README.md) |
 
+## W8 — Retro & upstream (after all done)
+
+| Phase | Status | Path |
+|---|---|---|
+| P0 Lessons-learned harvest | pending | [`W8-retro-upstream/P0-lessons-harvest/README.md`](W8-retro-upstream/P0-lessons-harvest/README.md) |
+| P1 Enrich upstream anatomy doc (PR) | pending | [`W8-retro-upstream/P1-upstream-anatomy-pr/README.md`](W8-retro-upstream/P1-upstream-anatomy-pr/README.md) |
+| P2 Subtree-import queue as PKB entry | pending | [`W8-retro-upstream/P2-subtree-import-pkb/README.md`](W8-retro-upstream/P2-subtree-import-pkb/README.md) |
+| P3 Back-reference + close ITCR-1273 | pending | [`W8-retro-upstream/P3-backreference-close/README.md`](W8-retro-upstream/P3-backreference-close/README.md) |
+
 ## Wave-level docs
 
 | Wave | README | DECISIONS |
@@ -104,6 +113,7 @@ Keep order by wave, then phase.
 | W5 | [`W5-vue3-api-rewrites/README.md`](W5-vue3-api-rewrites/README.md) | [`DECISIONS.md`](W5-vue3-api-rewrites/DECISIONS.md) |
 | W6 | [`W6-qa-visual-functional/README.md`](W6-qa-visual-functional/README.md) | [`DECISIONS.md`](W6-qa-visual-functional/DECISIONS.md) |
 | W7 | [`W7-drupal-integration-ship/README.md`](W7-drupal-integration-ship/README.md) | (single-surface wave) |
+| W8 | [`W8-retro-upstream/README.md`](W8-retro-upstream/README.md) | [`DECISIONS.md`](W8-retro-upstream/DECISIONS.md) |
 
 ---
 

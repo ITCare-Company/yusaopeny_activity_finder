@@ -75,11 +75,14 @@ Audited on the `6.x` branch of the fork — exact counts feed the phases:
 | W5-vue3-api-rewrites | Filters removal (~103 pipes), global mixin → global props/composable, emits/v-model audit, slots sweep, FontAwesome/Iconify bump, eslint-plugin-vue 9. | [`W5-vue3-api-rewrites/`](W5-vue3-api-rewrites/) |
 | W6-qa-visual-functional | Walk every screen/step/modal/filter at desktop/tablet/mobile, diff vs W0 baseline. **Ira's wave** — driven by the progress table in `INDEX.md`. | [`W6-qa-visual-functional/`](W6-qa-visual-functional/) |
 | W7-drupal-integration-ship | Production build, verify UMD global + `.css` + `libraries.yml` contract, drush smoke on a real Open Y site, open PR. | [`W7-drupal-integration-ship/`](W7-drupal-integration-ship/) |
+| W8-retro-upstream | **After all done.** Harvest lessons, PR them into the shared migration anatomy, subtree-import this queue as a PKB entry, back-reference + close ITCR-1273. Fulfils the anatomy-upstream-PR obligation. | [`W8-retro-upstream/`](W8-retro-upstream/) |
 
 **Gating.** W0 blocks all (no migration without a frozen baseline). W1 blocks
 W2–W5 (toolchain/dep choices). W2 blocks W3 (build green before core swap).
 W3 blocks W4–W5. W4+W5 block W6 (nothing to QA until code migrated). W6
-blocks W7 (do not ship un-QA'd output).
+blocks W7 (do not ship un-QA'd output). W7 blocks W8 (only retro a shipped
+migration). W8 returns lessons to
+[`template_for_agents` migration anatomy](https://github.com/ITCare-Company/template_for_agents/blob/main/process-knowledge-base/MIGRATION-QUEUE-ANATOMY.md).
 
 ## Conventions
 

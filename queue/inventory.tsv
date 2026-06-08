@@ -31,3 +31,7 @@ seq	wave	phase	epic	status	commit_or_pr	blocked_by	preview_path	baseline	verifie
 30	W7-drupal-integration-ship	P0-prod-build-contract	prod-build-verify-contract	pending		29	openy_af4_vue_app/dist	—	—	UMD global + css + libraries.yml intact
 31	W7-drupal-integration-ship	P1-drush-smoke	live-drush-smoke	pending		30	#activity-finder on live site	—	—	ddev drush cr + load AF4 page
 32	W7-drupal-integration-ship	P2-pr	open-pr-to-fork	pending		31	—	—	—	PR into 6.x
+33	W8-retro-upstream	P0-lessons-harvest	af4-migration-lessons	pending		32	queue W*/DECISIONS.md	—	—	tag universal vs AF4-specific
+34	W8-retro-upstream	P1-upstream-anatomy-pr	enrich-migration-anatomy	pending		33	template_for_agents PKB	—	—	PR per anatomy-upstream rule
+35	W8-retro-upstream	P2-subtree-import-pkb	import-queue-to-pkb	pending		33	process-knowledge-base/	—	—	git subtree add + register indexes
+36	W8-retro-upstream	P3-backreference-close	close-itcr-1273	pending		34,35	ITCR-1273	—	—	methodology back-ref + close loop
