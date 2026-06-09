@@ -14,9 +14,10 @@ no per-block choice and no discovery.
 
 Now backends are **plugins** of type `ActivityFinderBackend`, discovered from
 `src/Plugin/ActivityFinderBackend/` via the `#[ActivityFinderBackend(...)]`
-attribute (annotation fallback below Drupal 10.2). Selection is **per block**
-(block config key `backend_plugin`, a list) and resolved through the plugin
-manager `plugin.manager.activity_finder_backend`.
+attribute (annotation fallback below Drupal 10.2). Selection is **per block** —
+a single backend (block config key `backend_plugin`, a plugin id; empty inherits
+the site default) resolved through the plugin manager
+`plugin.manager.activity_finder_backend`.
 
 Shipped plugins: `mock` (static fixtures, no Solr — the default) and `solr`
 (the search index).
