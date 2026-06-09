@@ -63,15 +63,64 @@ class MockBackend extends ActivityFinderBackendPluginBase {
   }
 
   /**
-   * Loads the captured full search response fixture.
+   * Loads the captured full search response fixture, shifted to the present.
    */
   protected function searchFixture(): array {
-    return $this->fixture('runProgramSearch_empty', [
+    $data = $this->fixture('runProgramSearch_empty', [
       'count' => 0,
       'facets' => [],
       'table' => [],
       'groupedLocations' => [],
     ]);
+    return $this->shiftToNow($data);
+  }
+
+  /**
+   * Whole-month offset from the fixture's capture date to today.
+   *
+   * Keeps Mock results in the current timeframe so captured dates never drift
+   * into the past as real time advances.
+   */
+  protected function shiftMonths(int &$captured_year): int {
+    $meta = $this->fixture('_meta', ['captured_year' => 2026, 'captured_month' => 6]);
+    $captured_year = (int) $meta['captured_year'];
+    $now = new \DateTime('now');
+    return ((int) $now->format('Y') * 12 + (int) $now->format('n'))
+      - ($captured_year * 12 + (int) $meta['captured_month']);
+  }
+
+  /**
+   * Shifts the date-bearing fields of a search response forward to the present.
+   */
+  protected function shiftToNow(array $data): array {
+    $captured_year = 2026;
+    $delta = $this->shiftMonths($captured_year);
+    if ($delta === 0) {
+      return $data;
+    }
+    foreach (($data['table'] ?? []) as $i => $row) {
+      if (!empty($row['dates'])) {
+        $data['table'][$i]['dates'] = $this->shiftDateString((string) $row['dates'], $captured_year, $delta);
+      }
+    }
+    foreach (($data['facets']['af_start_month'] ?? []) as $i => $facet) {
+      if (isset($facet['filter']) && is_numeric($facet['filter'])) {
+        $data['facets']['af_start_month'][$i]['filter'] = (string) ((((int) $facet['filter'] - 1 + $delta) % 12 + 12) % 12 + 1);
+      }
+    }
+    return $data;
+  }
+
+  /**
+   * Shifts a rendered "M d" date by whole months, keeping the "M d" format.
+   */
+  protected function shiftDateString(string $value, int $captured_year, int $delta): string {
+    $date = \DateTime::createFromFormat('M d Y', "$value $captured_year");
+    if (!$date) {
+      return $value;
+    }
+    $date->modify(($delta >= 0 ? '+' : '-') . abs($delta) . ' months');
+    return $date->format('M d');
   }
 
   /**
