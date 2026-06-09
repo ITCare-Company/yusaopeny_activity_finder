@@ -47,8 +47,9 @@ factory.
   `fixtures/schema/runProgramSearch.schema.json`.
 - **Selection.** The global default backend is set at
   `/admin/openy/settings/activity-finder` (stored as a plugin id). An AF4 block
-  may override it per block (one or more backends) in the block form; with none
-  selected the block inherits the global default.
+  may override it per block (a single backend) in the block form; with "Site
+  default" selected the block inherits the global default. (Running several
+  backends at once is an experimental follow-up — see the queue.)
 - **`externals`.** Backends attach backend-specific extras under the response
   `externals` map without changing the shared schema.
 

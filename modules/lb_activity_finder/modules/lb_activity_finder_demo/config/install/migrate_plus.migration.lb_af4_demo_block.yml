@@ -46,8 +46,7 @@ process:
         label: 'Activity Finder v4'
         label_display: '0'
         provider: openy_activity_finder
-        backend_plugin:
-          - mock
+        backend_plugin: mock
       plugin_configuration_schema_id: block.settings.activity_finder_4
 destination:
   plugin: 'entity:block_content'

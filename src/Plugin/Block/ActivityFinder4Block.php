@@ -93,7 +93,7 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
   public function defaultConfiguration() {
     return [
       'label_display' => 'visible',
-      'backend_plugin' => [],
+      'backend_plugin' => '',
       'limit_by_category_daxko' => [],
       'limit_by_category' => [],
       'exclude_by_category' => [],
@@ -269,12 +269,13 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
     [$activity_finder_settings, $backend_service_id, $backend] = $this->getBackend();
     $conf = $this->getConfiguration();
 
+    $stored_backend = is_array($conf['backend_plugin'] ?? '') ? (string) reset($conf['backend_plugin']) : (string) ($conf['backend_plugin'] ?? '');
     $form['backend_plugin'] = [
-      '#type' => 'checkboxes',
-      '#title' => $this->t('Backend(s)'),
-      '#description' => $this->t('Data source(s) for this Activity Finder. Leave empty to use the site default backend. Select one or more to override: "Mock" serves static fixtures with no Solr; "Solr" uses the search index. With several selected, counts and facets are merged and the global page is routed across them.'),
-      '#options' => $this->getBackendPluginOptions(),
-      '#default_value' => array_values(array_filter((array) ($conf['backend_plugin'] ?? []))),
+      '#type' => 'select',
+      '#title' => $this->t('Backend'),
+      '#description' => $this->t('Data source for this Activity Finder. "Site default" uses the global backend. "Mock" serves static fixtures with no Solr; "Solr" uses the search index.'),
+      '#options' => ['' => $this->t('— Site default —')] + $this->getBackendPluginOptions(),
+      '#default_value' => $stored_backend,
     ];
 
     // Store Daxko limit fields separately since they're strings and not references.
@@ -443,7 +444,7 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
    * {@inheritdoc}
    */
   public function blockSubmit($form, FormStateInterface $form_state) {
-    $this->configuration['backend_plugin'] = array_values(array_filter($form_state->getValue('backend_plugin')));
+    $this->configuration['backend_plugin'] = (string) $form_state->getValue('backend_plugin');
     $this->configuration['limit_by_category_daxko'] = $form_state->getValue('limit_by_category_daxko');
     $location_category = $form_state->getValue('location_category');
     $this->configuration['limit_by_category'] = $location_category['limit_by_category']
@@ -479,23 +480,24 @@ class ActivityFinder4Block extends BlockBase implements ContainerFactoryPluginIn
   }
 
   /**
-   * Returns this block's selected backend plugin ids, primary first.
+   * Returns this block's selected backend plugin id, wrapped in an array.
    *
-   * Stored ids are validated against the registered plugins; unregistered ids
-   * are dropped (never silently swapped for another backend). An unconfigured
-   * block uses the documented default. May return an empty list when stored
-   * backends are no longer registered — callers must surface that, not mask it.
+   * A block runs a single backend. With no per-block choice it inherits the
+   * global default (openy_activity_finder.settings:backend). The id is validated
+   * against the registered plugins; an unregistered id is dropped (never
+   * silently swapped). Returned as a list of at most one for the aggregator
+   * (multi-backend is an experimental follow-up — see W0b DECISIONS D11).
    *
    * @return string[]
-   *   Registered backend plugin ids, primary first.
+   *   The registered backend plugin id, as a 0- or 1-element list.
    */
   public function getSelectedBackendIds(): array {
-    $ids = array_values(array_filter((array) ($this->configuration['backend_plugin'] ?? [])));
-    // No per-block choice: inherit the global default backend.
-    if (!$ids) {
-      $ids = array_filter([$this->configFactory->get('openy_activity_finder.settings')->get('backend')]);
+    $stored = $this->configuration['backend_plugin'] ?? '';
+    $id = is_array($stored) ? (string) reset($stored) : (string) $stored;
+    if ($id === '') {
+      $id = (string) $this->configFactory->get('openy_activity_finder.settings')->get('backend');
     }
-    return array_values(array_filter($ids, fn($id) => $this->backendManager->hasDefinition($id)));
+    return ($id !== '' && $this->backendManager->hasDefinition($id)) ? [$id] : [];
   }
 
   /**
