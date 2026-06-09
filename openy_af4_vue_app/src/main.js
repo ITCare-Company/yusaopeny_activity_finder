@@ -3,7 +3,6 @@ import { createApp, configureCompat } from 'vue'
 // Remove configureCompat call when @vue/compat is dropped (after W5).
 configureCompat({ MODE: 2 })
 
-import BootstrapVue from 'bootstrap-vue'
 import App from '@/App.vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import {
@@ -51,9 +50,6 @@ document.addEventListener('openy_activity_finder_event', e => {
 const app = createApp({
   components: { 'activity-finder': App }
 })
-
-// TODO(W4): remove when BootstrapVue replaced with hand-rolled components
-app.use(BootstrapVue)
 
 app.component('font-awesome-icon', FontAwesomeIcon)
 
