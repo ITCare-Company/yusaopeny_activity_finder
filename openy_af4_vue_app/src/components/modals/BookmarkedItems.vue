@@ -4,7 +4,7 @@
       <font-awesome-icon icon="bookmark" />
       <span class="bookmarked-items">{{ t('Bookmarked items') }}</span>
     </template>
-    <template>
+    <template v-slot:default>
       <div class="bookmarked-items-modal-content">
         <div v-if="!cartItems.length">
           <BookmarkFeatureDescription />

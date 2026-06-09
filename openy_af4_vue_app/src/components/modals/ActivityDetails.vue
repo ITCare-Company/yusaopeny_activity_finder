@@ -6,8 +6,8 @@
     narrow
     responsive
   >
-    <template>
-      <div class="activity-details-modal-content">
+    <template v-slot:default>
+      <div v-if="item" class="activity-details-modal-content">
         <Loading v-if="isLoadingData" />
         <div v-else class="row">
           <div class="col-12 col-xs-12 col-md-6 left-wrapper">

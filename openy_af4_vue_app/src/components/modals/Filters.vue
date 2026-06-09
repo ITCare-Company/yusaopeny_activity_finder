@@ -1,6 +1,6 @@
 <template>
   <Modal id="activity-finder-filters" v-model="visible" title="Filters" narrow>
-    <template>
+    <template v-slot:default>
       <div class="filters-modal-content">
         <div class="row">
           <div class="col-12 col-xs-12">
