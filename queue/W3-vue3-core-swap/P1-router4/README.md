@@ -47,6 +47,10 @@ Build green.
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09. **Decision: REMOVED.**
 
-Router migrated to v4 **or** removed; decision + evidence in W3 `DECISIONS.md`.
+Evidence: `grep -rn '\$route\|\$router' src/` → zero results. `routes = []` in index.js.
+Router was vestigial — AF4 drives screens via `step` state in App.vue.
+`src/router/index.js` deleted; `app.use(router)` removed from main.js.
+`vue-router` kept in package.json (still a dep of bootstrap-vue); removed from externals (bundled per D4).
+Decision logged in W3 DECISIONS.md.

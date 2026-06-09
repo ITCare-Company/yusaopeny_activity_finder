@@ -1,9 +1,19 @@
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue2'
+import vue from '@vitejs/plugin-vue'
 import path from 'path'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue({
+      // W3: @vue/compat MODE 2 — allows Vue 2 filter/mixin/component syntax in templates.
+      // Remove when W5 filter rewrite is complete and @vue/compat is dropped.
+      template: {
+        compilerOptions: {
+          compatConfig: { MODE: 2 }
+        }
+      }
+    })
+  ],
 
   // Replace process.env.NODE_ENV in browser UMD builds (webpack did this automatically).
   define: {
@@ -11,15 +21,18 @@ export default defineConfig({
   },
 
   resolve: {
-    alias: { '@': path.resolve(__dirname, 'src') },
+    // W3: alias vue → @vue/compat for compat MODE 2 runtime support.
+    // Remove alias when @vue/compat is dropped (after W5).
+    alias: {
+      vue: '@vue/compat',
+      '@': path.resolve(__dirname, 'src')
+    },
     extensions: ['.mjs', '.js', '.json', '.vue']
   },
 
   css: {
     preprocessorOptions: {
       scss: {
-        // Make Bootstrap SCSS + AF4 variables available in every component.
-        // Skip injection for files already inside src/scss/ to avoid circular imports.
         additionalData: (content, filepath) => {
           if (filepath.includes('src/scss')) return content
           return `@import "${path.resolve(__dirname, 'src/scss/global.scss')}";\n${content}`
@@ -37,13 +50,11 @@ export default defineConfig({
       fileName: () => 'activity_finder_4.umd.min.js'
     },
     rollupOptions: {
-      // W2: keep same externals as vue.config.js (Vue 2 contract unchanged).
-      // W3 flip: remove 'vue' and 'vue-router' to bundle Vue 3 (D1/D4).
-      external: ['vue', 'vue-router', 'axios', 'bootstrap-vue'],
+      // D4: Vue 3 + Vue Router bundled inside UMD (no window.Vue conflict with AF3/CF).
+      // W3 flip: 'vue' and 'vue-router' removed from externals vs W2.
+      external: ['axios', 'bootstrap-vue'],
       output: {
         globals: {
-          vue: 'Vue',
-          'vue-router': 'VueRouter',
           axios: 'axios',
           'bootstrap-vue': 'BootstrapVue'
         },

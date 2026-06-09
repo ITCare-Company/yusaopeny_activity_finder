@@ -41,7 +41,17 @@ is captured and each item is assigned to W4 or W5.
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09. Boot smoke PASSED on af4-migration.ddev.site.
 
-Boot smoke passed; screenshot + console-error inventory attached; each error
-routed to its wave.
+- `#activity-finder` mounts ✅
+- 31 Mock sessions render ✅
+- Filters (SCHEDULES, ACTIVITIES, LOCATIONS) visible ✅
+- Modal opens on session title click ✅ (BootstrapVue b-modal still works via compat)
+- Screenshots: `queue/W3-vue3-core-swap/screenshots/`
+
+Expected console warnings (not errors):
+- `[Vue compat]` deprecation notices for filter/mixin/use APIs — routed to W5-P0, W5-P1, W4
+- `[BootstrapVue]` — routed to W4
+- `getBoundingClientRect` on sticky nav — pre-existing theme issue, unrelated to AF4
+
+No boot-time crashes. W3 gate passed.
