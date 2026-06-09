@@ -59,7 +59,7 @@ export default {
     Step
   },
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     },
@@ -78,15 +78,15 @@ export default {
   },
   data() {
     return {
-      selectedDays: this.value
+      selectedDays: this.modelValue
     }
   },
   computed: {
     filtersSelected() {
-      return this.value.length >= 1
+      return this.modelValue.length >= 1
     },
     filtersCount() {
-      return this.value.length
+      return this.modelValue.length
     },
     optionsCount() {
       let count = 0
@@ -97,18 +97,18 @@ export default {
     }
   },
   watch: {
-    value() {
-      this.selectedDays = this.value
+    modelValue() {
+      this.selectedDays = this.modelValue
     }
   },
   methods: {
     onChange(day) {
       this.trackEvent('selectDays', 'Click on day ' + day.search_value, day.value)
-      this.$emit('input', this.selectedDays)
+      this.$emit('update:modelValue', this.selectedDays)
     },
     onSkip() {
       this.trackEvent('skip', 'Click on selectDays')
-      this.$emit('input', [])
+      this.$emit('update:modelValue', [])
       this.$emit('nextStep')
     },
     onNext() {

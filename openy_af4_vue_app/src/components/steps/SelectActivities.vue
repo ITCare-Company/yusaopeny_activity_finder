@@ -65,7 +65,7 @@ export default {
     Step
   },
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     },
@@ -96,7 +96,7 @@ export default {
   },
   data() {
     return {
-      selectedActivities: this.multiple ? this.value : this.value.length ? this.value[0] : null
+      selectedActivities: this.multiple ? this.modelValue : this.modelValue.length ? this.modelValue[0] : null
     }
   },
   computed: {
@@ -145,7 +145,7 @@ export default {
       return filteredActivities
     },
     filtersSelected() {
-      return this.value.length >= 1
+      return this.modelValue.length >= 1
     },
     firstItemWithOptions() {
       for (let key in this.activities) {
@@ -157,22 +157,22 @@ export default {
     }
   },
   watch: {
-    value() {
+    modelValue() {
       this.selectedActivities = this.multiple
-        ? this.value
-        : this.value.length
-        ? this.value[0]
+        ? this.modelValue
+        : this.modelValue.length
+        ? this.modelValue[0]
         : null
     }
   },
   methods: {
     onChange(activity) {
       this.trackEvent('selectActivities', 'Click on activity ' + activity.label, activity.value)
-      this.$emit('input', this.multiple ? this.selectedActivities : [this.selectedActivities])
+      this.$emit('update:modelValue', this.multiple ? this.selectedActivities : [this.selectedActivities])
     },
     onSkip() {
       this.trackEvent('skip', 'Click on selectActivities')
-      this.$emit('input', [])
+      this.$emit('update:modelValue', [])
       this.$emit('nextStep')
     },
     onNext() {
@@ -188,7 +188,7 @@ export default {
     },
     subFiltersCount(index) {
       let result = 0
-      this.value.forEach(item => {
+      this.modelValue.forEach(item => {
         if (
           this.activities[index].value.find(activity => String(activity.value) === String(item))
         ) {

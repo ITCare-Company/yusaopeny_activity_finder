@@ -66,7 +66,7 @@ export default {
     Step
   },
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     },
@@ -89,15 +89,15 @@ export default {
   },
   data() {
     return {
-      selectedAges: this.value
+      selectedAges: this.modelValue
     }
   },
   computed: {
     filtersSelected() {
-      return this.value.length >= 1
+      return this.modelValue.length >= 1
     },
     filtersCount() {
-      return this.value.length
+      return this.modelValue.length
     },
     optionsCount() {
       let count = 0
@@ -108,18 +108,18 @@ export default {
     }
   },
   watch: {
-    value() {
-      this.selectedAges = this.value
+    modelValue() {
+      this.selectedAges = this.modelValue
     }
   },
   methods: {
     onChange(age) {
       this.trackEvent('selectAges', 'Click on age ' + age.label, age.value)
-      this.$emit('input', this.selectedAges)
+      this.$emit('update:modelValue', this.selectedAges)
     },
     onSkip() {
       this.trackEvent('skip', 'Click on selectAges')
-      this.$emit('input', [])
+      this.$emit('update:modelValue', [])
       this.$emit('nextStep')
     },
     onNext() {
@@ -136,14 +136,14 @@ export default {
     isDisabled(value) {
       return !!(
         this.facetCount(value) === 0 ||
-        (this.maxAges && this.value.length >= this.maxAges && !this.value.includes(value))
+        (this.maxAges && this.modelValue.length >= this.maxAges && !this.modelValue.includes(value))
       )
     },
     isTooltipDisplay(value) {
       return !!(
         this.maxAges &&
-        this.value.length >= this.maxAges &&
-        !this.value.includes(value) &&
+        this.modelValue.length >= this.maxAges &&
+        !this.modelValue.includes(value) &&
         this.facetCount(value) > 0
       )
     }

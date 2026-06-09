@@ -30,7 +30,7 @@ export default {
     Foldable
   },
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     },
@@ -49,7 +49,7 @@ export default {
   },
   data() {
     return {
-      selectedStartMonths: this.value
+      selectedStartMonths: this.modelValue
     }
   },
   computed: {
@@ -58,11 +58,11 @@ export default {
     }
   },
   watch: {
-    value() {
-      this.selectedStartMonths = this.value
+    modelValue() {
+      this.selectedStartMonths = this.modelValue
     },
     selectedStartMonths() {
-      this.$emit('input', this.selectedStartMonths)
+      this.$emit('update:modelValue', this.selectedStartMonths)
     }
   },
   methods: {

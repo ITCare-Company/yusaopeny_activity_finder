@@ -40,7 +40,7 @@
 export default {
   name: 'Modal',
   props: {
-    value: { type: Boolean, default: false },
+    modelValue: { type: Boolean, default: false },
     id: { type: String, required: true },
     title: { type: String, default: '' },
     flyout: { type: Boolean, default: false },
@@ -48,11 +48,11 @@ export default {
     responsive: { type: Boolean, default: false }
   },
   data() {
-    return { visible: this.value }
+    return { visible: this.modelValue }
   },
   watch: {
-    value(val) { this.visible = val },
-    visible(val) { this.$emit('input', val) }
+    modelValue(val) { this.visible = val },
+    visible(val) { this.$emit('update:modelValue', val) }
   },
   mounted() {
     document.addEventListener('keydown', this.handleKeydown)

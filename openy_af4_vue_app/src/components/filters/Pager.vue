@@ -54,7 +54,7 @@
 export default {
   name: 'Pager',
   props: {
-    value: {
+    modelValue: {
       type: Number,
       required: true
     },
@@ -65,12 +65,12 @@ export default {
   },
   data() {
     return {
-      selectedPage: this.value
+      selectedPage: this.modelValue
     }
   },
   watch: {
-    value() {
-      this.selectedPage = this.value
+    modelValue() {
+      this.selectedPage = this.modelValue
     }
   },
   methods: {
@@ -101,7 +101,7 @@ export default {
       this.updateParent()
     },
     updateParent() {
-      this.$emit('input', this.selectedPage)
+      this.$emit('update:modelValue', this.selectedPage)
     }
   }
 }
