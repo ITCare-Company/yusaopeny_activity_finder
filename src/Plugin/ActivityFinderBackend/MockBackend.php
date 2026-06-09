@@ -76,17 +76,28 @@ class MockBackend extends ActivityFinderBackendPluginBase {
   }
 
   /**
-   * Whole-month offset from the fixture's capture date to today.
+   * Whole-week offset from the fixture's capture date to today.
    *
    * Keeps Mock results in the current timeframe so captured dates never drift
-   * into the past as real time advances.
+   * into the past. Shifting by whole weeks preserves each session's weekday, so
+   * the dates stay consistent with the (untouched) weekly schedule.
+   *
+   * @param int $captured_year
+   *   Set to the fixture's capture year (the rendered "M d" dates carry none).
+   *
+   * @return int
+   *   Number of days to add (a multiple of 7), or 0 when no shift is needed.
    */
-  protected function shiftMonths(int &$captured_year): int {
-    $meta = $this->fixture('_meta', ['captured_year' => 2026, 'captured_month' => 6]);
+  protected function shiftDays(int &$captured_year): int {
+    $meta = $this->fixture('_meta', ['captured_year' => 2026, 'captured_month' => 6, 'captured_day' => 8]);
     $captured_year = (int) $meta['captured_year'];
-    $now = new \DateTime('now');
-    return ((int) $now->format('Y') * 12 + (int) $now->format('n'))
-      - ($captured_year * 12 + (int) $meta['captured_month']);
+    $anchor = \DateTime::createFromFormat('Y-n-j H:i:s', sprintf('%d-%d-%d 00:00:00', $meta['captured_year'], $meta['captured_month'], $meta['captured_day']));
+    $today = new \DateTime('today');
+    if (!$anchor || $anchor >= $today) {
+      return 0;
+    }
+    $weeks = (int) ceil(((int) $anchor->diff($today)->days) / 7);
+    return $weeks * 7;
   }
 
   /**
@@ -94,33 +105,33 @@ class MockBackend extends ActivityFinderBackendPluginBase {
    */
   protected function shiftToNow(array $data): array {
     $captured_year = 2026;
-    $delta = $this->shiftMonths($captured_year);
-    if ($delta === 0) {
+    $days = $this->shiftDays($captured_year);
+    if ($days === 0) {
       return $data;
     }
+    $months = [];
     foreach (($data['table'] ?? []) as $i => $row) {
-      if (!empty($row['dates'])) {
-        $data['table'][$i]['dates'] = $this->shiftDateString((string) $row['dates'], $captured_year, $delta);
+      if (empty($row['dates'])) {
+        continue;
       }
+      $date = \DateTime::createFromFormat('M d Y', $row['dates'] . ' ' . $captured_year);
+      if (!$date) {
+        continue;
+      }
+      $date->modify('+' . $days . ' days');
+      $data['table'][$i]['dates'] = $date->format('M d');
+      $month = (int) $date->format('n');
+      $months[$month] = ($months[$month] ?? 0) + 1;
     }
-    foreach (($data['facets']['af_start_month'] ?? []) as $i => $facet) {
-      if (isset($facet['filter']) && is_numeric($facet['filter'])) {
-        $data['facets']['af_start_month'][$i]['filter'] = (string) ((((int) $facet['filter'] - 1 + $delta) % 12 + 12) % 12 + 1);
+    // Rebuild the start-month facet from the shifted dates.
+    if (!empty($data['facets']['af_start_month']) && $months) {
+      ksort($months);
+      $data['facets']['af_start_month'] = [];
+      foreach ($months as $month => $count) {
+        $data['facets']['af_start_month'][] = ['filter' => (string) $month, 'count' => $count];
       }
     }
     return $data;
-  }
-
-  /**
-   * Shifts a rendered "M d" date by whole months, keeping the "M d" format.
-   */
-  protected function shiftDateString(string $value, int $captured_year, int $delta): string {
-    $date = \DateTime::createFromFormat('M d Y', "$value $captured_year");
-    if (!$date) {
-      return $value;
-    }
-    $date->modify(($delta >= 0 ? '+' : '-') . abs($delta) . ' months');
-    return $date->format('M d');
   }
 
   /**
