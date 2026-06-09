@@ -5,7 +5,7 @@
         <div class="row">
           <div class="col-12 col-xs-12">
             <div class="content">
-              <div class="description">{{ 'The following filters have been applied' | t }}:</div>
+              <div class="description">{{ t('The following filters have been applied') }}:</div>
               <ul>
                 <li v-for="(item, index) in filterList" :key="index">
                   {{ item }}
@@ -13,7 +13,7 @@
               </ul>
               <div class="text-center">
                 <button type="button" class="btn btn-lg view-results" @click="viewResults()">
-                  {{ 'View results' | t }}
+                  {{ t('View results') }}
                 </button>
               </div>
             </div>

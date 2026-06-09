@@ -7,19 +7,19 @@
             <span v-if="!disableSearchBox" class="control search" @click="searchModal.visible = true">
               <a role="button">
                 <Icon icon="material-symbols:search" />
-                {{ 'Search' | t }}
+                {{ t('Search') }}
               </a>
             </span>
             <span class="control filter" @click="filterModal.visible = true">
               <a role="button">
                 <Icon icon="material-symbols:filter-list" />
-                {{ 'Filter' | t }}
+                {{ t('Filter') }}
               </a>
             </span>
             <span class="control sort" @click="sortModal.visible = true">
               <a role="button">
                 <Icon icon="material-symbols:swap-vert" />
-                {{ 'Sort' | t }}
+                {{ t('Sort') }}
               </a>
             </span>
           </div>
@@ -46,7 +46,7 @@
 
 <script>
 import Modal from '@/components/modals/Modal'
-import { Icon } from '@iconify/vue2'
+import { Icon } from '@iconify/vue'
 
 export default {
   name: 'ResultsBar',

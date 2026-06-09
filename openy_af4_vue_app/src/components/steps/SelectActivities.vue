@@ -1,13 +1,13 @@
 <template>
   <div class="select-activities-component">
     <Step
-      :skip-label="'Any activity (Skip)' | t"
+      :skip-label="t('Any activity (Skip)')"
       :filters-selected="filtersSelected"
       @skip="onSkip"
       @next="onNext"
     >
       <template v-slot:title>
-        {{ 'What activities are you interested in?' | t }}
+        {{ t('What activities are you interested in?') }}
       </template>
       <template v-slot:default="{ handleSticky }">
         <Fieldset
@@ -41,7 +41,7 @@
                   <span>
                     <span class="title">{{ activity.label }}</span>
                     <span class="results-count">
-                      {{ facetCount(activity.value) | formatPlural('1 result', '@count results') }}
+                      {{ formatPlural(facetCount(activity.value), '1 result', '@count results') }}
                     </span>
                   </span>
                 </label>

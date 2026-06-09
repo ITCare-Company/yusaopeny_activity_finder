@@ -10,7 +10,7 @@
         />
         <label :for="'in-memberships'">
           <span>
-            {{ 'In Membership' | t }}
+            {{ t('In Membership') }}
           </span>
         </label>
       </div>

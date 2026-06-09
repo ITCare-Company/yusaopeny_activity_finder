@@ -1,6 +1,6 @@
 <template>
   <Foldable
-    :label="'Day(s)' | t"
+    :label="t('Day(s)')"
     :collapse-id="id + '-toggle'"
     :counter="filtersCount"
     class="days-filter-component"
@@ -12,7 +12,7 @@
         type="checkbox"
         :value="day.value"
       />
-      <label :for="id + '-day-' + day.value">{{ day.search_value | capitalize }}</label>
+      <label :for="id + '-day-' + day.value">{{ capitalize(day.search_value) }}</label>
     </div>
   </Foldable>
 </template>

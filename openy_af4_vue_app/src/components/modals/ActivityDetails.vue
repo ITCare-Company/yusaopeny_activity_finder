@@ -2,7 +2,7 @@
   <Modal
     id="activity-finder-activity-details"
     v-model="visible"
-    :title="'Activity details' | t"
+    :title="t('Activity details')"
     narrow
     responsive
   >
@@ -16,18 +16,18 @@
               <div class="description">{{ item.description }}</div>
               <div v-if="item.ages" class="row ages">
                 <div class="col-3 col-xs-3">
-                  {{ 'Ages:' | t }}
+                  {{ t('Ages:') }}
                 </div>
                 <div class="col-9 col-xs-9">{{ item.ages }}</div>
               </div>
               <div v-if="item.gender" class="row gender">
                 <div class="col-3 col-xs-3">
-                  {{ 'Gender:' | t }}
+                  {{ t('Gender:') }}
                 </div>
                 <div class="col-9 col-xs-9">{{ item.gender }}</div>
               </div>
               <a :href="item.link" target="_blank" class="learn-more">
-                {{ 'Learn more about this program' | t }}
+                {{ t('Learn more about this program') }}
               </a>
             </div>
           </div>
@@ -128,7 +128,7 @@
                     class="btn btn-lg action-taken"
                     @click="resetAction()"
                   >
-                    <span>{{ 'Sent to register' | t }}</span>
+                    <span>{{ t('Sent to register') }}</span>
                     <i class="fa fa-redo fa-repeat"></i>
                   </a>
                   <a
@@ -159,7 +159,7 @@
                     class="btn btn-lg action-taken"
                     @click="resetAction()"
                   >
-                    <span>{{ 'Item bookmarked' | t }}</span>
+                    <span>{{ t('Item bookmarked') }}</span>
                     <i class="fa fa-times-circle fa-times-circle-o"></i>
                   </a>
                 </template>
@@ -177,7 +177,7 @@ import client from '@/client/index.js'
 import Modal from '@/components/modals/Modal.vue'
 import AvailableSpots from '@/components/AvailableSpots'
 import Loading from '@/components/Loading.vue'
-import { Icon } from '@iconify/vue2'
+import { Icon } from '@iconify/vue'
 
 export default {
   name: 'ActivityDetailsModal',

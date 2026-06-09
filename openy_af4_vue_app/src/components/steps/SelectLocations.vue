@@ -1,13 +1,13 @@
 <template>
   <div class="select-locations-component">
     <Step
-      :skip-label="'All locations (Skip)' | t"
+      :skip-label="t('All locations (Skip)')"
       :filters-selected="filtersSelected"
       @skip="onSkip"
       @next="onNext"
     >
       <template v-slot:title>
-        {{ 'Do you have any location preferences?' | t }}
+        {{ t('Do you have any location preferences?') }}
       </template>
       <template v-slot:default="{ handleSticky }">
         <Fieldset
@@ -40,9 +40,7 @@
                   <span>
                     <span class="title">{{ location.label }}</span>
                     <span class="results-count">
-                      {{
-                        facetCount(location.value) | formatPlural('1 result', '@count results')
-                      }}
+                      {{ formatPlural(facetCount(location.value), '1 result', '@count results') }}
                     </span>
                   </span>
                 </label>

@@ -8,7 +8,7 @@
       </span>
       <span class="right">
         <span v-if="counterMax > 0 && counter >= counterMax" class="max text-uppercase">
-          {{ 'Max' | t }}
+          {{ t('Max') }}
         </span>
         <span v-if="counter > 0" class="counter">
           {{ counter }}

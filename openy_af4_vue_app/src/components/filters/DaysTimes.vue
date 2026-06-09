@@ -1,6 +1,6 @@
 <template>
   <Foldable
-    :label="'Day(s) & Time(s)' | t"
+    :label="t('Day(s) & Time(s)')"
     :collapse-id="id + '-toggle'"
     :counter="filtersCount"
     class="days-times-filter-component"
