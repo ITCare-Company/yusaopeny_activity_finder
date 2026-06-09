@@ -1,9 +1,10 @@
-import Vue from 'vue'
-// Enable dev tools only if NODE_ENV is development.
-Vue.config.devtools = process.env.NODE_ENV === 'development'
+import { createApp, configureCompat } from 'vue'
+// W3: compat MODE 2 — Vue 2 APIs available at runtime (filter/mixin/use).
+// Remove configureCompat call when @vue/compat is dropped (after W5).
+configureCompat({ MODE: 2 })
+
 import BootstrapVue from 'bootstrap-vue'
 import App from '@/App.vue'
-import router from '@/router/index.js'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import {
   faFilter,
@@ -29,9 +30,8 @@ library.add([
   faBookmark,
   faPlusCircle,
   faMinusCircle,
-  faSortAmountDown,
-]);
-Vue.component('font-awesome-icon', FontAwesomeIcon)
+  faSortAmountDown
+])
 
 // Listen to custom event to track events in Google Analytics.
 document.addEventListener('openy_activity_finder_event', e => {
@@ -48,32 +48,37 @@ document.addEventListener('openy_activity_finder_event', e => {
   }
 })
 
-Vue.config.productionTip = false;
-Vue.use(BootstrapVue)
+const app = createApp({
+  components: { 'activity-finder': App }
+})
 
-// Global filters.
-Vue.filter('capitalize', function(str) {
+// TODO(W4): remove when BootstrapVue replaced with hand-rolled components
+app.use(BootstrapVue)
+
+app.component('font-awesome-icon', FontAwesomeIcon)
+
+// TODO(W5-P0): remove when filter pipes replaced with function calls in templates
+app.filter('capitalize', function(str) {
   if (!str) return ''
   str = str.toString()
   return str[0].toUpperCase() + str.slice(1)
 })
-Vue.filter('t', function(value, args, options = { context: 'Activity Finder' }) {
+app.filter('t', function(value, args, options = { context: 'Activity Finder' }) {
   return window.Drupal.t(value, args, options)
 })
-Vue.filter('formatPlural', function(
+app.filter('formatPlural', function(
   value,
   singular,
   plural,
   args,
   options = { context: 'Activity Finder' }
 ) {
-  if (!value) {
-    return ''
-  }
+  if (!value) return ''
   return window.Drupal.formatPlural(value, singular, plural, args, options)
 })
 
-Vue.mixin({
+// TODO(W5-P1): replace mixin with composable / global properties
+app.mixin({
   computed: {
     isIosMobile() {
       return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
@@ -81,14 +86,8 @@ Vue.mixin({
   },
   methods: {
     trackEvent(action, label, value = 0, category = 'Activity Finder') {
-      // Custom event for external code to listen to and react upon.
       const event = new CustomEvent('openy_activity_finder_event', {
-        detail: {
-          action,
-          label,
-          value,
-          category
-        }
+        detail: { action, label, value, category }
       })
       document.dispatchEvent(event)
     },
@@ -104,21 +103,12 @@ Vue.mixin({
       const ca = decodedCookie.split(';')
       for (let i = 0; i < ca.length; i++) {
         let c = ca[i]
-        while (c[0] === ' ') {
-          c = c.slice(1)
-        }
-        if (c.startsWith(name)) {
-          return c.slice(name.length, c.length)
-        }
+        while (c[0] === ' ') c = c.slice(1)
+        if (c.startsWith(name)) return c.slice(name.length, c.length)
       }
       return ''
     }
   }
 })
 
-new Vue({
-  router,
-  components: {
-    'activity-finder': App
-  }
-}).$mount('#activity-finder')
+app.mount('#activity-finder')
