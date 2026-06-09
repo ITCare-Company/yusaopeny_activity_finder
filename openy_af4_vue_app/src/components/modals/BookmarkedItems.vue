@@ -145,7 +145,7 @@ export default {
     Icon
   },
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       default: false
     },
@@ -160,16 +160,16 @@ export default {
   },
   data() {
     return {
-      visible: this.value,
+      visible: this.modelValue,
       buttonsState: {}
     }
   },
   watch: {
-    value() {
-      this.visible = this.value
+    modelValue() {
+      this.visible = this.modelValue
     },
     visible() {
-      this.$emit('input', this.visible)
+      this.$emit('update:modelValue', this.visible)
       if (this.visible) {
         this.buttonsState = {}
         this.cartItems.forEach((item, index) => {

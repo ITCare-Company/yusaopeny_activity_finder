@@ -44,7 +44,7 @@ export default {
     Modal
   },
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       default: false
     },
@@ -123,7 +123,7 @@ export default {
   },
   data() {
     return {
-      visible: this.value
+      visible: this.modelValue
     }
   },
   computed: {
@@ -142,11 +142,11 @@ export default {
     }
   },
   watch: {
-    value() {
-      this.visible = this.value
+    modelValue() {
+      this.visible = this.modelValue
     },
     visible() {
-      this.$emit('input', this.visible)
+      this.$emit('update:modelValue', this.visible)
     }
   },
   methods: {

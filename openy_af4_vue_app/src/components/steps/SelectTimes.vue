@@ -59,7 +59,7 @@ export default {
     Step
   },
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     },
@@ -78,15 +78,15 @@ export default {
   },
   data() {
     return {
-      selectedTimes: this.value
+      selectedTimes: this.modelValue
     }
   },
   computed: {
     filtersSelected() {
-      return this.value.length >= 1
+      return this.modelValue.length >= 1
     },
     filtersCount() {
-      return this.value.length
+      return this.modelValue.length
     },
     optionsCount() {
       let count = 0
@@ -97,18 +97,18 @@ export default {
     }
   },
   watch: {
-    value() {
-      this.selectedTimes = this.value
+    modelValue() {
+      this.selectedTimes = this.modelValue
     }
   },
   methods: {
     onChange(time) {
       this.trackEvent('selectTimes', 'Click on time ' + time.label, time.value)
-      this.$emit('input', this.selectedTimes)
+      this.$emit('update:modelValue', this.selectedTimes)
     },
     onSkip() {
       this.trackEvent('skip', 'Click on selectTimes')
-      this.$emit('input', [])
+      this.$emit('update:modelValue', [])
       this.$emit('nextStep')
     },
     onNext() {

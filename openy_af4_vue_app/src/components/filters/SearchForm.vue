@@ -22,24 +22,24 @@ export default {
     Icon
   },
   props: {
-    value: {
+    modelValue: {
       type: String,
       required: true
     }
   },
   data() {
     return {
-      searchKeywords: this.value
+      searchKeywords: this.modelValue
     }
   },
   watch: {
-    value() {
-      this.searchKeywords = this.value
+    modelValue() {
+      this.searchKeywords = this.modelValue
     }
   },
   methods: {
     runSearch() {
-      this.$emit('input', this.searchKeywords)
+      this.$emit('update:modelValue', this.searchKeywords)
     }
   }
 }

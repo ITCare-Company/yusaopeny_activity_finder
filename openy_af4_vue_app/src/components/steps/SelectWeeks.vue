@@ -59,7 +59,7 @@ export default {
     Step
   },
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     },
@@ -78,15 +78,15 @@ export default {
   },
   data() {
     return {
-      selectedWeeks: this.value
+      selectedWeeks: this.modelValue
     }
   },
   computed: {
     filtersSelected() {
-      return this.value.length >= 1
+      return this.modelValue.length >= 1
     },
     filtersCount() {
-      return this.value.length
+      return this.modelValue.length
     },
     optionsCount() {
       let count = 0
@@ -97,18 +97,18 @@ export default {
     }
   },
   watch: {
-    value() {
-      this.selectedWeeks = this.value
+    modelValue() {
+      this.selectedWeeks = this.modelValue
     }
   },
   methods: {
     onChange(week) {
       this.trackEvent('selectWeeks', 'Click on week ' + week.label, week.value)
-      this.$emit('input', this.selectedWeeks)
+      this.$emit('update:modelValue', this.selectedWeeks)
     },
     onSkip() {
       this.trackEvent('skip', 'Click on selectWeeks')
-      this.$emit('input', [])
+      this.$emit('update:modelValue', [])
       this.$emit('nextStep')
     },
     onNext() {

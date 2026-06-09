@@ -188,7 +188,7 @@ export default {
     Icon
   },
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       default: false
     },
@@ -215,7 +215,7 @@ export default {
   },
   data() {
     return {
-      visible: this.value,
+      visible: this.modelValue,
       buttonState: 'default',
       // Flag to show if the data request is in progress.
       isLoadingData: false
@@ -238,11 +238,11 @@ export default {
     }
   },
   watch: {
-    value() {
-      this.visible = this.value
+    modelValue() {
+      this.visible = this.modelValue
     },
     visible() {
-      this.$emit('input', this.visible)
+      this.$emit('update:modelValue', this.visible)
       if (this.visible) {
         this.loadData()
         this.buttonState = 'default'

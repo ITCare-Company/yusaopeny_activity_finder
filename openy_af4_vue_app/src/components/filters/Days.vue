@@ -26,7 +26,7 @@ export default {
     Foldable
   },
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     },
@@ -45,7 +45,7 @@ export default {
   },
   data() {
     return {
-      selectedDays: this.value
+      selectedDays: this.modelValue
     }
   },
   computed: {
@@ -54,11 +54,11 @@ export default {
     }
   },
   watch: {
-    value() {
-      this.selectedDays = this.value
+    modelValue() {
+      this.selectedDays = this.modelValue
     },
     selectedDays() {
-      this.$emit('input', this.selectedDays)
+      this.$emit('update:modelValue', this.selectedDays)
     }
   },
   methods: {

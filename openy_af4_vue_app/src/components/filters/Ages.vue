@@ -36,7 +36,7 @@ export default {
     Foldable
   },
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     },
@@ -59,7 +59,7 @@ export default {
   },
   data() {
     return {
-      selectedAges: this.value
+      selectedAges: this.modelValue
     }
   },
   computed: {
@@ -68,11 +68,11 @@ export default {
     }
   },
   watch: {
-    value() {
-      this.selectedAges = this.value
+    modelValue() {
+      this.selectedAges = this.modelValue
     },
     selectedAges() {
-      this.$emit('input', this.selectedAges)
+      this.$emit('update:modelValue', this.selectedAges)
     }
   },
   methods: {
@@ -81,7 +81,7 @@ export default {
       return facet ? facet.count : 0
     },
     isDisabled(value) {
-      return !!(this.maxAges && this.value.length >= this.maxAges && !this.value.includes(value))
+      return !!(this.maxAges && this.modelValue.length >= this.maxAges && !this.modelValue.includes(value))
     }
   }
 }

@@ -22,7 +22,7 @@
 export default {
   name: 'InMembershipsFilter',
   props: {
-    value: {
+    modelValue: {
       type: Number,
       required: true
     },
@@ -37,15 +37,15 @@ export default {
   },
   data() {
     return {
-      selectedInMemberships: this.value
+      selectedInMemberships: this.modelValue
     }
   },
   watch: {
-    value() {
-      this.selectedInMemberships = this.value
+    modelValue() {
+      this.selectedInMemberships = this.modelValue
     },
     selectedInMemberships() {
-      this.$emit('input', this.selectedInMemberships)
+      this.$emit('update:modelValue', this.selectedInMemberships)
     }
   },
   methods: {

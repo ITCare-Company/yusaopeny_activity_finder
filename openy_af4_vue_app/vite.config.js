@@ -35,13 +35,8 @@ export default defineConfig({
       fileName: () => 'activity_finder_4.umd.min.js'
     },
     rollupOptions: {
-      // D4: Vue 3 + Vue Router bundled inside UMD (no window.Vue conflict with AF3/CF).
-      // W4: bootstrap-vue removed from externals (replaced with hand-rolled components).
-      external: ['axios'],
+      // W5-P6: axios removed — all HTTP via native fetch, zero external deps.
       output: {
-        globals: {
-          axios: 'axios'
-        },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'style.css') return 'activity_finder_4.css'
           return assetInfo.name

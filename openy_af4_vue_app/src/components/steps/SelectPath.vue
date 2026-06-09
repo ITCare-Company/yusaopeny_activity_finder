@@ -60,7 +60,7 @@ export default {
     Icon
   },
   props: {
-    value: {
+    modelValue: {
       type: String,
       required: true
     },
@@ -113,7 +113,7 @@ export default {
     },
     onClick(id) {
       this.trackEvent('selectPath', 'Start with ' + id)
-      this.$emit('input', id)
+      this.$emit('update:modelValue', id)
       this.$emit('nextStep')
     },
     viewResults() {
