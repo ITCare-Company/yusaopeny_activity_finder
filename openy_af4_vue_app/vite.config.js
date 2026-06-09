@@ -5,6 +5,11 @@ import path from 'path'
 export default defineConfig({
   plugins: [vue()],
 
+  // Replace process.env.NODE_ENV in browser UMD builds (webpack did this automatically).
+  define: {
+    'process.env.NODE_ENV': JSON.stringify('production')
+  },
+
   resolve: {
     alias: { '@': path.resolve(__dirname, 'src') },
     extensions: ['.mjs', '.js', '.json', '.vue']
