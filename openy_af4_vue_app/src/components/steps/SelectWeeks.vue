@@ -1,13 +1,13 @@
 <template>
   <div class="select-weeks-component">
     <Step
-      :skip-label="'Any week (Skip)' | t"
+      :skip-label="t('Any week (Skip)')"
       :filters-selected="filtersSelected"
       @skip="onSkip"
       @next="onNext"
     >
       <template v-slot:title>
-        {{ 'When are you interested in attending camp?' | t }}
+        {{ t('When are you interested in attending camp?') }}
       </template>
       <template v-slot:default="{ handleSticky }">
         <Fieldset
@@ -35,7 +35,7 @@
                   <span>
                     <span class="title">{{ week.label }}</span>
                     <span v-if="facetCount(week.value) !== null" class="results-count">
-                      {{ facetCount(week.value) | formatPlural('1 result', '@count results') }}
+                      {{ formatPlural(facetCount(week.value), '1 result', '@count results') }}
                     </span>
                   </span>
                 </label>

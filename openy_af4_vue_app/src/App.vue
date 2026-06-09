@@ -94,11 +94,11 @@
       <template v-if="showHomeBranchBlock" v-slot:home-branch>
         <p>
           <a role="button" class="homebranch-link" @click.stop.prevent="viewHomeBranchResults">
-            <strong>{{ 'View all programs for Home Branch' | t }}</strong>
+            <strong>{{ t('View all programs for Home Branch') }}</strong>
           </a>
         </p>
         <p v-if="homeBranchResultsCount" class="homebranch-results-count">
-          {{ homeBranchResultsCount | formatPlural('1 result', '@count results') }}
+          {{ formatPlural(homeBranchResultsCount, '1 result', '@count results') }}
         </p>
       </template>
     </SelectPath>

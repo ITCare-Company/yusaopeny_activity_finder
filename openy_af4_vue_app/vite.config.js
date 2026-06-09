@@ -3,17 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import path from 'path'
 
 export default defineConfig({
-  plugins: [
-    vue({
-      // W3: @vue/compat MODE 2 — allows Vue 2 filter/mixin/component syntax in templates.
-      // Remove when W5 filter rewrite is complete and @vue/compat is dropped.
-      template: {
-        compilerOptions: {
-          compatConfig: { MODE: 2 }
-        }
-      }
-    })
-  ],
+  plugins: [vue()],
 
   // Replace process.env.NODE_ENV in browser UMD builds (webpack did this automatically).
   define: {
@@ -21,12 +11,7 @@ export default defineConfig({
   },
 
   resolve: {
-    // W3: alias vue → @vue/compat for compat MODE 2 runtime support.
-    // Remove alias when @vue/compat is dropped (after W5).
-    alias: {
-      vue: '@vue/compat',
-      '@': path.resolve(__dirname, 'src')
-    },
+    alias: { '@': path.resolve(__dirname, 'src') },
     extensions: ['.mjs', '.js', '.json', '.vue']
   },
 

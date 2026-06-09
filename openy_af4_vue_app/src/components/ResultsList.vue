@@ -17,7 +17,7 @@
 
         <div class="ages-spots">
           <span v-if="item.ages || (selectedAges.length && !legacyMode)" class="ages">
-            <span class="age-label">{{ 'Ages' | t }}:</span>
+            <span class="age-label">{{ t('Ages') }}:</span>
             <span v-if="!selectedAges.length || legacyMode" class="info">
               {{ item.ages }}
             </span>
@@ -92,7 +92,7 @@
             {{ item.name }}
           </span>
           <span v-if="item.ages || (selectedAges.length && !legacyMode)" class="ages">
-            <span class="age-label">{{ 'Ages' | t }}:</span>
+            <span class="age-label">{{ t('Ages') }}:</span>
             <span v-if="!selectedAges.length || legacyMode" class="info">
               {{ item.ages }}
             </span>
@@ -181,7 +181,7 @@
 <script>
 import AvailableSpots from '@/components/AvailableSpots'
 import AgeIcon from '@/components/AgeIcon.vue'
-import { Icon } from '@iconify/vue2'
+import { Icon } from '@iconify/vue'
 
 export default {
   name: 'ResultsList',

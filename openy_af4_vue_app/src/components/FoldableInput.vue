@@ -4,7 +4,7 @@
       <span class="left">
         <span class="input" @click.stop="onInputClick"></span>
         <span class="title">
-          {{ label | capitalize }}
+          {{ capitalize(label) }}
           <span v-if="counter > 0" class="subcounter">[+{{ counter }}]</span>
         </span>
       </span>

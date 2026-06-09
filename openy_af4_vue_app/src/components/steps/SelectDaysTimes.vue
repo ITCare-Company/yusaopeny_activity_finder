@@ -1,13 +1,13 @@
 <template>
   <div class="select-days-times-component">
     <Step
-      :skip-label="'Any day & time (Skip)' | t"
+      :skip-label="t('Any day & time (Skip)')"
       :filters-selected="filtersSelected"
       @skip="onSkip"
       @next="onNext"
     >
       <template v-slot:title>
-        {{ 'What day or time are you looking for?' | t }}
+        {{ t('What day or time are you looking for?') }}
       </template>
       <template v-slot:default="{ handleSticky }">
         <Fieldset
@@ -45,7 +45,7 @@
                       </span>
                     </template>
                     <span class="results-count">
-                      {{ facetCount(time.value) | formatPlural('1 result', '@count results') }}
+                      {{ formatPlural(facetCount(time.value), '1 result', '@count results') }}
                     </span>
                   </span>
                 </label>

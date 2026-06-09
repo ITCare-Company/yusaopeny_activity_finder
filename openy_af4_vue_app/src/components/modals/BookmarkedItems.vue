@@ -2,7 +2,7 @@
   <Modal id="activity-finder-bookmarked-items" v-model="visible" flyout>
     <template v-slot:modal-title>
       <font-awesome-icon icon="bookmark" />
-      <span class="bookmarked-items">{{ 'Bookmarked items' | t }}</span>
+      <span class="bookmarked-items">{{ t('Bookmarked items') }}</span>
     </template>
     <template>
       <div class="bookmarked-items-modal-content">
@@ -12,8 +12,8 @@
         <div v-else>
           <div class="message">
             <p>
-              <strong>{{ 'The following items are NOT reserved.' | t }}</strong>
-              {{ 'Others may still register for them.' | t }}
+              <strong>{{ t('The following items are NOT reserved.') }}</strong>
+              {{ t('Others may still register for them.') }}
             </p>
           </div>
 
@@ -101,7 +101,7 @@
                     class="btn btn-lg action-taken"
                     @click="resetAction(index)"
                   >
-                    <span>{{ 'Sent to register' | t }}</span>
+                    <span>{{ t('Sent to register') }}</span>
                     <i class="fa fa-redo fa-repeat"></i>
                   </a>
                 </template>
@@ -111,11 +111,11 @@
             <div class="bookmarked-items-footer">
               <div class="footer-content">
                 <div class="left">
-                  {{ 'Bookmarks are automatically cleared after 5 days.' | t }}
+                  {{ t('Bookmarks are automatically cleared after 5 days.') }}
                 </div>
                 <div class="right">
                   <a role="button" class="clear-all" @click="removeItems">
-                    {{ 'Clear All' | t }}
+                    {{ t('Clear All') }}
                   </a>
                 </div>
               </div>
@@ -133,7 +133,7 @@ import Modal from '@/components/modals/Modal.vue'
 import BookmarkFeatureDescription from '@/components/modals/BookmarkFeatureDescription.vue'
 import AvailableSpots from '@/components/AvailableSpots'
 import BookmarkIcon from '@/components/BookmarkIcon'
-import { Icon } from '@iconify/vue2'
+import { Icon } from '@iconify/vue'
 
 export default {
   name: 'BookmarkedItemsModal',

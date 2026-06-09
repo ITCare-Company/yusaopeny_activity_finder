@@ -1,17 +1,17 @@
 <template>
   <div class="select-times-component">
     <Step
-      :skip-label="'Any time (Skip)' | t"
+      :skip-label="t('Any time (Skip)')"
       :filters-selected="filtersSelected"
       @skip="onSkip"
       @next="onNext"
     >
       <template v-slot:title>
-        {{ 'What times are you looking to fill?' | t }}
+        {{ t('What times are you looking to fill?') }}
       </template>
       <template v-slot:default="{ handleSticky }">
         <Fieldset
-          :label="'Time(s)' | t"
+          :label="t('Time(s)')"
           :collapsible="false"
           :counter="filtersCount"
           :handle-sticky="handleSticky"
@@ -35,7 +35,7 @@
                   <span>
                     <span class="title">{{ time.label }}</span>
                     <span class="results-count">
-                      {{ facetCount(time.value) | formatPlural('1 result', '@count results') }}
+                      {{ formatPlural(facetCount(time.value), '1 result', '@count results') }}
                     </span>
                   </span>
                 </label>

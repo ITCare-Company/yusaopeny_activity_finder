@@ -1,6 +1,6 @@
 <template>
   <Foldable
-    :label="'Age(s)' | t"
+    :label="t('Age(s)')"
     :collapse-id="id + '-toggle'"
     :counter="filtersCount"
     :counter-max="maxAges"

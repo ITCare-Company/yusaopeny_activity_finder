@@ -1,6 +1,6 @@
 <template>
   <Foldable
-    :label="'Start Month(s)' | t"
+    :label="t('Start Month(s)')"
     :collapse-id="id + '-toggle'"
     :counter="filtersCount"
     class="start-month-filter-component"

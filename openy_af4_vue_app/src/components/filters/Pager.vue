@@ -5,7 +5,7 @@
         class="first-page"
         :class="{ disabled: value === 1 }"
         role="button"
-        :title="'First page' | t"
+        :title="t('First page')"
         @click="firstPage"
       >
         <span class="vertical-line">
@@ -16,21 +16,21 @@
         class="prev-page"
         :class="{ disabled: value === 1 }"
         role="button"
-        :title="'Previous page' | t"
+        :title="t('Previous page')"
         @click="prevPage"
       >
         <i class="fa fa-chevron-left"></i>
       </a>
     </span>
     <span class="center">
-      {{ 'Page !selected of !total' | t({ '!selected': selectedPage, '!total': totalPages }) }}
+      {{ t('Page !selected of !total', { '!selected': selectedPage, '!total': totalPages }) }}
     </span>
     <span class="right">
       <a
         class="next-page"
         :class="{ disabled: value === totalPages }"
         role="button"
-        :title="'Next page' | t"
+        :title="t('Next page')"
         @click="nextPage"
       >
         <i class="fa fa-chevron-right"></i>
@@ -39,7 +39,7 @@
         class="last-page"
         :class="{ disabled: value === totalPages }"
         role="button"
-        :title="'Last page' | t"
+        :title="t('Last page')"
         @click="lastPage"
       >
         <span class="vertical-line">

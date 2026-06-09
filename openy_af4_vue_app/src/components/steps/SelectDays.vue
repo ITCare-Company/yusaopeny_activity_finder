@@ -1,13 +1,13 @@
 <template>
   <div class="select-days-component">
     <Step
-      :skip-label="'Any day (Skip)' | t"
+      :skip-label="t('Any day (Skip)')"
       :filters-selected="filtersSelected"
       @skip="onSkip"
       @next="onNext"
     >
       <template v-slot:title>
-        {{ 'What days are you looking to fill?' | t }}
+        {{ t('What days are you looking to fill?') }}
       </template>
       <template v-slot:default="{ handleSticky }">
         <Fieldset
@@ -33,11 +33,9 @@
                 />
                 <label :for="day.search_value" role="button">
                   <span>
-                    <span class="title">{{ day.search_value | capitalize }}</span>
+                    <span class="title">{{ capitalize(day.search_value) }}</span>
                     <span class="results-count">
-                      {{
-                        facetCount(day.search_value) | formatPlural('1 result', '@count results')
-                      }}
+                      {{ formatPlural(facetCount(day.search_value), '1 result', '@count results') }}
                     </span>
                   </span>
                 </label>

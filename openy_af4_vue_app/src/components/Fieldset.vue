@@ -9,14 +9,14 @@
       </span>
       <span class="right">
         <span v-if="counterMax > 0 && counter >= counterMax" class="max text-uppercase">
-          {{ 'Max' | t }}
+          {{ t('Max') }}
         </span>
         <span
           v-else-if="counterOptions >= 0"
           class="options"
           :class="{ 'no-options': counterOptions === 0 }"
         >
-          {{ counterOptions | formatPlural('1 result', '@count results') }}
+          {{ formatPlural(counterOptions, '1 result', '@count results') }}
         </span>
         <span v-if="collapsible" class="icon">
           <Icon icon="material-symbols:add-circle-outline" class="circle-plus" />
@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { Icon } from '@iconify/vue2'
+import { Icon } from '@iconify/vue'
 
 export default {
   name: 'Fieldset',

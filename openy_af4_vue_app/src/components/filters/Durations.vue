@@ -1,6 +1,6 @@
 <template>
   <Foldable
-    :label="'Duration(s)' | t"
+    :label="t('Duration(s)')"
     :collapse-id="id + '-toggle'"
     :counter="filtersCount"
     class="duration-filter-component"

@@ -1,6 +1,6 @@
 <template>
   <Foldable
-    :label="'Week(s)' | t"
+    :label="t('Week(s)')"
     :collapse-id="id + '-toggle'"
     :counter="filtersCount"
     class="weeks-filter-component"
