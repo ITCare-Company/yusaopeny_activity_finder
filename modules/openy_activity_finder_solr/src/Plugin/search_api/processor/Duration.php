@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\openy_activity_finder\Plugin\search_api\processor;
+namespace Drupal\openy_activity_finder_solr\Plugin\search_api\processor;
 
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Datetime\DrupalDateTime;

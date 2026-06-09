@@ -201,3 +201,40 @@ phase needs explicit owner approval at three points:
 - Fork default branch is `6.x`. This queue scaffold opens against
   `feat/itcr-1273-vue3-queue`. Migration code lands on a wave branch chosen by
   the operator, PR'd into `6.x`.
+
+## Lessons learned (evolve this with every aha-moment)
+
+Captured from W0b. After a success, **embed the principle here**; after a
+struggle, add a **don't**. Look at sibling queues for the phrasing pattern.
+
+**Don'ts**
+
+- **Don't skim the current code and pattern-match it while ignoring the queue.**
+  The queue (`README.md`, `RULES.md`, the wave `DECISIONS.md`,
+  `MIGRATION-REFERENCE.md`) and the operator's instructions are the source of
+  truth — read them **first**, then the code. "Flowing around the existing code"
+  produced wrong moves early in W0b (e.g. resisting the fixtures approach,
+  reading only `OpenyActivityFinderSolrBackend`).
+- **Don't inflate scope.** An idea that grows the wave goes to **Follow-ups**
+  (wave `DECISIONS.md`), cited from a future wave — not built mid-wave. Declaring
+  a feature (e.g. multi-backend) means proving every variant; if you can't, don't
+  claim it (W0b: reduced to a single backend on review).
+- **Don't swallow errors / silently substitute.** Resolve against the registered
+  plugins; on no match return an explicit error, never a hidden default.
+- **Don't leave stale references after a move.** Extracting code to a submodule
+  surfaced dangling `use`/`@see`/const refs (`.module`, `api.php`) — grep the
+  **whole** module (not just `src/`) after a namespace move.
+
+**Best practices**
+
+- **Fixtures-first for backend/mock work.** Capture the **real** backend
+  responses (the full interface surface), derive a **JSON schema** from them, and
+  build the Mock to validate against that schema. Measured, never invented
+  (`feedback_no_fabricated_behavior`). This is what unblocked running AF without
+  Solr.
+- **Document the why in `DECISIONS.md`.** Record each non-obvious decision and
+  whether it deliberately breaks/preserves behaviour, so review has context and a
+  future small idea just links to the queue.
+- **Prove on a clean install.** Verify the no-infra path on a fresh `small_y`
+  (Mock, no Solr) and the infra path with the submodule enabled — both, end to
+  end.

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\openy_activity_finder\Plugin\search_api\processor;
+namespace Drupal\openy_activity_finder_solr\Plugin\search_api\processor;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\search_api\Datasource\DatasourceInterface;
@@ -76,7 +76,7 @@ class AgesMinMax extends ProcessorPluginBase {
   protected function getBackendService() {
     $config = $this->getConfigFactory()->get('openy_activity_finder.settings');
     $backend_service_id = $config->get('backend');
-    return \Drupal::service($backend_service_id);
+    return \Drupal::service('plugin.manager.activity_finder_backend')->createInstance($backend_service_id);
   }
 
   /**

@@ -34,12 +34,13 @@ Keep order by wave, then phase.
 
 | Phase | Status | Path |
 |---|---|---|
-| P0 Backend plugin type + block selector | pending | [`W0b-backend-harness/P0-plugin-manager/README.md`](W0b-backend-harness/P0-plugin-manager/README.md) |
-| P1 Extract Solr behind the plugin (default) | pending | [`W0b-backend-harness/P1-solr-plugin/README.md`](W0b-backend-harness/P1-solr-plugin/README.md) |
-| P2 Mock backend (fixtures, no Solr) — unblocks migration | pending | [`W0b-backend-harness/P2-mock-plugin/README.md`](W0b-backend-harness/P2-mock-plugin/README.md) |
-| P3 DB backend (entity query, no Solr) | pending | [`W0b-backend-harness/P3-db-plugin/README.md`](W0b-backend-harness/P3-db-plugin/README.md) |
-| P4 Seed demo content | pending | [`W0b-backend-harness/P4-demo-content/README.md`](W0b-backend-harness/P4-demo-content/README.md) |
-| P5 Legacy-config fallback (deferred — Lera→Vlad) | pending | [`W0b-backend-harness/P5-legacy-config-fallback/README.md`](W0b-backend-harness/P5-legacy-config-fallback/README.md) |
+| P0 Backend plugin type + block selector | **shipped** (PR #4) | [`W0b-backend-harness/P0-plugin-manager/README.md`](W0b-backend-harness/P0-plugin-manager/README.md) |
+| P1 Extract Solr behind the plugin → submodule | **shipped** (PR #4) | [`W0b-backend-harness/P1-solr-plugin/README.md`](W0b-backend-harness/P1-solr-plugin/README.md) |
+| P2 Mock backend (fixtures, no Solr) — default; unblocks migration | **shipped** (PR #4) | [`W0b-backend-harness/P2-mock-plugin/README.md`](W0b-backend-harness/P2-mock-plugin/README.md) |
+| P3 DB backend (entity query, no Solr) | not built (deferred; Mock covers it) | [`W0b-backend-harness/P3-db-plugin/README.md`](W0b-backend-harness/P3-db-plugin/README.md) |
+| P4 Seed demo content (LB Mock + paragraph Solr) | **shipped** (PR #4) | [`W0b-backend-harness/P4-demo-content/README.md`](W0b-backend-harness/P4-demo-content/README.md) |
+| P5 Legacy-config fallback (inherit-global done; full mapping deferred — Lera→Vlad) | partial | [`W0b-backend-harness/P5-legacy-config-fallback/README.md`](W0b-backend-harness/P5-legacy-config-fallback/README.md) |
+| P6 Upgrade path (hook_update: legacy service-id → plugin id + enable Solr submodule) | **shipped** (PR #4) | [`W0b-backend-harness/P6-upgrade-path/README.md`](W0b-backend-harness/P6-upgrade-path/README.md) |
 
 ## W1 — Decisions (gates W2–W5)
 

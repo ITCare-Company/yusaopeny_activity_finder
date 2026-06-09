@@ -1,6 +1,8 @@
 <?php
 
-namespace Drupal\openy_activity_finder;
+namespace Drupal\openy_activity_finder_solr;
+
+use Drupal\openy_activity_finder\OpenyActivityFinderBackend;
 
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -192,6 +194,12 @@ class OpenyActivityFinderSolrBackend extends OpenyActivityFinderBackend {
     ]);
     $query->addCondition('status', 1);
 
+    // Fetch specific items by node id (e.g. saved-items refresh).
+    if (!empty($parameters['ids'])) {
+      $ids = is_array($parameters['ids']) ? $parameters['ids'] : explode(',', $parameters['ids']);
+      $query->addCondition('nid', $ids, 'IN');
+    }
+
     if (!empty($parameters['ages'])) {
       $ages = explode(',', rawurldecode($parameters['ages']));
       $query->addCondition('af_ages_min_max', $ages, 'IN');
@@ -347,8 +355,17 @@ class OpenyActivityFinderSolrBackend extends OpenyActivityFinderBackend {
     }
 
     $query->range(0, self::TOTAL_RESULTS_PER_PAGE);
+    // Count/facets-only request: fetch no rows, the count and facets are
+    // computed by Solr regardless of range.
+    if (!empty($parameters['af_count_only'])) {
+      $query->range(0, 0);
+    }
+    // Explicit slice requested by the aggregator (offset + limit).
+    elseif (isset($parameters['af_limit'])) {
+      $query->range((int) ($parameters['af_offset'] ?? 0), (int) $parameters['af_limit']);
+    }
     // Use pager if parameter has been provided.
-    if (isset($parameters['page'])) {
+    elseif (isset($parameters['page'])) {
       $offset = self::TOTAL_RESULTS_PER_PAGE * $parameters['page'] - self::TOTAL_RESULTS_PER_PAGE;
       $query->range($offset, self::TOTAL_RESULTS_PER_PAGE);
     }

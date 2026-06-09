@@ -121,3 +121,117 @@ re-litigate mid-stream.
   plugins; the aggregation rule is a product decision with real complexity
   (cross-backend facet normalization, global pagination) and is separable.
 
+## Redesign update — owner decisions (implemented in commit 5df646c)
+
+The owner reshaped the backend design while building it. The following
+supersede the decisions above; cite this section, not the originals.
+
+### D2/D3 superseded — default is **mock**, selection is a **list**
+
+- Default backend is **`mock`**, not `solr`. New installs run AF4 with no Solr.
+- The per-block key `backend_plugin` holds a **single** plugin id (a
+  `select` in `ActivityFinder4Block::blockForm`; empty inherits the global
+  default). Running several backends at once is an experimental Follow-up — see
+  "Single backend (review outcome)" below.
+- Existing sites must therefore be migrated to keep Solr (their blocks have no
+  stored `backend_plugin` and would resolve to the mock default) — see
+  "existing-site migration" task; this is the D7/P5 work, still deferred.
+
+### D10 superseded — `runProgramSearch` is **decomposed** in the contract
+
+- `OpenyActivityFinderBackendInterface` no longer declares `runProgramSearch()`.
+  Each plugin implements **`getResultsCount(params)`**, **`getFacets(params)`**
+  (cheap, rows-free) and **`getResults(params, offset, limit, log_id)`** (a
+  slice). The `runProgramSearch` **response shape** is unchanged and is now
+  assembled in `ActivityFinderBackendAggregator`. JSON Schema:
+  `fixtures/schema/runProgramSearch.schema.json`.
+- `OpenyActivityFinderBackend` no longer implements the interface; the `solr`
+  plugin wraps the `OpenyActivityFinderSolrBackend` service.
+
+### D11 locked — aggregation = **count-offset routing** (not concat)
+
+- count = sum of per-backend `getResultsCount`; facets = merged per filter
+  (counts summed); results = the global page is **routed** across backends using
+  their counts so only the needed slice is fetched (no full-set reads, no silent
+  fallback). The earlier concat/"primary facets" option was rejected (broke
+  pagination).
+
+### Backend id transport — per-block via the template, validated against the registry
+
+- The block forwards its selected ids to the JS through the twig `:backend`
+  prop (per-block, so several AF blocks on one page stay distinct — **not** a
+  global `drupalSettings`). The JS sends them back as a `backend[]` query; the
+  controller keeps only ids present in `getDefinitions()` and the aggregator
+  returns an explicit error when none resolve. No silent default substitution.
+
+### New — Solr moves to a submodule
+
+- `OpenyActivityFinderSolrBackend` + the `solr` plugin + the `search_api_solr`
+  dependency move to `openy_activity_finder_solr`, so the main module does not
+  depend on Solr. (Task pending.)
+
+### RULES exception — W0b touched the Vue app
+
+- W0b is "PHP-only" in RULES, but forwarding the per-block backend required a
+  minimal `openy_af4_vue_app/src` change (App.vue `backend` prop + the twig
+  prop) and a `dist/` rebuild. This is a deliberate, scoped exception recorded
+  here.
+
+## Factory across all three apps + Solr submodule (commits f0a66f8, 1e05191)
+
+The plugin manager is the **single factory for every Activity Finder app**, not
+just AF4. Scope grew beyond AF4 because removing the global Solr service would
+otherwise break AF3 and Camp Finder.
+
+- **All consumers resolve via the factory.** AF3 `ActivityFinderBlock`,
+  `ActivityFinderSearchBlock`, Camp Finder `CampFinderBlock`, the search_api
+  processors and `SettingsForm` no longer call `\Drupal::service($service_id)`;
+  they use `plugin.manager.activity_finder_backend->createInstance($id)`.
+- **Resolution order.** A block/paragraph/LB embed uses its per-block
+  `backend_plugin` if set; otherwise it **inherits the global**
+  `openy_activity_finder.settings:backend`. No hardcoded default. Fresh-install
+  global default = `mock`; existing sites = `solr` (via hook_update).
+- **`getSessions` removed from the contract.** Items are results, not a bespoke
+  type — saved-item refresh (`SessionData` REST) fetches via `getResults()` with
+  an `ids` filter through the aggregator. Each result row carries a `backend`
+  **provenance** field and dedup is per `(backend, nid)`.
+- **`getCategoriesTopLevel`** added to the contract (AF3/CF use it).
+- **SettingsForm** lists discovered plugin definitions and stores a plugin id.
+- **Solr extracted** to the `openy_activity_finder_solr` submodule (the Solr
+  implementation, the `solr` plugin, the 8 search_api processors, and the
+  `search_api`/`search_api_solr` deps). The main module no longer contains or
+  depends on Solr. Shared constants live on the interface
+  (`RESULTS_PER_PAGE`, `CACHE_TAG`).
+- **`hook_update_9006`** enables the submodule and maps the legacy service id
+  (`openy_activity_finder.solr_backend` → `solr`,
+  `openy_daxko2.openy_activity_finder_backend` → `daxko`).
+- **Daxko** is not converted here — that module must ship its own
+  `ActivityFinderBackend` plugin (it will be auto-discovered).
+
+### Single backend (review outcome — podarok)
+
+- The per-block selector exposes a **single** backend (or "site default"). A
+  block runs one backend, exactly as before — the consumer contract is unchanged
+  and nothing existing breaks.
+- **Multi-backend is an experimental follow-up, not claimed or exposed.**
+  Declaring it would mean proving every variant and a quality cross-backend
+  merge; that is deferred (do not let it inflate this wave's scope). The
+  aggregator stays as the single composition layer (it assembles the response
+  from the one selected backend); the N-backend merge path is dormant until the
+  follow-up lands.
+
+## Follow-ups
+
+Scope-discipline parking lot (per queue anatomy: keep the wave lean, capture
+ideas here, cite from a future wave instead of widening this one).
+
+- **Multi-backend aggregation.** Run more than one backend per block and merge
+  the results. Candidate rules: count-offset routing / primary→fallback / full
+  merge — pick one, test every path, do a quality merge (facets, pager, dedup).
+  Driver: combine hand-edited content with API-sourced content (more weight on
+  manual edits). First confirm it is actually needed.
+- **Plugin-driven limit/exclude selectors** — see the wave README "Follow-ups".
+- **DB backend** plugin (entity/database query, no Solr).
+- **Legacy per-block config mapping (P5)** — full service-id→plugin-id map +
+  per-block config stamping.
+
