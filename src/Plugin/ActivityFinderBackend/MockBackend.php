@@ -114,14 +114,25 @@ class MockBackend extends ActivityFinderBackendPluginBase {
       if (empty($row['dates'])) {
         continue;
       }
-      $date = \DateTime::createFromFormat('M d Y', $row['dates'] . ' ' . $captured_year);
-      if (!$date) {
-        continue;
+      // `dates` may be a single date ("Jun 08") or a range ("Jun 08-Jun 09");
+      // shift each part and rejoin. Count the start (first) month for the facet.
+      $parts = explode('-', $row['dates']);
+      $start_month = NULL;
+      foreach ($parts as $p => $part) {
+        $date = \DateTime::createFromFormat('M d Y', trim($part) . ' ' . $captured_year);
+        if (!$date) {
+          continue;
+        }
+        $date->modify('+' . $days . ' days');
+        $parts[$p] = $date->format('M d');
+        if ($start_month === NULL) {
+          $start_month = (int) $date->format('n');
+        }
       }
-      $date->modify('+' . $days . ' days');
-      $data['table'][$i]['dates'] = $date->format('M d');
-      $month = (int) $date->format('n');
-      $months[$month] = ($months[$month] ?? 0) + 1;
+      $data['table'][$i]['dates'] = implode('-', $parts);
+      if ($start_month !== NULL) {
+        $months[$start_month] = ($months[$start_month] ?? 0) + 1;
+      }
     }
     // Rebuild the start-month facet from the shifted dates.
     if (!empty($data['facets']['af_start_month']) && $months) {
