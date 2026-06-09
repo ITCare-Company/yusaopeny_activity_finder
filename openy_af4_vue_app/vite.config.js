@@ -11,7 +11,12 @@ export default defineConfig({
   },
 
   resolve: {
-    alias: { '@': path.resolve(__dirname, 'src') },
+    alias: {
+      // Force full Vue build (runtime + compiler) — needed for root component DOM template compilation.
+      // The root component mounts to #activity-finder and uses innerHTML as template (twig-rendered props).
+      'vue': 'vue/dist/vue.esm-bundler.js',
+      '@': path.resolve(__dirname, 'src')
+    },
     extensions: ['.mjs', '.js', '.json', '.vue']
   },
 
