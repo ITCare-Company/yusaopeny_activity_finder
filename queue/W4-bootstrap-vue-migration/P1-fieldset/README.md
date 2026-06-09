@@ -36,6 +36,6 @@ Owner approves. Markup/classes preserved; consumers unbroken.
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09.
 
 `Fieldset.vue` off BootstrapVue; reuse sites verified vs baseline.

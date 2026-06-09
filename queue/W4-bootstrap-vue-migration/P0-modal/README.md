@@ -49,7 +49,7 @@ matches baseline; any trigger-API change is documented.
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09.
 
 `Modal.vue` off BootstrapVue; consumer triggers verified; baseline parity
 confirmed; API deltas (if any) in W4 `DECISIONS.md`.
