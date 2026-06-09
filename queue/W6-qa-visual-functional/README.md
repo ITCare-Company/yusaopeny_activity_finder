@@ -44,6 +44,28 @@ See [`DECISIONS.md`](DECISIONS.md).
   their own approval gate) and re-verify here.
 - Production build / ship (W7).
 
+## Test site
+
+**URL:** https://af4-migration.ddev.site/activity-finder-v4-layout-builder
+**Backend:** Mock (no Solr needed — 31 static sessions)
+**W0 baseline screenshots:** `queue/W0-baseline-contract/P1-behavioral-baseline/screenshots/`
+**W6 reference screenshots (Vue 3 smoke):** `queue/W6-qa-visual-functional/screenshots/`
+
+## Known intentional differences vs W0 baseline (do NOT flag as regressions)
+
+See DECISIONS.md for full list. Short summary:
+- Modal close button: `×` char instead of Iconify icon (W6-D1)
+- Disabled age tooltip: browser `title` attr instead of styled BV tooltip (W6-D2)
+
+## High-risk areas from W4/W5 migration (extra attention needed)
+
+These areas had bugs during migration — verify carefully:
+- **Modal open + close** (P3): X button, ESC, backdrop click — all three must work (W4-D1 teleport issue was fixed)
+- **Modal body content** (P3): ActivityDetails must show session name, date, location, price (Vue 3 slot fix)
+- **Filter v-model** (P4): selecting a filter must update results (v-model Vue 3 migration W5-P2)
+- **Results count** (P2): pluralized count e.g. "31 results" — filter pipe → method call (W5-P0)
+- **Foldable/Fieldset collapse** (P4): click to expand/collapse must work (W4-P1/P2 collapse rewrite)
+
 ## Onboarding (UA — Ira/Lera)
 
 W6 — Іра проходить кожен екран на Vue 3 і порівнює зі знімками з W0. Таблиця —
