@@ -35,11 +35,12 @@ seq	wave	phase	epic	status	commit_or_pr	blocked_by	preview_path	baseline	verifie
 34	W8-retro-upstream	P1-upstream-anatomy-pr	enrich-migration-anatomy	pending		33	template_for_agents PKB	—	—	PR per anatomy-upstream rule
 35	W8-retro-upstream	P2-subtree-import-pkb	import-queue-to-pkb	pending		33	process-knowledge-base/	—	—	git subtree add + register indexes
 36	W8-retro-upstream	P3-backreference-close	close-itcr-1273	pending		34,35	ITCR-1273	—	—	methodology back-ref + close loop
-37	W0b-backend-harness	P0-plugin-manager	af4-backend-plugin-type	pending		01	src/Plugin/ActivityFinderBackend,ActivityFinder4Block	—	—	drupal plugin manager + block backend selector; default solr
-38	W0b-backend-harness	P1-solr-plugin	extract-solr-backend	pending		37	src/OpenyActivityFinderSolrBackend.php	—	—	id=solr, default, no behaviour change
-39	W0b-backend-harness	P2-mock-plugin	mock-backend-fixtures	pending		37	src/Plugin/ActivityFinderBackend/MockBackend.php	—	—	no Solr; unblocks migration W1+; not auto-tests
-40	W0b-backend-harness	P3-db-plugin	db-backend-no-solr	pending		37,41	src/Plugin/ActivityFinderBackend/DatabaseBackend.php	—	—	entity query, no Solr; real content
-41	W0b-backend-harness	P4-demo-content	seed-demo-content	pending		01	migrate openy_demo_node_session	—	—	for solr/db backends + sandbox baseline
-44	W0b-backend-harness	P5-legacy-config-fallback	legacy-global-backend-fallback	pending		37	src/Plugin/Block/ActivityFinder4Block.php	—	—	deferred; Lera→Vlad; no silent solr flip
+37	W0b-backend-harness	P0-plugin-manager	af4-backend-plugin-type	shipped	PR#4	01	src/Plugin/ActivityFinderBackend,ActivityFinder4Block	—	—	drupal plugin manager + block backend selector; default solr
+38	W0b-backend-harness	P1-solr-plugin	extract-solr-backend	shipped	PR#4	37	src/OpenyActivityFinderSolrBackend.php	—	—	id=solr, default, no behaviour change
+39	W0b-backend-harness	P2-mock-plugin	mock-backend-fixtures	shipped	PR#4	37	src/Plugin/ActivityFinderBackend/MockBackend.php	—	—	no Solr; unblocks migration W1+; not auto-tests
+40	W0b-backend-harness	P3-db-plugin	db-backend-no-solr	deferred		37,41	src/Plugin/ActivityFinderBackend/DatabaseBackend.php	—	—	entity query, no Solr; real content; not built — Mock covers no-Solr
+41	W0b-backend-harness	P4-demo-content	seed-demo-content	shipped	PR#4	01	migrate openy_demo_node_session	—	—	for solr/db backends + sandbox baseline
+44	W0b-backend-harness	P5-legacy-config-fallback	legacy-global-backend-fallback	partial	PR#4	37	src/Plugin/Block/ActivityFinder4Block.php	—	—	deferred; Lera→Vlad; no silent solr flip
+45	W0b-backend-harness	P6-upgrade-path	af4-backend-upgrade-path	shipped	PR#4	37	openy_activity_finder.install (hook_update_9006)	—	—	maps legacy global service-id to plugin id + enables solr submodule; existing sites keep Solr
 42	W0-baseline-contract	P1b-realsite-upgrade	af4-realsite-upgrade-baseline	pending		02	#activity-finder (real site)	—	—	upgrade-path baseline for W7
 43	W5-vue3-api-rewrites	P6-axios-fetch	axios-to-fetch	pending		11	src/client/index.js	—	—	drop axios dep + external; native fetch

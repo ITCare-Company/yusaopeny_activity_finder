@@ -40,6 +40,7 @@ Keep order by wave, then phase.
 | P3 DB backend (entity query, no Solr) | not built (deferred; Mock covers it) | [`W0b-backend-harness/P3-db-plugin/README.md`](W0b-backend-harness/P3-db-plugin/README.md) |
 | P4 Seed demo content (LB Mock + paragraph Solr) | **shipped** (PR #4) | [`W0b-backend-harness/P4-demo-content/README.md`](W0b-backend-harness/P4-demo-content/README.md) |
 | P5 Legacy-config fallback (inherit-global done; full mapping deferred — Lera→Vlad) | partial | [`W0b-backend-harness/P5-legacy-config-fallback/README.md`](W0b-backend-harness/P5-legacy-config-fallback/README.md) |
+| P6 Upgrade path (hook_update: legacy service-id → plugin id + enable Solr submodule) | **shipped** (PR #4) | [`W0b-backend-harness/P6-upgrade-path/README.md`](W0b-backend-harness/P6-upgrade-path/README.md) |
 
 ## W1 — Decisions (gates W2–W5)
 

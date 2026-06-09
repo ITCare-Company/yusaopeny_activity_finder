@@ -76,7 +76,7 @@ Shipped (PR #4). `ActivityFinderBackend` plugin type — `DefaultPluginManager` 
 `#[ActivityFinderBackend]` attribute (annotation fallback) + base, discovered
 from `src/Plugin/ActivityFinderBackend/` (mirrors core `ArchiverManager`). The
 manager is the **factory** for all three apps. Per-block `backend_plugin`
-checkboxes selector in `ActivityFinder4Block` (covers block, paragraph, LB — one
+single-select in `ActivityFinder4Block` (covers block, paragraph, LB — one
 `blockForm`); a block with none chosen inherits the global default. Backend id
 forwarded to the JS via the twig `:backend` prop and back as a `backend[]`
 query, validated against the registry (D8). Consumer contract intact. Note: the

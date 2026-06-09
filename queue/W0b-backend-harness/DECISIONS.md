@@ -129,9 +129,10 @@ supersede the decisions above; cite this section, not the originals.
 ### D2/D3 superseded — default is **mock**, selection is a **list**
 
 - Default backend is **`mock`**, not `solr`. New installs run AF4 with no Solr.
-- The per-block key `backend_plugin` holds a **list** of plugin ids (checkboxes
-  in `ActivityFinder4Block::blockForm`), primary first — a block may run one or
-  more backends (D11).
+- The per-block key `backend_plugin` holds a **single** plugin id (a
+  `select` in `ActivityFinder4Block::blockForm`; empty inherits the global
+  default). Running several backends at once is an experimental Follow-up — see
+  "Single backend (review outcome)" below.
 - Existing sites must therefore be migrated to keep Solr (their blocks have no
   stored `backend_plugin` and would resolve to the mock default) — see
   "existing-site migration" task; this is the D7/P5 work, still deferred.

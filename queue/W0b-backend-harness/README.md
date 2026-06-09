@@ -54,19 +54,20 @@ no per-block choice and no plugin discovery.
   (fixtures, zero infra), **DB** (entity/db query, no Solr).
 - **Backend chosen in the block config form** (`ActivityFinder4Block`
   `blockForm`/`blockSubmit`) — a select listing discovered plugins, stored in
-  block configuration, resolved at render via the plugin manager. Default
-  stays Solr → existing sites unchanged.
+  block configuration, resolved at render via the plugin manager. Default is
+  **mock**; a block with no choice inherits the global default, so existing
+  sites (mapped to `solr` by hook_update) are unchanged.
 - A **documented response schema** every plugin emits (D10 /
-  MIGRATION-REFERENCE §10) plus a new **`externals`** field **in the response**
-  for backend-specific extras — so a block can run **one or more** backends and
-  the Vue app consumes them uniformly. Aggregation of N backends is a
-  locked-pending decision (D11).
+  MIGRATION-REFERENCE §10) plus an **`externals`** field **in the response** for
+  backend-specific extras, so the Vue app consumes every backend uniformly. A
+  block runs a **single** backend; running several at once and merging them is
+  an experimental Follow-up (see DECISIONS), not shipped.
 
 ## Phases
 
 | Phase | Goal | Status |
 |---|---|---|
-| P0 plugin-manager | Define the `ActivityFinderBackend` plugin type (manager + attribute/annotation + base) and the block-config selector. | **shipped** (PR #4) — manager/attribute/annotation/base + per-block checkboxes selector (block + paragraph + LB); backend forwarded to JS via twig `:backend` prop + `backend[]` query (D8). |
+| P0 plugin-manager | Define the `ActivityFinderBackend` plugin type (manager + attribute/annotation + base) and the block-config selector. | **shipped** (PR #4) — manager/attribute/annotation/base + per-block single-select backend (block + paragraph + LB; empty = site default); backend forwarded to JS via twig `:backend` prop + `backend[]` query (D8). |
 | P1 solr-plugin | Move the existing Solr backend behind the new plugin. | **shipped** (PR #4) — `solr` plugin; later extracted to the `openy_activity_finder_solr` **submodule** with its config + processors; main module Solr-free. |
 | P2 mock-plugin | Mock backend plugin — static fixtures, **zero Solr/DB**. | **shipped** (PR #4) — fixtures captured from live Solr + JSON schema (`fixtures/schema/`); in-memory filtering (incl limit/exclude); **default backend**. Validated against the schema. |
 | P3 db-plugin | DB backend plugin — entity/database query, **no Solr** (real content). | **not built** — deferred; Mock covers the no-Solr need. |
