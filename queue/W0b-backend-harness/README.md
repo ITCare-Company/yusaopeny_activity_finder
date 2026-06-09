@@ -95,7 +95,7 @@ key, the Mock-vs-DB ordering rationale, and the legacy-config fallback handoff (
   existing `OpenyActivityFinderBackendInterface`; no new search semantics.
 - AF3 / Camp Finder backends.
 
-## Deferred / backlog
+## Follow-ups
 
 - **Plugin-driven limit/exclude selectors.** The block's `limit_by_category`,
   `exclude_by_category`, `limit_by_location`, `exclude_by_location` are

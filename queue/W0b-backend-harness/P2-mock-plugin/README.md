@@ -75,4 +75,4 @@ limit/exclude, id) and emits the documented response (validated against the
 schema). Proven on a fresh `small_y` install with the Solr submodule disabled:
 `/af/get-data?backend[]=mock` → count 31, AF4 LB demo page renders — AF runs with
 **zero Solr**. Migration (W1+) unblocked. Caveat: limit/exclude only match where
-fixture ids coincide with stored node ids (see README "Deferred / backlog").
+fixture ids coincide with stored node ids (see README "Follow-ups").
