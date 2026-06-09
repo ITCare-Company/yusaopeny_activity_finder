@@ -15,12 +15,13 @@
           :value="age.value"
           :disabled="isDisabled(age.value)"
         />
-        <label :id="id + '-label-' + age.value" :for="id + '-age-' + age.value">
+        <label
+          :id="id + '-label-' + age.value"
+          :for="id + '-age-' + age.value"
+          :title="isDisabled(age.value) ? t('Please unselect any of the selected options first') : undefined"
+        >
           {{ age.label }}
         </label>
-        <b-tooltip v-if="isDisabled(age.value)" :target="id + '-label-' + age.value">
-          {{ 'Please unselect any of the selected options first' | t }}
-        </b-tooltip>
       </div>
     </div>
   </Foldable>

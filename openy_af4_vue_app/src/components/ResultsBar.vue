@@ -4,19 +4,19 @@
       <div class="row">
         <div class="col-12 col-xs-12 col-sm-8 col-sm-offset-2 m-auto">
           <div class="controls">
-            <span v-if="!disableSearchBox" v-b-modal.activity-finder-search class="control search">
+            <span v-if="!disableSearchBox" class="control search" @click="searchModal.visible = true">
               <a role="button">
                 <Icon icon="material-symbols:search" />
                 {{ 'Search' | t }}
               </a>
             </span>
-            <span v-b-modal.activity-finder-filter class="control filter">
+            <span class="control filter" @click="filterModal.visible = true">
               <a role="button">
                 <Icon icon="material-symbols:filter-list" />
                 {{ 'Filter' | t }}
               </a>
             </span>
-            <span v-b-modal.activity-finder-sort class="control sort">
+            <span class="control sort" @click="sortModal.visible = true">
               <a role="button">
                 <Icon icon="material-symbols:swap-vert" />
                 {{ 'Sort' | t }}

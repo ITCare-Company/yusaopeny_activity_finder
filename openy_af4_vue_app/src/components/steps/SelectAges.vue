@@ -33,7 +33,12 @@
                   :disabled="isDisabled(age.value)"
                   @change="onChange(age)"
                 />
-                <label :id="'label-' + age.value" :for="age.value" role="button">
+                <label
+                  :id="'label-' + age.value"
+                  :for="age.value"
+                  role="button"
+                  :title="isTooltipDisplay(age.value) ? t('Please unselect any of the selected options first') : undefined"
+                >
                   <span>
                     <span class="title">{{ age.label }}</span>
                     <span v-if="facetCount(age.value) !== null" class="results-count">
@@ -41,9 +46,6 @@
                     </span>
                   </span>
                 </label>
-                <b-tooltip v-if="isTooltipDisplay(age.value)" :target="'label-' + age.value">
-                  {{ 'Please unselect any of the selected options first' | t }}
-                </b-tooltip>
               </div>
             </div>
           </div>

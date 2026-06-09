@@ -1,6 +1,6 @@
 <template>
   <div class="fieldset-component">
-    <div v-b-toggle="collapseId" class="fieldset-title">
+    <div class="fieldset-title" :class="{ collapsed: !isOpen }" @click="collapsible && (isOpen = !isOpen)">
       <span class="left">
         <span class="title">{{ label }}</span>
         <span v-if="counter" class="counter" :class="{ 'hide-counter': hideCounter }">
@@ -27,18 +27,14 @@
         </span>
       </span>
     </div>
-    <b-collapse
+    <div
       v-if="collapsible"
-      :id="collapseId"
+      v-show="isOpen"
       role="tabpanel"
       class="fieldset-content"
-      :accordion="accordion"
-      :visible="!collapsed"
-      @shown="handleSticky"
-      @hidden="handleSticky"
     >
       <slot />
-    </b-collapse>
+    </div>
     <div v-else class="fieldset-content">
       <slot />
     </div>
@@ -94,6 +90,12 @@ export default {
       type: Function,
       default: () => {}
     }
+  },
+  data() {
+    return { isOpen: !this.collapsed }
+  },
+  watch: {
+    isOpen() { this.handleSticky() }
   }
 }
 </script>
