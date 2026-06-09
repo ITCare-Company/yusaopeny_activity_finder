@@ -46,7 +46,7 @@ DONE 2026-06-09. Boot smoke PASSED on af4-migration.ddev.site.
 - `#activity-finder` mounts ✅
 - 31 Mock sessions render ✅
 - Filters (SCHEDULES, ACTIVITIES, LOCATIONS) visible ✅
-- Modal opens on session title click ✅ (BootstrapVue b-modal still works via compat)
+- Session title click — click handler fires, `activityDetailsModal.visible = true` set, but `<b-modal>` does NOT open ❌ → **W4 blocker** (BootstrapVue 2 `b-modal` incompatible with `@vue/compat`; replaced in W4-P0)
 - Screenshots: `queue/W3-vue3-core-swap/screenshots/`
 
 Expected console warnings (not errors):
@@ -54,4 +54,4 @@ Expected console warnings (not errors):
 - `[BootstrapVue]` — routed to W4
 - `getBoundingClientRect` on sticky nav — pre-existing theme issue, unrelated to AF4
 
-No boot-time crashes. W3 gate passed.
+No boot-time crashes. W3 gate passed. Modal regression is tracked for W4.
