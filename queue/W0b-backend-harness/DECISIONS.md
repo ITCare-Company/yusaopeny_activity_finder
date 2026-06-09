@@ -220,18 +220,5 @@ otherwise break AF3 and Camp Finder.
   from the one selected backend); the N-backend merge path is dormant until the
   follow-up lands.
 
-## Follow-ups
 
-Scope-discipline parking lot (per queue anatomy: keep the wave lean, capture
-ideas here, cite from a future wave instead of widening this one).
-
-- **Multi-backend aggregation.** Run more than one backend per block and merge
-  the results. Candidate rules: count-offset routing / primary→fallback / full
-  merge — pick one, test every path, do a quality merge (facets, pager, dedup).
-  Driver: combine hand-edited content with API-sourced content (more weight on
-  manual edits). First confirm it is actually needed.
-- **Plugin-driven limit/exclude selectors** — see the wave README "Follow-ups".
-- **DB backend** plugin (entity/database query, no Solr).
-- **Legacy per-block config mapping (P5)** — full service-id→plugin-id map +
-  per-block config stamping.
 

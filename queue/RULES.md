@@ -22,6 +22,7 @@ This queue lives in `yusaopeny_activity_finder` (the ITCare fork). It migrates
    time. `git status` + `git stash list` first.
 4. **Memory-first.** Owner rule ("never X", "always Y") goes into
    [`README.md`](README.md) → "House rules" in the same turn.
+5. **Phase boundary tags.** Create a git tag `v-w<N>-<phase>-ok` after the phase is completed and approved, before pushing the wave PR.
 
 ## Commit shape
 
