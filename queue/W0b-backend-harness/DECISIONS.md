@@ -207,3 +207,31 @@ otherwise break AF3 and Camp Finder.
 - **Daxko** is not converted here — that module must ship its own
   `ActivityFinderBackend` plugin (it will be auto-discovered).
 
+### Single backend (review outcome — podarok)
+
+- The per-block selector exposes a **single** backend (or "site default"). A
+  block runs one backend, exactly as before — the consumer contract is unchanged
+  and nothing existing breaks.
+- **Multi-backend is an experimental follow-up, not claimed or exposed.**
+  Declaring it would mean proving every variant and a quality cross-backend
+  merge; that is deferred (do not let it inflate this wave's scope). The
+  aggregator stays as the single composition layer (it assembles the response
+  from the one selected backend); the N-backend merge path is dormant until the
+  follow-up lands.
+
+## Follow-ups (backlog)
+
+Scope-discipline parking lot (per queue anatomy: keep the wave lean, capture
+ideas here, cite from a future wave instead of widening this one).
+
+- **Multi-backend aggregation.** Run more than one backend per block and merge
+  the results. Candidate rules: count-offset routing / primary→fallback / full
+  merge — pick one, test every path, do a quality merge (facets, pager, dedup).
+  Driver: combine hand-edited content with API-sourced content (more weight on
+  manual edits). First confirm it is actually needed.
+- **Plugin-driven limit/exclude selectors** — see the wave README "Deferred /
+  backlog".
+- **DB backend** plugin (entity/database query, no Solr).
+- **Legacy per-block config mapping (P5)** — full service-id→plugin-id map +
+  per-block config stamping.
+

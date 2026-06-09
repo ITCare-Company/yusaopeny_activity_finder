@@ -239,8 +239,7 @@ Solr backend (`src/OpenyActivityFinderSolrBackend.php`) — not invented:
   `getCategories`, `getProgramsMoreInfo`, `getDaysOfWeek`, `getPartsOfDay`)
   carry their existing return shapes; W0b-P1 records each from the Solr backend
   so Mock/DB reproduce them.
-- **Multi-backend (one block, ≥1 backend):** a uniform response schema is the
-  precondition for aggregating N backends; per-backend differences live in
-  `externals`, not in divergent top-level keys. The **aggregation rule** (how N
-  responses combine) is a separate locked-pending decision — see W0b
-  `DECISIONS.md` D11.
+- **Single backend per block (shipped).** A block runs one backend; the uniform
+  response schema + `externals` keep all backends interchangeable. Running
+  **several backends at once and merging them is an experimental follow-up**, not
+  exposed — see W0b `DECISIONS.md` ("Single backend" + "Follow-ups").
