@@ -50,7 +50,7 @@ chosen approach keeps the W0 baseline visually identical.
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09. Decision recorded in W1/DECISIONS.md.
 
 Replacement strategy (possibly per-file) recorded in W1 `DECISIONS.md`; W4
 phase scoping updated to match.

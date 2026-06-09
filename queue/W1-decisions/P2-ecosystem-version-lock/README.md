@@ -38,7 +38,7 @@ bumped, replaced, or removed) with no "TBD" rows.
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09. Decision recorded in W1/DECISIONS.md.
 
 Version table recorded in W1 `DECISIONS.md`. `MIGRATION-REFERENCE.md`
 "Dependency deltas" reconciled with the locked versions.

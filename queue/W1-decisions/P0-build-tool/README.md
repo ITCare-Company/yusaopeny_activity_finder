@@ -48,7 +48,7 @@ command, and how the UMD global + single-CSS-file contract is preserved.
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09. Decision recorded in W1/DECISIONS.md.
 
 Build tool chosen and recorded in W1 `DECISIONS.md` with the build-command
 sketch and UMD-contract preservation note.
