@@ -68,6 +68,13 @@ The request fuses **two** existing patterns into one new queue:
   `STYLE-REFERENCE.md` з canvas-черги).
 - [`RULES.md`](RULES.md) — гейти діалогу, формат комітів, гейт апруву на
   кожну фазу.
+- [`FOLLOWUPS.md`](FOLLOWUPS.md) — наступні задачі з рев'ю (status sync,
+  `.DS_Store`, dist policy, anatomy completeness).
+- **HOW — методологія** (як вести чергу, не _що_ робити):
+  [`_shared/behaviors/`](https://github.com/ITCare-Company/template_for_agents/tree/main/process-knowledge-base/_shared/behaviors)
+  у `template_for_agents` — 20 патернів (PR-as-question-channel, ESC-steering,
+  watchdog для нічних ранів, atomic-commits, phase-vs-wave vocabulary). Почни з
+  `02-core-philosophy`, `03-start-and-resume`, `06-pr-as-question-channel`.
 
 Робочий цикл фази: читаєш `README.md` фази → пишеш `## Plan` у чат → чекаєш
 «вйо» → код → `Verify` (білд/лінт/скрін) → чекаєш «ok» → push у гілку хвилі.
