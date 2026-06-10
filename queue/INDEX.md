@@ -87,6 +87,7 @@ Keep order by wave, then phase.
 | P4 FontAwesome v3 + Iconify swap | pending | [`W5-vue3-api-rewrites/P4-fontawesome-iconify/README.md`](W5-vue3-api-rewrites/P4-fontawesome-iconify/README.md) |
 | P5 eslint-plugin-vue 9 + prettier bump | pending | [`W5-vue3-api-rewrites/P5-lint-prettier/README.md`](W5-vue3-api-rewrites/P5-lint-prettier/README.md) |
 | P6 axios → native fetch | pending | [`W5-vue3-api-rewrites/P6-axios-fetch/README.md`](W5-vue3-api-rewrites/P6-axios-fetch/README.md) |
+| P7 fetch error + config parity (follow-up to P6) | pending | [`W5-vue3-api-rewrites/P7-fetch-error-parity/README.md`](W5-vue3-api-rewrites/P7-fetch-error-parity/README.md) |
 
 ## W6 — QA visual + functional (Ira)
 
