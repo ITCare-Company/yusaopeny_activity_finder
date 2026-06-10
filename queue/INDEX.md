@@ -75,6 +75,7 @@ Keep order by wave, then phase.
 | P3 `filters/Ages.vue` + `steps/SelectAges.vue` | pending | [`W4-bootstrap-vue-migration/P3-ages/README.md`](W4-bootstrap-vue-migration/P3-ages/README.md) |
 | P4 `ResultsBar.vue` | pending | [`W4-bootstrap-vue-migration/P4-resultsbar/README.md`](W4-bootstrap-vue-migration/P4-resultsbar/README.md) |
 | P5 remove `Vue.use(BootstrapVue)` + prune dep + dead-CSS reconcile | pending | [`W4-bootstrap-vue-migration/P5-remove-global/README.md`](W4-bootstrap-vue-migration/P5-remove-global/README.md) |
+| P6 hand-rolled modal a11y restore (focus trap / aria / scroll-lock) | pending | [`W4-bootstrap-vue-migration/P6-modal-a11y/README.md`](W4-bootstrap-vue-migration/P6-modal-a11y/README.md) |
 
 ## W5 — Vue 3 API rewrites
 
