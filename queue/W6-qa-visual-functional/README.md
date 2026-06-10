@@ -46,7 +46,6 @@ See [`DECISIONS.md`](DECISIONS.md).
 
 ## Test site
 
-**URL:** https://af4-migration.ddev.site/activity-finder-v4-layout-builder
 **Backend:** Mock (no Solr needed — 31 static sessions)
 **W0 baseline screenshots:** `queue/W0-baseline-contract/P1-behavioral-baseline/screenshots/`
 **W6 reference screenshots (Vue 3 smoke):** `queue/W6-qa-visual-functional/screenshots/`
