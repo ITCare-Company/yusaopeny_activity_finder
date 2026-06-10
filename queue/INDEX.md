@@ -134,6 +134,9 @@ Keep order by wave, then phase.
 | W7 | [`W7-drupal-integration-ship/README.md`](W7-drupal-integration-ship/README.md) | (single-surface wave) |
 | W8 | [`W8-retro-upstream/README.md`](W8-retro-upstream/README.md) | [`DECISIONS.md`](W8-retro-upstream/DECISIONS.md) |
 
+**Queue-level follow-ups (next tasks):** [`FOLLOWUPS.md`](FOLLOWUPS.md) — review
+parking lot (status sync, `.DS_Store`, dist policy, anatomy completeness).
+
 ---
 
 ## Progress — Ira QA view
