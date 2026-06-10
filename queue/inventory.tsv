@@ -30,7 +30,7 @@ seq	wave	phase	epic	status	commit_or_pr	blocked_by	preview_path	baseline	verifie
 29	W6-qa-visual-functional	P5-responsive	qa-three-viewport	pending		24,25,26,27,28	all screens @1920/1024/468	—	—	desktop/tablet/mobile parity
 30	W7-drupal-integration-ship	P0-prod-build-contract	prod-build-verify-contract	pending		29	openy_af4_vue_app/dist	—	—	UMD global + css + libraries.yml intact
 31	W7-drupal-integration-ship	P1-drush-smoke	live-drush-smoke	pending		30	#activity-finder on live site	—	—	ddev drush cr + load AF4 page
-32	W7-drupal-integration-ship	P2-pr	open-pr-to-fork	pending		31	—	—	—	PR into 6.x
+32	W7-drupal-integration-ship	P2-pr	open-pr-to-fork	pending		31,48	—	—	—	PR into 6.x; gated by P3 CSP review
 33	W8-retro-upstream	P0-lessons-harvest	af4-migration-lessons	pending		32	queue W*/DECISIONS.md	—	—	tag universal vs AF4-specific
 34	W8-retro-upstream	P1-upstream-anatomy-pr	enrich-migration-anatomy	pending		33	template_for_agents PKB	—	—	PR per anatomy-upstream rule
 35	W8-retro-upstream	P2-subtree-import-pkb	import-queue-to-pkb	pending		33	process-knowledge-base/	—	—	git subtree add + register indexes
@@ -46,3 +46,4 @@ seq	wave	phase	epic	status	commit_or_pr	blocked_by	preview_path	baseline	verifie
 43	W5-vue3-api-rewrites	P6-axios-fetch	axios-to-fetch	pending		11	src/client/index.js	—	—	drop axios dep + external; native fetch
 46	W5-vue3-api-rewrites	P7-fetch-error-parity	fetch-error-config-parity	pending		43	src/client/index.js	—	—	!res.ok guard + config parity; fetch resolves on 4xx/5xx unlike axios
 47	W4-bootstrap-vue-migration	P6-modal-a11y	hand-rolled-modal-a11y	pending		12	src/components/modals/Modal.vue	—	—	focus trap + return focus + role=dialog/aria-modal + body scroll-lock; lost when b-modal/teleport dropped
+48	W7-drupal-integration-ship	P3-csp-runtime-compiler	csp-esm-bundler-review	pending		30	vite.config.js (vue.esm-bundler alias)	—	—	runtime compiler uses new Function; strict-CSP sites without unsafe-eval white-screen; gates P2 ship

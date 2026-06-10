@@ -107,6 +107,7 @@ Keep order by wave, then phase.
 |---|---|---|
 | P0 Production build + contract verify | pending | [`W7-drupal-integration-ship/P0-prod-build-contract/README.md`](W7-drupal-integration-ship/P0-prod-build-contract/README.md) |
 | P1 drush smoke on a live Open Y site | pending | [`W7-drupal-integration-ship/P1-drush-smoke/README.md`](W7-drupal-integration-ship/P1-drush-smoke/README.md) |
+| P3 CSP review for esm-bundler runtime compiler | pending | [`W7-drupal-integration-ship/P3-csp-runtime-compiler/README.md`](W7-drupal-integration-ship/P3-csp-runtime-compiler/README.md) |
 | P2 PR to fork | pending | [`W7-drupal-integration-ship/P2-pr/README.md`](W7-drupal-integration-ship/P2-pr/README.md) |
 
 ## W8 — Retro & upstream (after all done)
