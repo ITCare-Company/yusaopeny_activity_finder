@@ -4,8 +4,9 @@
 > Cachet is defined, loaded, and applied across YMCA Website Services (Open Y) so the
 > Activity Finder design stays on-brand and consistent with the surrounding site.
 >
-> Sources: reverse-engineered from `openy_carnation`, `y_lb`, `openy_font`, and the
-> `ws_small_y` / `lb_*` module ecosystem (YMCA Website Services, "small-y" profile).
+> Sources: verified against `y_fonts`, `y_lb`, `openy_carnation`, and the
+> `ws_small_y` / `ws_colorway_*` / `lb_*` module ecosystem (YMCA Website Services,
+> "small-y" profile).
 
 ---
 
@@ -16,44 +17,60 @@
 | Family name | `Cachet` |
 | Role | Brand display + UI font (headings, buttons, nav, labels, badges) |
 | Body counterpart | `Verdana` (long-form copy is **not** set in Cachet) |
-| Licensing | Commercial — licensed per-site from fonts.com. **Not** redistributable, so it is **not** shipped as a web font in the repo. |
-| Delivery | Self-hosted TTFs uploaded by the site owner via the `openy_font` module, injected as `@font-face` at runtime |
+| Licensing | Commercial — licensed (fonts.com). **Not** redistributable: enforced by keeping the font module **private / undistributed** (`y_fonts` info.yml: "NOT FOR DISTRIBUTION DUE TO FONT LICENSING"), **not** by omitting the files. |
+| Delivery | Shipped as WOFF2/WOFF inside the **`y_fonts`** module (`y_fonts/css/cachet.css` + `y_fonts/fonts/CachetW05-*.woff2`), injected as `@font-face` by `y_fonts_page_attachments()`. (A separate `openy_font` module also exists in the stack — see §2.) |
 
 ### Weight system
 
-Cachet ships in three weights. This is the canonical mapping used across the platform:
+`y_fonts/css/cachet.css` declares a **single `@font-face` family `'Cachet'`** in **four**
+weights, selected by `font-weight` — there is **no** per-weight family name:
 
-| Weight | `font-weight` | Cachet name | Typical use |
+| Weight | `font-weight` | WOFF2 face | Typical use |
 | --- | --- | --- | --- |
-| Book | `400` | `Cachet W01 Book` | Body-adjacent UI, nav, breadcrumbs, filter tags, default buttons |
-| Medium | `500` | `Cachet Medium` | Headings (h1/h2/h5/h6), form labels, card links, event badges, CTAs |
-| Bold | `700` | `Cachet Bold` | Strong card titles, emphasis |
+| ExtraLight | `300` | `CachetW05-ExtraLight` | rare / legacy |
+| Book | `400` | `CachetW05-Book` | body-adjacent UI, nav, breadcrumbs, filter tags, default buttons |
+| Medium | `500` | `CachetW05-Medium` | headings (h1/h2/h5/h6), form labels, card links, event badges, CTAs |
+| Bold | `700` | `CachetW05-Bold` | strong card titles, emphasis |
 
-> `openy_carnation` uses one `800` (extra-bold) instance on the global-search pager.
-> Treat it as a legacy outlier — **do not** introduce new `800` usages; Cachet has no
-> matching physical weight, so the browser synthesizes it.
+> **There is no `"Cachet Medium"` / `"Cachet Book"` / `"Cachet W01 Book"` family rendered
+> on screen.** `y_fonts` registers only `'Cachet'`; weight is chosen via `font-weight`.
+> The named families inside `--ylb-font-family-medium` / `-book` match no rendered
+> `@font-face` (they appear only in `openy_repeat`'s print stylesheet) and resolve down to
+> `'Cachet'`. **Differentiate weight with `font-weight` — not by choosing a
+> `$af-font-book` vs `$af-font-medium` token** (both resolve to `'Cachet'`).
+>
+> `openy_carnation` uses one `800` instance on the global-search pager; `y_fonts` ships no
+> `800` face (the browser synthesizes it). **Do not** introduce new `800` usages.
 
 ---
 
 ## 2. How Cachet is loaded (the injection chain)
 
-Cachet is never hard-loaded by a module or the Vue app. The chain is:
+The AF Vue app never declares `@font-face`. The actual chain (verified against the code):
 
 ```
-openy_font module (admin uploads Cachet Bold/Book/Medium TTFs)
-   └─ hook_page_attachments() injects @font-face into <style> on the default theme
-        └─ y_lb library defines :root CSS custom properties
-              --ylb-font-family-cachet : Cachet, Verdana, Geneva, sans-serif
-              --ylb-font-family-book   : "Cachet Book", "Cachet W01 Book", Cachet, Verdana, sans-serif
-              --ylb-font-family-medium : "Cachet Medium", Cachet, Verdana, sans-serif
-              --ylb-font-family-verdana: Verdana, Geneva, sans-serif
-                   └─ components consume var(--ylb-font-family-cachet, Cachet)
+y_fonts module — ships CachetW05-*.woff2 in-repo (NOT admin-uploaded)
+   └─ y_fonts_page_attachments() attaches the 'y_fonts/cachet' library CONDITIONALLY:
+        non-admin route AND a node/user/webform/exception context,
+        and for nodes only when the node uses Layout Builder
+        (field OverridesSectionStorage present, field_use_layout_builder not disabled)
+        -> @font-face family 'Cachet' in weights 300/400/500/700
+   └─ y_lb (assets/css/page.css :root) defines the font custom properties:
+        --ylb-font-family-cachet : Cachet, Verdana, Geneva, sans-serif
+        --ylb-font-family-verdana: Verdana, Geneva, sans-serif
+        --ylb-font-family-medium : "Cachet Medium", Cachet, Verdana, sans-serif
+        --ylb-font-family-book   : "Cachet Book", "Cachet W01 Book", Cachet, Verdana, sans-serif
+        (colorway modules, e.g. ws_colorway_canada/assets/css/canada-typography.css,
+         REDEFINE these to var(--ylb-font-family-montserrat) — host font becomes Montserrat)
+   └─ AF components consume var(--ylb-font-family-*, <fallback>)
 ```
 
-**Consequence for Activity Finder:** the AF Vue app must *consume* the `--ylb-*`
-custom properties, never declare its own `@font-face` or hard-code `Cachet`. When the
-host site has uploaded the font, AF inherits it automatically; when it has not, the
-fallback chain degrades gracefully to Verdana.
+**Consequences for Activity Finder:**
+- Consume the `--ylb-*` custom properties; never declare `@font-face` or hard-code a face.
+- `y_fonts` loads Cachet **only on Layout Builder pages** (with a node/user context), so AF
+  rendered outside that context falls back to Verdana — **verify both states**.
+- AF inherits whatever the colorway sets: on a Montserrat colorway the AF chrome is
+  Montserrat. The token system is **host-font-agnostic**, not Cachet-specific.
 
 ### Canonical font stacks
 
@@ -161,7 +178,9 @@ on result cards — keep Cachet labels legible against each (contrast checked pe
 2. **Replace hard-coded `font-family` declarations** in the Vue SFCs with these tokens.
 3. **Align the type scale** of AF step/result titles to §3 (weight 500, uppercase,
    negative tracking) so headings match the surrounding Open Y page.
-4. **Never add `@font-face`** to the AF app — rely on `openy_font` + `y_lb` injection.
+4. **Never add `@font-face`** to the AF app — rely on `y_fonts` (@font-face) + `y_lb`
+   (custom properties) injection. Set weight via `font-weight`, since `y_fonts` exposes
+   weight through the single `'Cachet'` family, not per-weight family names.
 5. **Keep result/description body copy in Verdana**, headings/labels/badges in Cachet.
 6. **Accessibility:** because Cachet may be absent (unlicensed sites), verify every
    layout against the Verdana fallback — line lengths and button widths must not break.
