@@ -8,6 +8,10 @@ These items surfaced in the W0–W6 review (PR #6). Each is a **task for Lera**,
 listed smallest-first. Code-fix items already promoted to phases are linked,
 not duplicated.
 
+## Bugs (post-merge, found on the sandbox)
+
+- **Interactive URL query state dead** (regression, W3 router drop) → [`W3-vue3-core-swap/P4-bug-url-query-state/`](W3-vue3-core-swap/P4-bug-url-query-state/README.md). AF4 query params no longer update on interaction and a reload no longer reproduces state: `App.vue` still uses `$route`/`$router` (705/815/868) but W3 removed vue-router.
+
 ## Promoted to phases (do via the normal phase cycle)
 
 - **fetch error + config parity** → [`W5-vue3-api-rewrites/P7-fetch-error-parity/`](W5-vue3-api-rewrites/P7-fetch-error-parity/README.md)
