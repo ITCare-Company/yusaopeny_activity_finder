@@ -92,7 +92,7 @@ export default {
   :-moz-placeholder,
   ::-moz-placeholder,
   :-ms-input-placeholder {
-    font-family: var(--ylb-font-family-verdana, Verdana), sans-serif;
+    font-family: $af-font-body;
     font-weight: 400;
     line-height: 22px;
   }
