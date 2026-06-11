@@ -449,14 +449,14 @@ export default {
 
     .title {
       font-size: 14px;
-      font-family: var(--ylb-font-family-verdana, Verdana), sans-serif;
+      font-family: $af-font-body;
       font-weight: 400;
       line-height: 18px;
     }
 
     a {
       font-size: 18px;
-      font-family: var(--ylb-font-family-verdana, Verdana), sans-serif;
+      font-family: $af-font-body;
       line-height: 22px;
     }
   }
@@ -498,7 +498,7 @@ export default {
   .fieldset-component {
     .fieldset-title {
       .title {
-        font-family: var(--ylb-font-family-verdana, Verdana), sans-serif;
+        font-family: $af-font-body;
         font-size: 15px;
         font-weight: 700;
         line-height: 18px;

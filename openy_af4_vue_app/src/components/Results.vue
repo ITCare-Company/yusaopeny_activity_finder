@@ -202,7 +202,7 @@ export default {
 <style lang="scss">
 .results-component {
   .result-title {
-    font-family: var(--ylb-font-family-cachet, Cachet), Verdana, sans-serif;
+    font-family: $af-font-cachet;
     font-size: 35px;
     line-height: 40px;
     color: $af-black;
@@ -240,13 +240,13 @@ export default {
       color: $af-black;
       font-weight: 400;
       font-size: 18px;
-      font-family: var(--ylb-font-family-verdana, Verdana), sans-serif;
+      font-family: $af-font-body;
     }
 
     .start-over {
       color: $af-blue;
       font-size: 18px;
-      font-family: var(--ylb-font-family-verdana, Verdana), sans-serif;
+      font-family: $af-font-body;
     }
   }
 }
