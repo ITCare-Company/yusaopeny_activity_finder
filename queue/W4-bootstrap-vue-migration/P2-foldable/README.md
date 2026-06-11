@@ -40,6 +40,6 @@ Owner approves. Expand/collapse behaviour, ARIA, and markup match baseline.
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09.
 
 Both foldables off BootstrapVue; collapse behaviour + ARIA verified.

@@ -62,7 +62,15 @@ to the W0 baseline (it's the same Vue 2 code).
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09.
 
-Build tool migrated; Vue 2 build green; `dist/` contract preserved; any
-config nuance (SCSS inject, browserslist) logged. Surprises → W3 `DECISIONS.md`.
+- **Build tool:** `@vue/cli-service ^4` → `vite ^5` + `@vitejs/plugin-vue2 ^2.3.1`
+- **Vue:** bumped `^2.6.14` → `^2.7.16` (minor, backward compatible, required by plugin)
+- **Removed:** `babel.config.js`, `vue.config.js`, `style-resources-loader`, `vue-cli-plugin-style-resources-loader`, `vue-template-compiler`
+- **Added:** `vite.config.js` (UMD lib mode, same output contract)
+- **dist/ contract preserved:** `activity_finder_4.umd.min.js` (200KB) + `activity_finder_4.css` (53KB), UMD global `activity_finder_4` ✅
+- **global.scss:** `@import "../../node_modules/bootstrap/..."` → `@import "bootstrap/..."` (Vite resolves node_modules directly)
+- **Externals carried over unchanged:** `vue→Vue`, `vue-router→VueRouter`, `axios→axios`, `bootstrap-vue→BootstrapVue`
+- **W3 flip point:** vite.config.js comment marks where to remove `vue`/`vue-router` from externals to bundle Vue 3 (D4)
+- **SCSS deprecation warnings:** Dart Sass `@import` deprecated in favour of `@use` — non-blocking for W2; address in W5 or W7 cleanup
+- **Surprises for W3:** resolve.extensions must include `.vue` (Vite does not auto-resolve without it)

@@ -16,9 +16,17 @@ replaced in W4-P0).
    results filter → `Filters`; bookmark flows → the three bookmark modals).
 2. Capture + diff each open state vs baseline; verify backdrop, escape-close,
    focus trap, scroll behaviour.
-3. Functional: `BookmarkedItems` slot content; `Filters` modal applies filters
+3. **Extra checks for ActivityDetails** (had content-empty bug during W5):
+   - Body shows session name, date/time, location, price, Register button
+   - `v-if="item"` guard prevents blank body on first render
+4. **Extra checks for Modal close** (had z-index / event binding bugs during W4):
+   - Click X button → modal closes
+   - Press ESC → modal closes
+   - Click backdrop (outside dialog) → modal closes
+   - Click INSIDE dialog → modal stays open
+5. Functional: `BookmarkedItems` slot content; `Filters` modal applies filters
    to results.
-4. Update `verified` / `Note` per row. Any modal-shell regression → W4-P0.
+6. Update `verified` / `Note` per row. Any modal-shell regression → W4-P0.
 
 ## Tests
 

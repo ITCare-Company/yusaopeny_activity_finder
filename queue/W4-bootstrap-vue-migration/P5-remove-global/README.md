@@ -47,7 +47,7 @@ baseline.
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09.
 
 BootstrapVue fully removed; lockfile + bundle updated; dead CSS reconciled;
 app parity confirmed.

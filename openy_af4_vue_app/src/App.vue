@@ -33,7 +33,7 @@
       :disable-search-box="disableSearchBox"
     >
       <template v-if="!disableSearchBox" v-slot:search="{ hideModal }">
-        <SearchForm v-model="searchKeywords" @input="hideModal" />
+        <SearchForm v-model="searchKeywords" @update:modelValue="hideModal" />
       </template>
       <template v-slot:filter="{ hideModal }">
         <Filters
@@ -73,7 +73,7 @@
         />
       </template>
       <template v-slot:sort="{ hideModal }">
-        <SortRadios v-model="selectedSort" :sort-options="sortOptions" @input="hideModal" />
+        <SortRadios v-model="selectedSort" :sort-options="sortOptions" @update:modelValue="hideModal" />
       </template>
     </ResultsBar>
     <Loading v-if="step !== 'results' && isLoadingData" />
@@ -94,11 +94,11 @@
       <template v-if="showHomeBranchBlock" v-slot:home-branch>
         <p>
           <a role="button" class="homebranch-link" @click.stop.prevent="viewHomeBranchResults">
-            <strong>{{ 'View all programs for Home Branch' | t }}</strong>
+            <strong>{{ t('View all programs for Home Branch') }}</strong>
           </a>
         </p>
         <p v-if="homeBranchResultsCount" class="homebranch-results-count">
-          {{ homeBranchResultsCount | formatPlural('1 result', '@count results') }}
+          {{ formatPlural(homeBranchResultsCount, '1 result', '@count results') }}
         </p>
       </template>
     </SelectPath>

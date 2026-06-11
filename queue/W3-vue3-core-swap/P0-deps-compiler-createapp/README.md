@@ -62,7 +62,14 @@ preserved; GA bridge intact; every temporary shim carries a `TODO(W4/W5)`.
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09.
 
-Vue 3 installed, compiler swapped, `createApp` bootstrap in place; shims noted;
-build green. Any compiler surprise logged in W3 `DECISIONS.md`.
+- `vue ^3.4` + `@vue/compat ^3.4` installed; `vue-template-compiler` removed; `@vue/compiler-sfc ^3.4` added
+- `@vitejs/plugin-vue2` → `@vitejs/plugin-vue ^5`; compat template compiler options added
+- `main.js` rewritten: `new Vue({...}).$mount()` → `createApp({...}).mount()`; GA bridge preserved verbatim
+- `configureCompat({ MODE: 2 })` — allows filter/mixin/use APIs at runtime; `@vue/compat` aliased for `vue` in vite.config.js
+- `Vue.config.devtools` + `Vue.config.productionTip` removed (not in Vue 3)
+- All shims labelled: `app.use(BootstrapVue)` // TODO(W4), `app.filter()` ×3 // TODO(W5-P0), `app.mixin()` // TODO(W5-P1)
+- D4 flip: `vue`/`vue-router` removed from externals; bundled in UMD → 399KB (was 205KB)
+- Build green: 82 modules, 399KB UMD + 54KB CSS
+- Surprise: `@fortawesome/vue-fontawesome@2` peer requires `vue~2` → bumped to `^3.0.3` here (not W5); logged in DECISIONS.md

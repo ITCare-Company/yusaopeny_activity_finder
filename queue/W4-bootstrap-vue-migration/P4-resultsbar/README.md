@@ -41,6 +41,6 @@ preserved; markup matches baseline.
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09.
 
 `ResultsBar.vue` off BootstrapVue; scoped-slot + `hideModal` contract verified.

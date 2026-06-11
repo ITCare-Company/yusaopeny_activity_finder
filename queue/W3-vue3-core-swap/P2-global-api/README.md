@@ -45,8 +45,11 @@ with the wave/phase that removes it; no orphan `Vue.` calls.
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09.
 
-Global API lifted to `app.*`; shims labelled. If a filter shim proved
-impractical and W5-P0 must precede boot smoke, the gating change is recorded
-in W3 `DECISIONS.md` + `inventory.tsv`.
+- `Vue.component()` → `app.component()` ✅
+- `Vue.use(BootstrapVue)` → `app.use(BootstrapVue)` // TODO(W4) ✅
+- `Vue.filter()` ×3 → `app.filter()` ×3 // TODO(W5-P0) — works via @vue/compat MODE:2 ✅
+- `Vue.mixin()` → `app.mixin()` // TODO(W5-P1) ✅
+- No bare `Vue.` remains in main.js ✅
+- Filter shim practical via `@vue/compat` — W5-P0 gating not needed for boot smoke

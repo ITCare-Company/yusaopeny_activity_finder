@@ -51,7 +51,16 @@ migration (or, if something must, it is flagged here, not discovered in W7).
 
 ## Result
 
-(to be filled when phase ships)
+DONE 2026-06-09. `findings.md` shipped.
 
-`findings.md` shipped. Contract table verified against `MIGRATION-REFERENCE.md`
-§7. Any required Drupal-side change flagged for W7 + logged in W0 `DECISIONS.md`.
+Contract verified on 7.x branch (Mock backend, af4-migration.ddev.site):
+- Library ID: `activity_finder_4`, bundle: `openy_af4_vue_app/dist/activity_finder_4.umd.min.js`
+- Mount: `<div id="activity-finder">`, root component: `<activity-finder>`
+- Vue + BootstrapVue externalized (CDN/openy_system) — NOT bundled
+- 30 props passed via JSON-encoded twig bindings
+- 3 API endpoints: `/af/get-data`, `/af/api/v1/session-data`, `/af/more-info`
+
+Drupal-side changes flagged for W7:
+- Replace `openy_system/vue` → vue3 (or bundle) after W3
+- Remove `bootstrap-vue` + `popper` library entries after W4
+- `:bs-version` prop cleanup optional
