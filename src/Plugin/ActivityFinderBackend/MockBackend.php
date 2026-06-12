@@ -262,7 +262,52 @@ class MockBackend extends ActivityFinderBackendPluginBase {
    * {@inheritdoc}
    */
   public function getFacets(array $parameters): array {
-    return $this->searchFixture()['facets'] ?? [];
+    $facets = $this->searchFixture()['facets'] ?? [];
+    $filtered = $this->filterRows($parameters);
+
+    // Recompute sub-category counts (field_activity_category).
+    $subCounts = [];
+    foreach ($filtered as $row) {
+      $pid = (string) ($row['program_id'] ?? '');
+      if ($pid !== '') {
+        $subCounts[$pid] = ($subCounts[$pid] ?? 0) + 1;
+      }
+    }
+    if (isset($facets['field_activity_category'])) {
+      $facets['field_activity_category'] = array_values(array_map(
+        function ($cat) use ($subCounts) {
+          $cat['count'] = $subCounts[$cat['filter']] ?? 0;
+          return $cat;
+        },
+        $facets['field_activity_category']
+      ));
+    }
+
+    // Recompute top-level group counts (field_category_program).
+    if (isset($facets['field_category_program'])) {
+      $groupMap = [];
+      foreach ($this->fixture('getCategories') as $group) {
+        foreach ($group['value'] as $sub) {
+          $groupMap[(string) $sub['value']] = $group['label'];
+        }
+      }
+      $groupCounts = [];
+      foreach ($filtered as $row) {
+        $group = $groupMap[(string) ($row['program_id'] ?? '')] ?? null;
+        if ($group) {
+          $groupCounts[$group] = ($groupCounts[$group] ?? 0) + 1;
+        }
+      }
+      $facets['field_category_program'] = array_values(array_map(
+        function ($cat) use ($groupCounts) {
+          $cat['count'] = $groupCounts[$cat['filter']] ?? 0;
+          return $cat;
+        },
+        $facets['field_category_program']
+      ));
+    }
+
+    return $facets;
   }
 
   /**
