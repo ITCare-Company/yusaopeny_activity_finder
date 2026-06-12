@@ -167,6 +167,7 @@ class MockBackend extends ActivityFinderBackendPluginBase {
     $rows = $this->filterByAge($rows, $parameters['ages'] ?? '');
     $rows = $this->filterByKeyword($rows, $parameters['keywords'] ?? '');
     $rows = $this->filterByDays($rows, $parameters['days'] ?? '');
+    $rows = $this->filterByDaysTimes($rows, $parameters['daystimes'] ?? '');
     // Block-level restrictions: limit (only these) and exclude (remove these).
     $rows = $this->filterByField($rows, 'program_id', $parameters['limit'] ?? '');
     $rows = $this->filterByField($rows, 'location_id', $parameters['limitloc'] ?? '');
@@ -369,6 +370,59 @@ class MockBackend extends ActivityFinderBackendPluginBase {
   }
 
   /**
+   * Filters rows to those matching any of the selected day+time slot IDs.
+   *
+   * Slot IDs come from getDaysTimes fixture (e.g. 13 = Monday Evening).
+   * Slot index within day: 0=Anytime, 1=Morning(<12), 2=Afternoon(12-17), 3=Evening(>=17).
+   * Uses the same overlap logic as recomputeWeekdaysPartsOfDay().
+   */
+  protected function filterByDaysTimes(array $rows, string $csv): array {
+    $selected = array_filter(array_map('trim', explode(',', $csv)));
+    if (!$selected) {
+      return $rows;
+    }
+    // Build map: slot_value => [day_name, slot_index].
+    $slotMap = [];
+    foreach ($this->fixture('getDaysTimes') as $day) {
+      $dayName = strtolower((string) ($day['search_value'] ?? ''));
+      foreach ($day['value'] ?? [] as $idx => $slot) {
+        $slotMap[(string) $slot['value']] = [$dayName, $idx];
+      }
+    }
+    return array_filter($rows, function ($row) use ($selected, $slotMap) {
+      $rowDays = array_filter(array_map('trim', explode(',', strtolower((string) ($row['days'] ?? '')))));
+      $timesStr = (string) ($row['times'] ?? '');
+      $start = $this->parseStartHour($timesStr);
+      $end   = $this->parseEndHour($timesStr) ?? $start;
+      foreach ($selected as $slotId) {
+        if (!isset($slotMap[$slotId])) {
+          continue;
+        }
+        [$dayName, $slotIdx] = $slotMap[$slotId];
+        if (!in_array($dayName, $rowDays, TRUE)) {
+          continue;
+        }
+        if ($slotIdx === 0) {
+          return TRUE;
+        }
+        if ($start === NULL) {
+          continue;
+        }
+        if ($slotIdx === 1 && $start < 12) {
+          return TRUE;
+        }
+        if ($slotIdx === 2 && $start < 17 && $end >= 12) {
+          return TRUE;
+        }
+        if ($slotIdx === 3 && ($start >= 17 || $end > 17)) {
+          return TRUE;
+        }
+      }
+      return FALSE;
+    });
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getResultsCount(array $parameters): int {
@@ -421,6 +475,24 @@ class MockBackend extends ActivityFinderBackendPluginBase {
           return $cat;
         },
         $facets['field_category_program']
+      ));
+    }
+
+    // Recompute location counts.
+    if (isset($facets['locations'])) {
+      $locCounts = [];
+      foreach ($filtered as $row) {
+        $lid = (string) ($row['location_id'] ?? '');
+        if ($lid !== '') {
+          $locCounts[$lid] = ($locCounts[$lid] ?? 0) + 1;
+        }
+      }
+      $facets['locations'] = array_values(array_map(
+        function ($loc) use ($locCounts) {
+          $loc['count'] = $locCounts[(string) $loc['id']] ?? 0;
+          return $loc;
+        },
+        $facets['locations']
       ));
     }
 
