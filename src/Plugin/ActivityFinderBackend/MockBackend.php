@@ -227,8 +227,20 @@ class MockBackend extends ActivityFinderBackendPluginBase {
 
     $counts = [];
     foreach ($filtered as $row) {
-      $days = array_filter(array_map('trim', explode(',', strtolower((string) ($row['days'] ?? '')))));
-      $slotIndex = $this->timeToSlotIndex($this->parseStartHour((string) ($row['times'] ?? '')));
+      $days     = array_filter(array_map('trim', explode(',', strtolower((string) ($row['days'] ?? '')))));
+      $timesStr = (string) ($row['times'] ?? '');
+      $start    = $this->parseStartHour($timesStr);
+      $end      = $this->parseEndHour($timesStr) ?? $start;
+      // Determine which time-of-day slots this session overlaps (Solr overlap logic).
+      // Morning [0,12): session overlaps if start < 12.
+      // Afternoon [12,17): session overlaps if start < 17 AND end >= 12.
+      // Evening [17,∞): session overlaps if start >= 17 OR end > 17.
+      $sessionSlots = [];
+      if ($start !== NULL && $end !== NULL) {
+        if ($start < 12) { $sessionSlots[] = 1; }
+        if ($start < 17 && $end >= 12) { $sessionSlots[] = 2; }
+        if ($start >= 17 || $end > 17) { $sessionSlots[] = 3; }
+      }
       foreach ($days as $dayName) {
         if (!isset($dayMap[$dayName])) {
           continue;
@@ -238,9 +250,11 @@ class MockBackend extends ActivityFinderBackendPluginBase {
         if (isset($slots[0])) {
           $counts[$slots[0]] = ($counts[$slots[0]] ?? 0) + 1;
         }
-        // Specific slot (1=Morning, 2=Afternoon, 3=Evening).
-        if ($slotIndex !== NULL && isset($slots[$slotIndex])) {
-          $counts[$slots[$slotIndex]] = ($counts[$slots[$slotIndex]] ?? 0) + 1;
+        // Count each time-of-day slot the session touches.
+        foreach ($sessionSlots as $slotIndex) {
+          if (isset($slots[$slotIndex])) {
+            $counts[$slots[$slotIndex]] = ($counts[$slots[$slotIndex]] ?? 0) + 1;
+          }
         }
       }
     }
@@ -276,6 +290,24 @@ class MockBackend extends ActivityFinderBackendPluginBase {
   }
 
   /**
+   * Parses the end hour (0-23) from a times string like "5:00pm-6:00pm".
+   */
+  protected function parseEndHour(string $times): ?int {
+    if (!preg_match('/[-–]\s*(\d+):\d+\s*(am|pm)\s*$/i', trim($times), $m)) {
+      return NULL;
+    }
+    $hour = (int) $m[1];
+    $ampm = strtolower($m[2]);
+    if ($ampm === 'pm' && $hour !== 12) {
+      $hour += 12;
+    }
+    elseif ($ampm === 'am' && $hour === 12) {
+      $hour = 0;
+    }
+    return $hour;
+  }
+
+  /**
    * Maps a start hour to a time-of-day slot index matching getDaysTimes.
    *
    * 1 = Morning  (Open – 12 p.m.)
@@ -289,8 +321,7 @@ class MockBackend extends ActivityFinderBackendPluginBase {
     if ($hour < 12) {
       return 1;
     }
-    // Solr includes exactly 17:00 (5:00pm) in Afternoon, not Evening.
-    if ($hour <= 17) {
+    if ($hour < 17) {
       return 2;
     }
     return 3;
