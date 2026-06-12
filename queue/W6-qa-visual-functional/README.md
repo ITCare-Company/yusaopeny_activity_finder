@@ -18,6 +18,7 @@ it is driven by the "Progress — Ira QA view" table in
 | P3 | Modals (6 modals) | pending |
 | P4 | Filters (16 filter components) | pending |
 | P5 | Responsive parity (1920 / 1024 / 468 across all screens) | pending |
+| P6 | MockBackend filtering + URL state (PR #12) | pending |
 
 ## How a phase works (Ira loop)
 
