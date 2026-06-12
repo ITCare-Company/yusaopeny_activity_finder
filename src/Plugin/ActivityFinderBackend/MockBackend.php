@@ -164,6 +164,7 @@ class MockBackend extends ActivityFinderBackendPluginBase {
     $rows = $this->filterByField($rows, 'nid', is_array($ids) ? implode(',', $ids) : $ids);
     $rows = $this->filterByField($rows, 'location_id', $parameters['locations'] ?? '');
     $rows = $this->filterByField($rows, 'program_id', $parameters['categories'] ?? '');
+    $rows = $this->filterByAge($rows, $parameters['ages'] ?? '');
     $rows = $this->filterByKeyword($rows, $parameters['keywords'] ?? '');
     $rows = $this->filterByDays($rows, $parameters['days'] ?? '');
     // Block-level restrictions: limit (only these) and exclude (remove these).
@@ -183,6 +184,30 @@ class MockBackend extends ActivityFinderBackendPluginBase {
       return $rows;
     }
     return array_filter($rows, fn($row) => in_array((string) ($row[$field] ?? ''), $selected, TRUE));
+  }
+
+  /**
+   * Keeps rows whose min_age/max_age range includes any selected age (months).
+   *
+   * Ages param is a comma-separated list of age values in months (e.g. "6,12").
+   * A row matches if at least one selected age satisfies:
+   *   selected >= min_age AND (max_age is null OR selected <= max_age)
+   */
+  protected function filterByAge(array $rows, string $csv): array {
+    $selected = array_filter(array_map('intval', explode(',', $csv)));
+    if (!$selected) {
+      return $rows;
+    }
+    return array_filter($rows, function ($row) use ($selected) {
+      $min = isset($row['min_age']) && $row['min_age'] !== null ? (int) $row['min_age'] : 0;
+      $max = isset($row['max_age']) && $row['max_age'] !== null ? (int) $row['max_age'] : PHP_INT_MAX;
+      foreach ($selected as $age) {
+        if ($age >= $min && $age <= $max) {
+          return TRUE;
+        }
+      }
+      return FALSE;
+    });
   }
 
   /**
