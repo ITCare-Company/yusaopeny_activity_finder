@@ -211,6 +211,92 @@ class MockBackend extends ActivityFinderBackendPluginBase {
   }
 
   /**
+   * Recomputes af_weekdays_parts_of_day facets from filtered rows.
+   *
+   * Each session contributes two counts per weekday it runs on: the Anytime
+   * slot (always) and the specific time-of-day slot (Morning/Afternoon/Evening)
+   * derived from the row's start time. This mirrors how Solr tags sessions.
+   */
+  protected function recomputeWeekdaysPartsOfDay(array $filtered): array {
+    $daysTimes = $this->fixture('getDaysTimes');
+    $dayMap = [];
+    foreach ($daysTimes as $day) {
+      $sv = strtolower((string) ($day['search_value'] ?? ''));
+      $dayMap[$sv] = array_column($day['value'] ?? [], 'value');
+    }
+
+    $counts = [];
+    foreach ($filtered as $row) {
+      $days = array_filter(array_map('trim', explode(',', strtolower((string) ($row['days'] ?? '')))));
+      $slotIndex = $this->timeToSlotIndex($this->parseStartHour((string) ($row['times'] ?? '')));
+      foreach ($days as $dayName) {
+        if (!isset($dayMap[$dayName])) {
+          continue;
+        }
+        $slots = $dayMap[$dayName];
+        // Index 0 = Anytime: every session on this day.
+        if (isset($slots[0])) {
+          $counts[$slots[0]] = ($counts[$slots[0]] ?? 0) + 1;
+        }
+        // Specific slot (1=Morning, 2=Afternoon, 3=Evening).
+        if ($slotIndex !== NULL && isset($slots[$slotIndex])) {
+          $counts[$slots[$slotIndex]] = ($counts[$slots[$slotIndex]] ?? 0) + 1;
+        }
+      }
+    }
+
+    $result = [];
+    foreach ($daysTimes as $day) {
+      foreach ($day['value'] ?? [] as $slot) {
+        $filter = (string) $slot['value'];
+        if (isset($counts[$filter])) {
+          $result[] = ['filter' => $filter, 'count' => $counts[$filter]];
+        }
+      }
+    }
+    return $result;
+  }
+
+  /**
+   * Parses the start hour (0-23) from a times string like "5:00pm-6:00pm".
+   */
+  protected function parseStartHour(string $times): ?int {
+    if (!preg_match('/^(\d+):\d+\s*(am|pm)/i', trim($times), $m)) {
+      return NULL;
+    }
+    $hour = (int) $m[1];
+    $ampm = strtolower($m[2]);
+    if ($ampm === 'pm' && $hour !== 12) {
+      $hour += 12;
+    }
+    elseif ($ampm === 'am' && $hour === 12) {
+      $hour = 0;
+    }
+    return $hour;
+  }
+
+  /**
+   * Maps a start hour to a time-of-day slot index matching getDaysTimes.
+   *
+   * 1 = Morning  (Open – 12 p.m.)
+   * 2 = Afternoon (12 – 5 p.m.)
+   * 3 = Evening  (5 p.m. – Close)
+   */
+  protected function timeToSlotIndex(?int $hour): ?int {
+    if ($hour === NULL) {
+      return NULL;
+    }
+    if ($hour < 12) {
+      return 1;
+    }
+    // Solr includes exactly 17:00 (5:00pm) in Afternoon, not Evening.
+    if ($hour <= 17) {
+      return 2;
+    }
+    return 3;
+  }
+
+  /**
    * Removes rows whose field value is in the comma-separated selection.
    */
   protected function excludeByField(array $rows, string $field, string $csv): array {
@@ -306,6 +392,9 @@ class MockBackend extends ActivityFinderBackendPluginBase {
         $facets['field_category_program']
       ));
     }
+
+    // Recompute weekday+time-of-day slot counts (af_weekdays_parts_of_day).
+    $facets['af_weekdays_parts_of_day'] = $this->recomputeWeekdaysPartsOfDay($filtered);
 
     return $facets;
   }
