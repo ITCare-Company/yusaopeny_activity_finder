@@ -2,24 +2,24 @@
     {
         "value": [
             {
-                "value": "25",
+                "value": "24",
+                "label": "[Downtown Springfield]"
+            },
+            {
+                "value": "61",
                 "label": "Downtown YMCA"
             },
             {
-                "value": "26",
+                "value": "62",
                 "label": "East YMCA"
             },
             {
-                "value": "27",
+                "value": "63",
                 "label": "South YMCA"
             },
             {
-                "value": "24",
+                "value": "60",
                 "label": "West YMCA"
-            },
-            {
-                "value": "5",
-                "label": "[Downtown Springfield]"
             }
         ],
         "label": "Branch"

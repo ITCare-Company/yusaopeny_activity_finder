@@ -164,8 +164,10 @@ class MockBackend extends ActivityFinderBackendPluginBase {
     $rows = $this->filterByField($rows, 'nid', is_array($ids) ? implode(',', $ids) : $ids);
     $rows = $this->filterByField($rows, 'location_id', $parameters['locations'] ?? '');
     $rows = $this->filterByField($rows, 'program_id', $parameters['categories'] ?? '');
+    $rows = $this->filterByAge($rows, $parameters['ages'] ?? '');
     $rows = $this->filterByKeyword($rows, $parameters['keywords'] ?? '');
     $rows = $this->filterByDays($rows, $parameters['days'] ?? '');
+    $rows = $this->filterByDaysTimes($rows, $parameters['daystimes'] ?? '');
     // Block-level restrictions: limit (only these) and exclude (remove these).
     $rows = $this->filterByField($rows, 'program_id', $parameters['limit'] ?? '');
     $rows = $this->filterByField($rows, 'location_id', $parameters['limitloc'] ?? '');
@@ -183,6 +185,147 @@ class MockBackend extends ActivityFinderBackendPluginBase {
       return $rows;
     }
     return array_filter($rows, fn($row) => in_array((string) ($row[$field] ?? ''), $selected, TRUE));
+  }
+
+  /**
+   * Keeps rows whose min_age/max_age range includes any selected age (months).
+   *
+   * Ages param is a comma-separated list of age values in months (e.g. "6,12").
+   * A row matches if at least one selected age satisfies:
+   *   selected >= min_age AND (max_age is null OR selected <= max_age)
+   */
+  protected function filterByAge(array $rows, string $csv): array {
+    $selected = array_filter(array_map('intval', explode(',', $csv)));
+    if (!$selected) {
+      return $rows;
+    }
+    return array_filter($rows, function ($row) use ($selected) {
+      $min = isset($row['min_age']) && $row['min_age'] !== null ? (int) $row['min_age'] : 0;
+      $max = isset($row['max_age']) && $row['max_age'] !== null ? (int) $row['max_age'] : PHP_INT_MAX;
+      foreach ($selected as $age) {
+        if ($age >= $min && $age <= $max) {
+          return TRUE;
+        }
+      }
+      return FALSE;
+    });
+  }
+
+  /**
+   * Recomputes af_weekdays_parts_of_day facets from filtered rows.
+   *
+   * Each session contributes two counts per weekday it runs on: the Anytime
+   * slot (always) and the specific time-of-day slot (Morning/Afternoon/Evening)
+   * derived from the row's start time. This mirrors how Solr tags sessions.
+   */
+  protected function recomputeWeekdaysPartsOfDay(array $filtered): array {
+    $daysTimes = $this->fixture('getDaysTimes');
+    $dayMap = [];
+    foreach ($daysTimes as $day) {
+      $sv = strtolower((string) ($day['search_value'] ?? ''));
+      $dayMap[$sv] = array_column($day['value'] ?? [], 'value');
+    }
+
+    $counts = [];
+    foreach ($filtered as $row) {
+      $days     = array_filter(array_map('trim', explode(',', strtolower((string) ($row['days'] ?? '')))));
+      $timesStr = (string) ($row['times'] ?? '');
+      $start    = $this->parseStartHour($timesStr);
+      $end      = $this->parseEndHour($timesStr) ?? $start;
+      // Determine which time-of-day slots this session overlaps (Solr overlap logic).
+      // Morning [0,12): session overlaps if start < 12.
+      // Afternoon [12,17): session overlaps if start < 17 AND end >= 12.
+      // Evening [17,∞): session overlaps if start >= 17 OR end > 17.
+      $sessionSlots = [];
+      if ($start !== NULL && $end !== NULL) {
+        if ($start < 12) { $sessionSlots[] = 1; }
+        if ($start < 17 && $end >= 12) { $sessionSlots[] = 2; }
+        if ($start >= 17 || $end > 17) { $sessionSlots[] = 3; }
+      }
+      foreach ($days as $dayName) {
+        if (!isset($dayMap[$dayName])) {
+          continue;
+        }
+        $slots = $dayMap[$dayName];
+        // Index 0 = Anytime: every session on this day.
+        if (isset($slots[0])) {
+          $counts[$slots[0]] = ($counts[$slots[0]] ?? 0) + 1;
+        }
+        // Count each time-of-day slot the session touches.
+        foreach ($sessionSlots as $slotIndex) {
+          if (isset($slots[$slotIndex])) {
+            $counts[$slots[$slotIndex]] = ($counts[$slots[$slotIndex]] ?? 0) + 1;
+          }
+        }
+      }
+    }
+
+    $result = [];
+    foreach ($daysTimes as $day) {
+      foreach ($day['value'] ?? [] as $slot) {
+        $filter = (string) $slot['value'];
+        if (isset($counts[$filter])) {
+          $result[] = ['filter' => $filter, 'count' => $counts[$filter]];
+        }
+      }
+    }
+    return $result;
+  }
+
+  /**
+   * Parses the start hour (0-23) from a times string like "5:00pm-6:00pm".
+   */
+  protected function parseStartHour(string $times): ?int {
+    if (!preg_match('/^(\d+):\d+\s*(am|pm)/i', trim($times), $m)) {
+      return NULL;
+    }
+    $hour = (int) $m[1];
+    $ampm = strtolower($m[2]);
+    if ($ampm === 'pm' && $hour !== 12) {
+      $hour += 12;
+    }
+    elseif ($ampm === 'am' && $hour === 12) {
+      $hour = 0;
+    }
+    return $hour;
+  }
+
+  /**
+   * Parses the end hour (0-23) from a times string like "5:00pm-6:00pm".
+   */
+  protected function parseEndHour(string $times): ?int {
+    if (!preg_match('/[-–]\s*(\d+):\d+\s*(am|pm)\s*$/i', trim($times), $m)) {
+      return NULL;
+    }
+    $hour = (int) $m[1];
+    $ampm = strtolower($m[2]);
+    if ($ampm === 'pm' && $hour !== 12) {
+      $hour += 12;
+    }
+    elseif ($ampm === 'am' && $hour === 12) {
+      $hour = 0;
+    }
+    return $hour;
+  }
+
+  /**
+   * Maps a start hour to a time-of-day slot index matching getDaysTimes.
+   *
+   * 1 = Morning  (Open – 12 p.m.)
+   * 2 = Afternoon (12 – 5 p.m.)
+   * 3 = Evening  (5 p.m. – Close)
+   */
+  protected function timeToSlotIndex(?int $hour): ?int {
+    if ($hour === NULL) {
+      return NULL;
+    }
+    if ($hour < 12) {
+      return 1;
+    }
+    if ($hour < 17) {
+      return 2;
+    }
+    return 3;
   }
 
   /**
@@ -227,6 +370,59 @@ class MockBackend extends ActivityFinderBackendPluginBase {
   }
 
   /**
+   * Filters rows to those matching any of the selected day+time slot IDs.
+   *
+   * Slot IDs come from getDaysTimes fixture (e.g. 13 = Monday Evening).
+   * Slot index within day: 0=Anytime, 1=Morning(<12), 2=Afternoon(12-17), 3=Evening(>=17).
+   * Uses the same overlap logic as recomputeWeekdaysPartsOfDay().
+   */
+  protected function filterByDaysTimes(array $rows, string $csv): array {
+    $selected = array_filter(array_map('trim', explode(',', $csv)));
+    if (!$selected) {
+      return $rows;
+    }
+    // Build map: slot_value => [day_name, slot_index].
+    $slotMap = [];
+    foreach ($this->fixture('getDaysTimes') as $day) {
+      $dayName = strtolower((string) ($day['search_value'] ?? ''));
+      foreach ($day['value'] ?? [] as $idx => $slot) {
+        $slotMap[(string) $slot['value']] = [$dayName, $idx];
+      }
+    }
+    return array_filter($rows, function ($row) use ($selected, $slotMap) {
+      $rowDays = array_filter(array_map('trim', explode(',', strtolower((string) ($row['days'] ?? '')))));
+      $timesStr = (string) ($row['times'] ?? '');
+      $start = $this->parseStartHour($timesStr);
+      $end   = $this->parseEndHour($timesStr) ?? $start;
+      foreach ($selected as $slotId) {
+        if (!isset($slotMap[$slotId])) {
+          continue;
+        }
+        [$dayName, $slotIdx] = $slotMap[$slotId];
+        if (!in_array($dayName, $rowDays, TRUE)) {
+          continue;
+        }
+        if ($slotIdx === 0) {
+          return TRUE;
+        }
+        if ($start === NULL) {
+          continue;
+        }
+        if ($slotIdx === 1 && $start < 12) {
+          return TRUE;
+        }
+        if ($slotIdx === 2 && $start < 17 && $end >= 12) {
+          return TRUE;
+        }
+        if ($slotIdx === 3 && ($start >= 17 || $end > 17)) {
+          return TRUE;
+        }
+      }
+      return FALSE;
+    });
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getResultsCount(array $parameters): int {
@@ -237,7 +433,73 @@ class MockBackend extends ActivityFinderBackendPluginBase {
    * {@inheritdoc}
    */
   public function getFacets(array $parameters): array {
-    return $this->searchFixture()['facets'] ?? [];
+    $facets = $this->searchFixture()['facets'] ?? [];
+    $filtered = $this->filterRows($parameters);
+
+    // Recompute sub-category counts (field_activity_category).
+    $subCounts = [];
+    foreach ($filtered as $row) {
+      $pid = (string) ($row['program_id'] ?? '');
+      if ($pid !== '') {
+        $subCounts[$pid] = ($subCounts[$pid] ?? 0) + 1;
+      }
+    }
+    if (isset($facets['field_activity_category'])) {
+      $facets['field_activity_category'] = array_values(array_map(
+        function ($cat) use ($subCounts) {
+          $cat['count'] = $subCounts[$cat['filter']] ?? 0;
+          return $cat;
+        },
+        $facets['field_activity_category']
+      ));
+    }
+
+    // Recompute top-level group counts (field_category_program).
+    if (isset($facets['field_category_program'])) {
+      $groupMap = [];
+      foreach ($this->fixture('getCategories') as $group) {
+        foreach ($group['value'] as $sub) {
+          $groupMap[(string) $sub['value']] = $group['label'];
+        }
+      }
+      $groupCounts = [];
+      foreach ($filtered as $row) {
+        $group = $groupMap[(string) ($row['program_id'] ?? '')] ?? null;
+        if ($group) {
+          $groupCounts[$group] = ($groupCounts[$group] ?? 0) + 1;
+        }
+      }
+      $facets['field_category_program'] = array_values(array_map(
+        function ($cat) use ($groupCounts) {
+          $cat['count'] = $groupCounts[$cat['filter']] ?? 0;
+          return $cat;
+        },
+        $facets['field_category_program']
+      ));
+    }
+
+    // Recompute location counts.
+    if (isset($facets['locations'])) {
+      $locCounts = [];
+      foreach ($filtered as $row) {
+        $lid = (string) ($row['location_id'] ?? '');
+        if ($lid !== '') {
+          $locCounts[$lid] = ($locCounts[$lid] ?? 0) + 1;
+        }
+      }
+      $facets['locations'] = array_values(array_map(
+        function ($loc) use ($locCounts) {
+          $loc['count'] = $locCounts[(string) $loc['id']] ?? 0;
+          return $loc;
+        },
+        $facets['locations']
+      ));
+    }
+
+    // Recompute weekday+time-of-day slot counts (af_weekdays_parts_of_day).
+    $facets['af_weekdays_parts_of_day'] = $this->recomputeWeekdaysPartsOfDay($filtered);
+
+    return $facets;
   }
 
   /**

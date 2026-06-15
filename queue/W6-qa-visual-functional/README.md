@@ -20,6 +20,7 @@ it is driven by the "Progress — Ira QA view" table in
 | P4 | Filters (16 filter components) | @ira | pending |
 | P5 | Responsive parity (1920 / 1024 / 468 across all screens) | @ira | pending |
 | P6 | URL query state — deep link, reload, back/forward (PR #11 fix) | @ira | pending |
+| P7 | MockBackend filtering — age, categories, locations, daystimes (PR #12) | @shuklina | pending |
 
 **P0–P5 blocked until Psetup is done.**
 
