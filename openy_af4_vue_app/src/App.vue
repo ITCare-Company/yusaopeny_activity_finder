@@ -713,6 +713,7 @@ export default {
     }
   },
   created() {
+    this._restoringFromHistory = false
     this.getDataFromUrl()
     this.loadData()
     this.getHomeBranchResultsCount()
@@ -721,10 +722,12 @@ export default {
     window.removeEventListener('popstate', this._popstateHandler)
   },
   mounted() {
-    this._restoringFromHistory = false
     this._popstateHandler = () => {
       this._restoringFromHistory = true
       this.getDataFromUrl()
+      this.$nextTick(() => {
+        this._restoringFromHistory = false
+      })
     }
     window.addEventListener('popstate', this._popstateHandler)
     if (localStorage.getItem(this.cartItemsKey)) {
@@ -870,13 +873,15 @@ export default {
       }
 
       if (this._restoringFromHistory) {
-        this._restoringFromHistory = false
         return
       }
       const params = new URLSearchParams(query)
       const newUrl = params.toString()
         ? window.location.pathname + '?' + params.toString()
         : window.location.pathname
+      if (newUrl === window.location.pathname + (window.location.search || '')) {
+        return
+      }
       history.pushState({}, '', newUrl)
     },
     onFilterChange(event, callback = () => {}) {
