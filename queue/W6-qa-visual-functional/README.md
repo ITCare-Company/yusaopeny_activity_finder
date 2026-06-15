@@ -10,20 +10,24 @@ it is driven by the "Progress — Ira QA view" table in
 
 ## Phases
 
-| Phase | Scope | Status |
-|---|---|---|
-| P0 | Entry + SelectPath (App, SelectPath, WizardBar, Step) | pending |
-| P1 | Wizard steps (7 step screens) | pending |
-| P2 | Results (Results, ResultsList, ResultsBar, AvailableSpots, NoResults, Loading) | pending |
-| P3 | Modals (6 modals) | pending |
-| P4 | Filters (16 filter components) | pending |
-| P5 | Responsive parity (1920 / 1024 / 468 across all screens) | pending |
-| P6 | MockBackend filtering + URL state (PR #12) | pending |
+| Phase | Scope | Owner | Status |
+|---|---|---|---|
+| Psetup | Deploy sandbox — accessible test URL for Ira | @svicervlad | pending |
+| P0 | Entry + SelectPath (App, SelectPath, WizardBar, Step) | @ira | pending |
+| P1 | Wizard steps (7 step screens) | @ira | pending |
+| P2 | Results (Results, ResultsList, ResultsBar, AvailableSpots, NoResults, Loading) | @ira | pending |
+| P3 | Modals (6 modals) | @ira | pending |
+| P4 | Filters (16 filter components) | @ira | pending |
+| P5 | Responsive parity (1920 / 1024 / 468 across all screens) | @ira | pending |
+| P6 | URL query state — deep link, reload, back/forward (PR #11 fix) | @ira | pending |
+| P7 | MockBackend filtering — age, categories, locations, daystimes (PR #12) | @shuklina | pending |
+
+**P0–P5 blocked until Psetup is done.**
 
 ## How a phase works (Ira loop)
 
 For each component in the phase's group:
-1. Open the screen on the Vue 3 build (live or harness).
+1. Open the screen on the Vue 3 build at the URL from Psetup.
 2. Capture at the QA viewport(s); diff against `W0-baseline-contract/P1-behavioral-baseline/baseline/<screen>-<vp>.png`.
 3. **Match** → set `verified = ✓` in the INDEX progress table + `inventory.tsv`.
    **Mismatch** → write the delta in the `Note` column, file a `fix(af4)`
@@ -47,7 +51,7 @@ See [`DECISIONS.md`](DECISIONS.md).
 
 ## Test site
 
-**URL:** https://af4-migration.ddev.site/activity-finder-v4-layout-builder
+**URL:** set by @svicervlad — see [`Psetup-sandbox-deploy/README.md`](Psetup-sandbox-deploy/README.md)
 **Backend:** Mock (no Solr needed — 31 static sessions)
 **W0 baseline screenshots:** `queue/W0-baseline-contract/P1-behavioral-baseline/screenshots/`
 **W6 reference screenshots (Vue 3 smoke):** `queue/W6-qa-visual-functional/screenshots/`

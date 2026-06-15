@@ -75,6 +75,7 @@ Keep order by wave, then phase.
 | P3 `filters/Ages.vue` + `steps/SelectAges.vue` | pending | [`W4-bootstrap-vue-migration/P3-ages/README.md`](W4-bootstrap-vue-migration/P3-ages/README.md) |
 | P4 `ResultsBar.vue` | pending | [`W4-bootstrap-vue-migration/P4-resultsbar/README.md`](W4-bootstrap-vue-migration/P4-resultsbar/README.md) |
 | P5 remove `Vue.use(BootstrapVue)` + prune dep + dead-CSS reconcile | pending | [`W4-bootstrap-vue-migration/P5-remove-global/README.md`](W4-bootstrap-vue-migration/P5-remove-global/README.md) |
+| P6 hand-rolled modal a11y restore (focus trap / aria / scroll-lock) | pending | [`W4-bootstrap-vue-migration/P6-modal-a11y/README.md`](W4-bootstrap-vue-migration/P6-modal-a11y/README.md) |
 
 ## W5 — Vue 3 API rewrites
 
@@ -87,6 +88,7 @@ Keep order by wave, then phase.
 | P4 FontAwesome v3 + Iconify swap | pending | [`W5-vue3-api-rewrites/P4-fontawesome-iconify/README.md`](W5-vue3-api-rewrites/P4-fontawesome-iconify/README.md) |
 | P5 eslint-plugin-vue 9 + prettier bump | pending | [`W5-vue3-api-rewrites/P5-lint-prettier/README.md`](W5-vue3-api-rewrites/P5-lint-prettier/README.md) |
 | P6 axios → native fetch | pending | [`W5-vue3-api-rewrites/P6-axios-fetch/README.md`](W5-vue3-api-rewrites/P6-axios-fetch/README.md) |
+| P7 fetch error + config parity (follow-up to P6) | pending | [`W5-vue3-api-rewrites/P7-fetch-error-parity/README.md`](W5-vue3-api-rewrites/P7-fetch-error-parity/README.md) |
 
 ## W6 — QA visual + functional (Ira)
 
@@ -105,6 +107,7 @@ Keep order by wave, then phase.
 |---|---|---|
 | P0 Production build + contract verify | pending | [`W7-drupal-integration-ship/P0-prod-build-contract/README.md`](W7-drupal-integration-ship/P0-prod-build-contract/README.md) |
 | P1 drush smoke on a live Open Y site | pending | [`W7-drupal-integration-ship/P1-drush-smoke/README.md`](W7-drupal-integration-ship/P1-drush-smoke/README.md) |
+| P3 CSP review for esm-bundler runtime compiler | pending | [`W7-drupal-integration-ship/P3-csp-runtime-compiler/README.md`](W7-drupal-integration-ship/P3-csp-runtime-compiler/README.md) |
 | P2 PR to fork | pending | [`W7-drupal-integration-ship/P2-pr/README.md`](W7-drupal-integration-ship/P2-pr/README.md) |
 
 ## W8 — Retro & upstream (after all done)
@@ -130,6 +133,9 @@ Keep order by wave, then phase.
 | W6 | [`W6-qa-visual-functional/README.md`](W6-qa-visual-functional/README.md) | [`DECISIONS.md`](W6-qa-visual-functional/DECISIONS.md) |
 | W7 | [`W7-drupal-integration-ship/README.md`](W7-drupal-integration-ship/README.md) | (single-surface wave) |
 | W8 | [`W8-retro-upstream/README.md`](W8-retro-upstream/README.md) | [`DECISIONS.md`](W8-retro-upstream/DECISIONS.md) |
+
+**Queue-level follow-ups (next tasks):** [`FOLLOWUPS.md`](FOLLOWUPS.md) — review
+parking lot (status sync, `.DS_Store`, dist policy, anatomy completeness).
 
 ---
 

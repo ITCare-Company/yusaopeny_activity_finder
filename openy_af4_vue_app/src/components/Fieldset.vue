@@ -121,7 +121,7 @@ export default {
     }
 
     .title {
-      font-family: var(--ylb-font-family-cachet, Cachet), Verdana, sans-serif;
+      font-family: $af-font-cachet;
       font-size: 32px;
       line-height: 34px;
       font-weight: 500;
@@ -249,7 +249,7 @@ export default {
             border-radius: 5px;
             display: flex;
             margin: 0;
-            font-family: Verdana, Geneva, sans-serif;
+            font-family: $af-font-body;
             height: 100%;
             padding: 10px;
             line-height: 28px;
