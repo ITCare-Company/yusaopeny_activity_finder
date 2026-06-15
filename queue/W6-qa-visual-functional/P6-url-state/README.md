@@ -20,10 +20,12 @@ Verify that URL query state works correctly after the PR #11 fix
 | Back button (multiple) | Step through 3+ steps, press Back repeatedly | Each Back restores correct prior state |
 | Back to page start | Press Back from first AF step | Browser leaves AF page — no stuck loop |
 | Forward button | Back then Forward | Correct state in both directions |
+| Deep link Back (1 press) | Open `?step=selectAges&selectedAges=6`, press Back **once** | Browser leaves AF page — no second press needed |
+| Deep link → Back → Forward → filter | Open deep link → Back → Forward → change a filter | URL updates in address bar (flag not stale) |
 
 ## Done when
 
-All 7 scenarios pass. No regressions in P0–P5 visual/functional checks.
+All 9 scenarios pass. No regressions in P0–P5 visual/functional checks.
 
 ## Validation
 

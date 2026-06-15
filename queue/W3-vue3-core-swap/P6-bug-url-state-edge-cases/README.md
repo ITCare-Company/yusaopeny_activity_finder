@@ -2,8 +2,8 @@
 
 **Found during:** post-merge review of PR #11.
 **Owner:** Lera.
-**Status:** OPEN.
-**QA:** covered by `W6-qa-visual-functional/P6-url-state/` scenarios once fixed.
+**Status:** FIXED — PR #14 (`fix/af4-url-history-edge-cases`).
+**QA:** covered by `W6-qa-visual-functional/P6-url-state/` scenarios (all 7 + 2 new deep-link/Back).
 
 Two related edge-case bugs in `openy_af4_vue_app/src/App.vue`, both fallout
 of the vue-router → native History API swap. Main flows work; these bite on
@@ -81,4 +81,7 @@ All 7 scenarios in `W6-qa-visual-functional/P6-url-state/README.md`, plus:
 
 ## Result
 
-(to be filled when fixed)
+Fixed in PR #14. All 3 items from Fix direction applied to `App.vue`:
+- `created()` initializes `_restoringFromHistory = false` (App.vue:716)
+- `popstate` handler clears flag via `$nextTick` (App.vue:728–730)
+- `updateUrl()` same-URL guard before `pushState` (App.vue:882–884)
