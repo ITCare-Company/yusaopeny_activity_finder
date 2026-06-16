@@ -254,6 +254,7 @@ export default {
     font-weight: 700;
     line-height: 28px;
     text-transform: capitalize;
+    margin-left: 8px;
   }
 }
 
