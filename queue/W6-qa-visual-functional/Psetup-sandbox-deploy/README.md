@@ -23,6 +23,8 @@ can run W6 QA without a local DDEV setup.
 - Activity finder loads, shows mock results, modals open
 - URL posted in README + JIRA comment
 
+**Status: DONE** — https://af4-vue3.itcaresolutions.org/activity-finder-v4-layout-builder
+
 ## Out of scope
 
 - Any code fixes — this is deploy-only

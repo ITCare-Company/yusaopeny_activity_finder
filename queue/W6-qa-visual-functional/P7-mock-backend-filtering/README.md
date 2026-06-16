@@ -16,7 +16,7 @@
 
 ## Test site
 
-**URL base:** https://af4-migration.ddev.site/activity-finder-v4-layout-builder
+**URL base:** https://af4-vue3.itcaresolutions.org/activity-finder-v4-layout-builder
 **Backend:** Mock (31 static sessions, no Solr)
 
 ---
