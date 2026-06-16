@@ -3,7 +3,7 @@
     <div
       v-if="visible"
       class="modal-backdrop show"
-      style="position: fixed; top: 0; left: 0; z-index: 2040; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5);"
+      style="position: fixed; top: 0; left: 0; z-index: 2040; width: 100vw; height: 100vh; background: rgba(0,0,0,1);"
       @click="close"
     ></div>
     <div
@@ -13,7 +13,7 @@
       :id="id"
       role="dialog"
       tabindex="-1"
-      style="display: block; position: fixed; top: 0; left: 0; z-index: 2050; width: 100%; height: 100%; overflow-y: auto;"
+      style="display: block; position: fixed; top: 0; left: 0; z-index: 2050; width: 100%; height: 100%; overflow: hidden;"
       @click.self="close"
     >
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable af-modal-dialog">
@@ -52,13 +52,17 @@ export default {
   },
   watch: {
     modelValue(val) { this.visible = val },
-    visible(val) { this.$emit('update:modelValue', val) }
+    visible(val) {
+      this.$emit('update:modelValue', val)
+      document.body.style.overflow = val ? 'hidden' : ''
+    }
   },
   mounted() {
     document.addEventListener('keydown', this.handleKeydown)
   },
   beforeUnmount() {
     document.removeEventListener('keydown', this.handleKeydown)
+    document.body.style.overflow = ''
   },
   methods: {
     close() { this.visible = false },
@@ -170,8 +174,8 @@ export default {
 
     .close {
       color: $af-dark-gray;
-      font-size: 3rem;
-      font-weight: 100;
+      font-size: 1.5rem;
+      font-weight: 400;
       padding: 0;
       margin: 0 0 0 auto !important;
       width: 50px;
