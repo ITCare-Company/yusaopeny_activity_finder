@@ -51,7 +51,7 @@ See [`DECISIONS.md`](DECISIONS.md).
 
 ## Test site
 
-**URL:** set by @svicervlad — see [`Psetup-sandbox-deploy/README.md`](Psetup-sandbox-deploy/README.md)
+**URL:** https://af4-vue3.itcaresolutions.org/activity-finder-v4-layout-builder
 **Backend:** Mock (no Solr needed — 31 static sessions)
 **W0 baseline screenshots:** `queue/W0-baseline-contract/P1-behavioral-baseline/screenshots/`
 **W6 reference screenshots (Vue 3 smoke):** `queue/W6-qa-visual-functional/screenshots/`
