@@ -105,18 +105,59 @@ devtools console for Vue-instance conflicts.
   `devDependencies` (stale from the eslint-plugin-vue 7 config; W5-P5 is
   supposed to bump this and hasn't shipped). Not introduced by W9-P0, not
   fixed here — flagged in `FOLLOWUPS.md`.
-- **Smoke test:** local harness (external `vue@3.5.41` from cdnjs + built
-  UMD + stubbed `window.Drupal.t`/`formatPlural`, no real backend) loads
-  with **zero console errors** — confirms the external-Vue wiring itself
-  doesn't crash boot. The app did **not** visibly mount in that harness,
-  because it depends on a live `af/get-data` / session-data endpoint the
-  harness doesn't provide — same as pre-W9 behavior with no backend, not a
-  regression from externalizing. **Full functional/visual verification
-  (including the AF3/Camp-Finder co-load collision check from the wave
-  README) requires a live or Mock-backend Drupal site and is still
-  outstanding** before this ships — do not merge past P0 without it.
+- **Live-site verification (westcookymca.org, remote ddev, Mock backend):**
+  a throwaway local harness with a stubbed backend was **not sufficient** —
+  it never caught that `openy_system/vue3` didn't actually exist in the
+  site's locked dependency version. Redid the check against a real,
+  running Open Y site instead:
+  - Path-repo'd this branch into `westcookymca.org` (`ddev composer update`),
+    placed the `activity_finder_4` block on the front page (Mock backend —
+    this site has no Solr).
+  - **First real bug caught:** `open-y-subprojects/openy_custom` was
+    locked to `3.1.5` on that site — `vue3:` was only added in `3.2.0`
+    (commit `35ae6b68`, same ITCR-1273/ITCR-1301 work). Without a version
+    constraint, `openy_system/vue3` doesn't resolve and Drupal throws on
+    the library definition. **Fixed properly**: added
+    `"open-y-subprojects/openy_custom": "^3.2.0"` to this module's own
+    `composer.json` `require` (separate commit) — not a one-off `composer
+    require` on the test site, an actual dependency declaration so this
+    doesn't silently break wherever AF4 installs next.
+  - **After the fix:** loaded the real page. `#activity-finder` mounted,
+    full wizard rendered (Age/Day & Time/Location/Activity + keyword
+    search), `openy_system/vue3` (cdnjs 3.5.41 global build) loaded and
+    is what's driving it. Clicked into "Activity" — step routing via
+    `?step=selectActivities` worked, category list rendered from the Mock
+    backend (Health and Fitness, Kids and Family Activities, Swimming).
+  - **Second real bug caught, unrelated to W9:** clicking into a step
+    throws `TypeError: Cannot read properties of undefined (reading
+    'getBoundingClientRect')` in `Step.vue`'s `handleSticky()` —
+    `this.$refs.bottom` is referenced but no element in the template
+    carries `ref="bottom"` (only `bottomDesktop` exists). Non-fatal (page
+    stays interactive), but a genuine pre-existing gap in the Vue 3
+    migration — also uses the Vue 2 lifecycle name `beforeDestroy` instead
+    of `beforeUnmount`. **Not fixed here** — out of scope for W9-P0 (it's
+    a W4/W5 migration bug, would reproduce identically with Vue bundled),
+    flagged in `FOLLOWUPS.md` for Lera.
+  - **AF3/Camp-Finder `window.Vue` collision — attempted, inconclusive.**
+    Placed the AF3 block (`activity_finder_block`) on the same page to
+    check the collision this phase exists to de-risk. It never got that
+    far: AF3's block config on this site points at
+    `openy_activity_finder.solr_backend`, which isn't registered (site
+    only has `mock`) — **500 error before any JS ran**, unrelated to Vue
+    or this change. Removed the test block. **The actual collision check
+    is still unverified** — needs a site where AF3 (or Camp Finder) has a
+    working backend configured, or a synthetic page that mounts both
+    without going through the block config path.
+  - Cleaned up: both test blocks deleted, test site's `composer.json` /
+    `composer.lock` reverted to their pre-test state (only this repo's
+    branch carries the real fix).
 
-**Status:** code change + build-level verification done. Live-site
-functional/visual QA (W6-style) and the cross-app `window.Vue` collision
-check remain **pending** — this phase is not done-when-complete until those
-run.
+**Status:** Externalize wiring **verified working on a real, running Open Y
+site** (not a synthetic harness) — bundle loads, mounts, renders, and is
+interactive against a Mock backend, zero console errors from the externalize
+change itself. One dependency-version bug found and fixed as part of this
+phase (`openy_custom` ^3.2.0). One pre-existing, unrelated Vue3-migration bug
+found and flagged, not fixed. **Still pending before ship:** the AF3/Camp
+Finder `window.Vue` collision check (blocked on finding/building an
+environment where AF3 actually boots), and a full W6-style visual diff
+against the W0 baseline.
