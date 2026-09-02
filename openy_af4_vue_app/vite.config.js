@@ -12,9 +12,6 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      // Force full Vue build (runtime + compiler) — needed for root component DOM template compilation.
-      // The root component mounts to #activity-finder and uses innerHTML as template (twig-rendered props).
-      'vue': 'vue/dist/vue.esm-bundler.js',
       '@': path.resolve(__dirname, 'src')
     },
     extensions: ['.mjs', '.js', '.json', '.vue']
@@ -41,7 +38,14 @@ export default defineConfig({
     },
     rollupOptions: {
       // W5-P6: axios removed — all HTTP via native fetch, zero external deps.
+      // W9-P0: vue externalized to openy_system/vue3 (window.Vue global,
+      // vue.global.prod.min.js — full runtime+compiler build, so the root
+      // component's innerHTML/DOM-template mount still compiles at runtime).
+      external: ['vue'],
       output: {
+        globals: {
+          vue: 'Vue'
+        },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'style.css') return 'activity_finder_4.css'
           return assetInfo.name

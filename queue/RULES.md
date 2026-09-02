@@ -125,6 +125,10 @@ phase needs explicit owner approval at three points:
   build's auto-external so `vue` is bundled. `libraries.yml` changes **only** if
   the team chooses to **externalize** to a new `openy_system/vue3` — i.e. when
   there is actually something to externalize. (MIGRATION-REFERENCE §7A.)
+  **Update (post-`openy_repeat` MR!14):** `openy_system/vue3` now exists —
+  externalizing is handled as its own wave, [`W9-bundle-decouple`](W9-bundle-decouple/README.md),
+  after W7 ships. Do not fold it into W1–W7 mid-stream; W1-D4 (bundle) stays
+  the locked decision for the migration itself.
 
 ## Backend plugin rules (W0b)
 

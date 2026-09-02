@@ -119,6 +119,12 @@ Keep order by wave, then phase.
 | P2 Subtree-import queue as PKB entry | pending | [`W8-retro-upstream/P2-subtree-import-pkb/README.md`](W8-retro-upstream/P2-subtree-import-pkb/README.md) |
 | P3 Back-reference + close ITCR-1273 | pending | [`W8-retro-upstream/P3-backreference-close/README.md`](W8-retro-upstream/P3-backreference-close/README.md) |
 
+## W9 — Bundle decouple (post-ship, independent of W0–W8)
+
+| Phase | Status | Path |
+|---|---|---|
+| P0 Externalize `vue`/`vue-router` to `openy_system/vue3` | pending | [`W9-bundle-decouple/P0-externalize-vue3/README.md`](W9-bundle-decouple/P0-externalize-vue3/README.md) |
+
 ## Wave-level docs
 
 | Wave | README | DECISIONS |
@@ -133,6 +139,7 @@ Keep order by wave, then phase.
 | W6 | [`W6-qa-visual-functional/README.md`](W6-qa-visual-functional/README.md) | [`DECISIONS.md`](W6-qa-visual-functional/DECISIONS.md) |
 | W7 | [`W7-drupal-integration-ship/README.md`](W7-drupal-integration-ship/README.md) | (single-surface wave) |
 | W8 | [`W8-retro-upstream/README.md`](W8-retro-upstream/README.md) | [`DECISIONS.md`](W8-retro-upstream/DECISIONS.md) |
+| W9 | [`W9-bundle-decouple/README.md`](W9-bundle-decouple/README.md) | (single-phase wave) |
 
 **Queue-level follow-ups (next tasks):** [`FOLLOWUPS.md`](FOLLOWUPS.md) — review
 parking lot (status sync, `.DS_Store`, dist policy, anatomy completeness).

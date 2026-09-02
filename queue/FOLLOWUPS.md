@@ -13,6 +13,7 @@ not duplicated.
 - **fetch error + config parity** → [`W5-vue3-api-rewrites/P7-fetch-error-parity/`](W5-vue3-api-rewrites/P7-fetch-error-parity/README.md)
 - **hand-rolled modal a11y** → [`W4-bootstrap-vue-migration/P6-modal-a11y/`](W4-bootstrap-vue-migration/P6-modal-a11y/README.md)
 - **esm-bundler CSP review** → [`W7-drupal-integration-ship/P3-csp-runtime-compiler/`](W7-drupal-integration-ship/P3-csp-runtime-compiler/README.md)
+- **externalize Vue 3 runtime (revisit W1-D4)** → [`W9-bundle-decouple/P0-externalize-vue3/`](W9-bundle-decouple/P0-externalize-vue3/README.md) — `openy_repeat` MR!14 proved the `openy_system/vue3` externalize path D4 originally lacked; runs post-W7, independent wave.
 
 ## Queue hygiene (chore(queue), one nuance per commit)
 
