@@ -78,4 +78,45 @@ devtools console for Vue-instance conflicts.
 
 ## Result
 
-_(pending — fill after ship: exact size before/after, commit SHA)_
+- `vite.config.js`: `vue` marked `external` (`output.globals: { vue: 'Vue' }`),
+  removed the `vue/dist/vue.esm-bundler.js` local-resolution alias (no longer
+  needed — UMD wrapper now reads `require('vue')` / `window.Vue` directly).
+  `openy_system/vue3` loads the **global** build
+  (`vue.global.prod.min.js`), which is the full runtime+compiler build, so
+  the root component's DOM-template mount still compiles at runtime.
+- `package.json`: `vue` moved `dependencies` → `devDependencies` (still
+  needed locally for build/lint, no longer shipped in the bundle).
+  `vue-router` left untouched — grepped `src/`, it is **not imported
+  anywhere** in AF4 (dead dependency predating this queue, unrelated to W9;
+  flagged in `FOLLOWUPS.md`, not fixed here — out of scope).
+- `openy_activity_finder.libraries.yml`: added `openy_system/vue3` to
+  `activity_finder_4` dependencies. `openy_system/vue3` already exists
+  (`open-y-subprojects/openy_custom`, pinned `3.5.41` via cdnjs), added
+  alongside the `openy_repeat` MR!14 work — no duplicate library created.
+- **Bundle size:** `dist/activity_finder_4.umd.min.js` **373.4K → 222.3K**
+  (**−151.1K, ≈40%**). `.css` unchanged (48.5K, styles aren't affected by
+  the JS externalize).
+- **Verified:** UMD header now reads
+  `require("vue")` / `t.Vue` — inspected the built output directly, confirms
+  Rollup did not inline Vue's source (no `function createApp` definition in
+  the bundle, only call-sites). `npm run build` and `npm run lint` run
+  clean-ish — **`npm run lint` fails on a pre-existing issue** unrelated to
+  this change: `.eslintrc.js` requires `babel-eslint`, which isn't in
+  `devDependencies` (stale from the eslint-plugin-vue 7 config; W5-P5 is
+  supposed to bump this and hasn't shipped). Not introduced by W9-P0, not
+  fixed here — flagged in `FOLLOWUPS.md`.
+- **Smoke test:** local harness (external `vue@3.5.41` from cdnjs + built
+  UMD + stubbed `window.Drupal.t`/`formatPlural`, no real backend) loads
+  with **zero console errors** — confirms the external-Vue wiring itself
+  doesn't crash boot. The app did **not** visibly mount in that harness,
+  because it depends on a live `af/get-data` / session-data endpoint the
+  harness doesn't provide — same as pre-W9 behavior with no backend, not a
+  regression from externalizing. **Full functional/visual verification
+  (including the AF3/Camp-Finder co-load collision check from the wave
+  README) requires a live or Mock-backend Drupal site and is still
+  outstanding** before this ships — do not merge past P0 without it.
+
+**Status:** code change + build-level verification done. Live-site
+functional/visual QA (W6-style) and the cross-app `window.Vue` collision
+check remain **pending** — this phase is not done-when-complete until those
+run.
