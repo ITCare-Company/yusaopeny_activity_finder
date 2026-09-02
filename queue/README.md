@@ -88,6 +88,7 @@ developed **without standing up Solr**.
 | W6-qa-visual-functional | Walk every screen/step/modal/filter at desktop/tablet/mobile, diff vs W0 baseline. **Ira's wave** — driven by the progress table in `INDEX.md`. | [`W6-qa-visual-functional/`](W6-qa-visual-functional/) |
 | W7-drupal-integration-ship | Production build, verify UMD global + `.css` + `libraries.yml` contract, drush smoke on a real Open Y site, open PR. | [`W7-drupal-integration-ship/`](W7-drupal-integration-ship/) |
 | W8-retro-upstream | **After all done.** Harvest lessons, PR them into the shared migration anatomy, subtree-import this queue as a PKB entry, back-reference + close ITCR-1273. Fulfils the anatomy-upstream-PR obligation. | [`W8-retro-upstream/`](W8-retro-upstream/) |
+| W9-bundle-decouple | **Post-ship optimization, independent of W0–W8.** Revisit W1-D4: externalize `vue`/`vue-router` out of the AF4 UMD bundle into `openy_system/vue3`, mirroring `openy_repeat` MR!14. Runs after W7 ships. | [`W9-bundle-decouple/`](W9-bundle-decouple/) |
 
 **Gating.** W0-P0 (contract) lands first. **W0b** (backend plugins + Mock +
 demo content) gates **W0-P1** — no reproducible baseline without a runnable
@@ -98,6 +99,8 @@ core swap). W3 blocks W4–W5. W4+W5 block W6 (nothing to QA until code
 migrated). W6 blocks W7 (do not ship un-QA'd output). W7 blocks W8 (only retro
 a shipped migration). W8 returns lessons to
 [`template_for_agents` migration anatomy](https://github.com/ITCare-Company/template_for_agents/blob/main/process-knowledge-base/MIGRATION-QUEUE-ANATOMY.md).
+**W9 is not gated by W8** — it is an independent optimization that can land
+any time after W7 ships (before or after the W8 retro).
 
 ## Conventions
 
