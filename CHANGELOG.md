@@ -22,8 +22,32 @@ for full discussion, review history, and measured bundle-size deltas.
   hardcoded global service. `runProgramSearch()` decomposed into
   `getResultsCount()` / `getFacets()` / `getResults(offset, limit)`. Shared
   by all three apps (AF4, AF3, Camp Finder) via one factory.
-- **Mock backend** — fixture-driven backend requiring no live Solr stack;
-  new install default. Enables local dev/QA without infrastructure.
+- **Mock backend** (`src/Plugin/ActivityFinderBackend/MockBackend.php`, plugin
+  id `mock`) — fixture-driven backend requiring no live Solr stack; new
+  install default (`openy_activity_finder.settings:backend`). Enables
+  AF4/AF3/Camp Finder dev and QA with zero infrastructure.
+  - Filters one captured dataset (31 sessions from a real Solr response,
+    `fixtures/runProgramSearch_empty.json`) in-memory through a 9-stage
+    pipeline: id, location, category, age, keyword, day, day+time-slot,
+    plus block-level `limit`/`exclude` restrictions.
+  - Recomputes 4 facet dimensions on every request — sub-category,
+    top-level category group, location, and weekday × time-of-day — from
+    the *filtered* rows rather than passing through static fixture totals.
+    The weekday/time-of-day facet uses the same slot-overlap boundary
+    logic Solr applies (a session running 11am–12pm counts in both
+    Morning and Afternoon), independently verified against live Solr
+    counts.
+  - Fixture dates self-shift forward by whole weeks from a capture anchor
+    (`fixtures/_meta.json`) so results never drift into the past, while
+    preserving each session's weekday; handles both single dates and
+    date ranges (`"Jun 08-Jun 09"`).
+  - Response shape validated against
+    `fixtures/schema/runProgramSearch.schema.json` — kept wire-compatible
+    with the Solr backend.
+  - Documented as best-effort, not full Solr parity: keyword match is a
+    plain substring check on name+description (no relevance scoring), and
+    `getProgramsMoreInfo()` (deferred/live availability lookup) is
+    unimplemented (returns `[]`).
 - Per-block backend selector (single `select`: "Site default" or an
   explicit plugin id).
 - `getExternals()` on the backend contract — backends can attach extra data
@@ -127,6 +151,14 @@ for full discussion, review history, and measured bundle-size deltas.
   unused — dead dependencies, no functional impact.
 - No full visual/functional QA pass recorded across every AF4 screen
   (desktop/tablet/mobile) at this head.
+- Mock backend: the fixture date-shift (`shiftToNow()`) applies a single
+  `$captured_year` to both ends of a date range — a range spanning a
+  year boundary (e.g. Dec 30–Jan 2) would shift incorrectly. Not observed
+  in the current fixture set, found by code review, not covered by a test.
+- Mock backend: the weekday/time-of-day slot-overlap boundary logic
+  (Morning/Afternoon/Evening cutoffs) is duplicated between
+  `recomputeWeekdaysPartsOfDay()` and `filterByDaysTimes()` — a future
+  change to match Solr's boundaries needs updating both call sites.
 
 #### Upgrade notes
 
